@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="../css/icons.css">
+    <link rel="stylesheet" href="../css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../javascript/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="main_container">
+        <div class="main_wrapper">
+            <div class="logo_container">
+                <p class="logo">ZABLOT</p>
+                <div>
+                    <i></i>
+                    <div></div>
+                </div>
+            </div>
+            <div class="wrapper_home_screen">
+                <div class="svg_container">
+                    <div class="svg1">
+                        <img src="images/lover_book.svg" alt="">
+                    </div>
+                </div>
+                <div class="index_main_body">
+                    <h2 class="preview_text">SCHOLAR CHALLENGE</h2>
+                    <div class="signin_signup_container">
+                        <a href="/login" class="sign_in">
+                            SIGN IN
+                        </a>
+                        <a href="/register" class="sign_up">
+                            SIGN UP
+                        </a>
+                        <%- include('validation') -%>
+                    </div>
+                </div>
+                <div class="svg_container">
+                    <div class="svg2">
+                        <img src="images/maths.svg" alt="">
+                        <img src="images/knowledge.svg" alt="">
+                        <img src="images/learning.svg" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../footer') -%>
+        <script src="../javascript/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

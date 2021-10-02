@@ -1,3 +1,9 @@
 module.exports = {
-  reactStrictMode: true,
-}
+	reactStrictMode: false,
+	eslint: {ignoreDuringBuilds: true},
+	resolve: {
+		fallback: {
+			util: require.resolve("util/"),
+		},
+	},
+};

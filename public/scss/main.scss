@@ -1,0 +1,2252 @@
+@import "./variable";
+
+*,
+:focus,
+:active {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	outline: none;
+	border: none;
+}
+
+body {
+	font-family: Pop;
+	background: map-get($color, "white");
+	width: 100vw;
+	overflow: hidden;
+	height: 100vh;
+}
+.icon {
+	cursor: pointer;
+}
+.toolpit {
+	position: absolute;
+	top: 4px;
+	left: 20px;
+	z-index: 100000;
+	background: black;
+	color: #c3bcbc;
+	font-size: 10px;
+	padding: 5px 10px;
+	font-weight: 600;
+	display: none;
+	border-radius: 5px;
+
+	&.show {
+		display: block;
+	}
+	&::before {
+		position: absolute;
+		left: 43%;
+		content: "";
+		background: inherit;
+		bottom: -4px;
+		height: 10px;
+		width: 10px;
+		transform: rotateZ(135deg) translateX(-13%);
+	}
+
+	span {
+		position: relative;
+		z-index: 10;
+	}
+}
+@mixin remove() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin expand() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin Media() {
+	@media (min-width: 800px) {
+		@content;
+	}
+}
+
+@mixin media_1049 {
+	@media (max-width: 1049px) {
+		@content;
+	}
+}
+@mixin media_649 {
+	@media (max-width: 649px) {
+		@content;
+	}
+}
+@mixin media_549 {
+	@media (max-width: 549px) {
+		@content;
+	}
+}
+@mixin media_399 {
+	@media (max-width: 399px) {
+		@content;
+	}
+}
+@mixin users() {
+	.users {
+		list-style: none;
+		padding: 0px 10px;
+
+		.user {
+			border-radius: 50px;
+			background: map-get($color, "white");
+			display: flex;
+			padding: 5px 10px;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10px;
+			box-shadow: $shadow;
+
+			.image {
+				height: 35px;
+				width: 35px;
+				border-radius: 50px;
+			}
+
+			.btn-wrapper {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				height: 100%;
+			}
+			.btn {
+				height: 30px;
+				border-radius: 50px;
+				width: 80px;
+				display: grid;
+				place-items: center;
+				font-size: map-get($fonts, "smaller");
+				font-weight: 600;
+				background: map-get($map: $color, $key: "lightergrey");
+				color: map-get($color, "skyblue");
+			}
+		}
+
+		.user-profile {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.user-name {
+				margin-left: 5px;
+				font-weight: 600;
+				line-height: 15px;
+				color: map-get($map: $color, $key: "brown");
+				font-size: map-get($fonts, "small");
+				text-align: left;
+				transition: $transition;
+
+				@include media_399() {
+					font-size: map-get($fonts, "smaller");
+				}
+
+				.username {
+					color: map-get($color, "blue");
+					font-size: map-get($fonts, "smaller");
+				}
+			}
+		}
+	}
+}
+
+@mixin toggle() {
+	.toggle {
+		position: absolute;
+		content: "";
+		height: 60px;
+		width: 20px;
+		top: 10px;
+		z-index: 100;
+		backdrop-filter: blur(10px);
+		transition: $transition;
+		background: map-get($map: $color, $key: "lowgrey");
+
+		&::before,
+		&::after {
+			position: absolute;
+			top: 50%;
+			width: 2px;
+			height: 50%;
+			transform: translateY(-50%);
+			content: "";
+			background: map-get($map: $color, $key: "brown");
+		}
+	}
+}
+
+@keyframes shadow {
+	50% {
+		box-shadow: 0px 0px 2px 2px #dc121261;
+	}
+
+	100% {
+		box-shadow: 0px 0px 4px 4px #dc121261;
+	}
+}
+
+.container {
+	position: relative;
+	max-width: 1366px;
+	margin: auto;
+}
+
+.wrapper {
+	header {
+		background: map-get($map: $color, $key: "lightergrey");
+		grid-column: 1/6;
+		padding: 5px 10px;
+		-webkit-user-select: none;
+		user-select: none;
+		position: relative;
+		z-index: 10000;
+
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+		}
+
+		.logo-wrapper {
+			font-weight: 500;
+		}
+		.coin-wrapper {
+			font-weight: 500;
+			width: 100px;
+			height: 30px;
+			display: grid;
+			place-items: center;
+			border-radius: 5px;
+			background: map-get($map: $color, $key: "white");
+		}
+
+		.search-container {
+			height: 30px;
+			width: 250px;
+			margin-top: 10px;
+			position: relative;
+			transition: $transition;
+			z-index: 10000;
+
+			.search-form {
+				position: relative;
+				z-index: 10000;
+			}
+
+			.search-icon {
+				position: absolute;
+				top: 50%;
+				transform: translateY(-40%);
+				left: 10px;
+			}
+
+			&.not-focus .search-icon {
+				@include media_399() {
+					background: transparent;
+					left: 5px;
+				}
+			}
+
+			#search {
+				transition: $transition;
+				&.active {
+					top: 0;
+					position: fixed;
+					left: 15px;
+
+					@include media_649() {
+						top: 10px;
+					}
+
+					@include media_399() {
+						left: 5px;
+					}
+
+					#form-control {
+						@include media_549() {
+							display: block;
+						}
+					}
+				}
+			}
+
+			.form-control {
+				padding: 5px 5px 5px 40px;
+				border: none;
+				width: 220px;
+				height: 30px;
+				outline: none;
+				border-radius: 60px;
+				box-shadow: $shadow;
+
+				@include Media {
+					width: 300px;
+				}
+
+				&::placeholder {
+					font-weight: 600;
+				}
+			}
+
+			&.not-focus .form-control {
+				@include media_399() {
+					width: 30px;
+					padding: 0;
+					border-radius: 50%;
+
+					&::placeholder {
+						color: white;
+					}
+				}
+			}
+
+			.search-results {
+				height: 0;
+				width: 0;
+				position: absolute;
+				top: -10px;
+				box-shadow: $shadow;
+				background: map-get($map: $color, $key: "lightergrey");
+				border-radius: 10px;
+				overflow: hidden;
+				transition: all 0.4s ease-out;
+
+				&.show {
+					height: calc(100vh - 50px);
+					width: 600px;
+
+					@include media_649() {
+						top: 0;
+						height: 100vh;
+						width: 100vw;
+						position: fixed;
+						left: 0;
+					}
+				}
+
+				&::-webkit-scrollbar {
+					display: none;
+					width: 0px;
+				}
+				.close-btn {
+					position: relative;
+					background: transparent;
+					width: 100%;
+					height: 50px;
+				}
+				.close-btn .close {
+					padding: 5px 17px;
+					position: absolute;
+					cursor: pointer;
+					right: 15px;
+					top: 0px;
+					border-radius: 50px;
+					box-shadow: $shadow;
+					background: map-get($color, "white");
+					font-size: map-get($fonts, "smaller");
+					font-weight: 600;
+					transition: $transition;
+
+					&::after {
+						padding: 5px 10px;
+						position: absolute;
+						content: "";
+						top: 0;
+						bottom: 0;
+						left: 8px;
+						right: 8px;
+						border-radius: 50px;
+						box-shadow: $shadow;
+						background: map-get($color, "white");
+					}
+
+					@include media_399() {
+						right: 0;
+					}
+
+					span {
+						z-index: 10;
+						position: relative;
+					}
+				}
+
+				.listed-matched {
+					overflow: hidden scroll;
+					height: calc(100vh - 50px);
+					position: relative;
+					transition: $transition;
+
+					@include media_649() {
+						height: calc(100vh);
+					}
+
+					&::-webkit-scrollbar {
+						display: none;
+						width: 0px;
+					}
+
+					.header {
+						font-weight: 600;
+						padding: 10px;
+						position: sticky;
+						position: -webkit-sticky;
+						backdrop-filter: blur(5px);
+						background: map-get($map: $color, $key: "lowgrey");
+						top: 0;
+						font-size: map-get($map: $fonts, $key: "small");
+						margin-bottom: 10px;
+					}
+				}
+
+				@include users();
+				.users {
+					.user {
+						@include media_399() {
+							.add {
+								width: 50px;
+								border-radius: 10px;
+							}
+						}
+						@include media_549() {
+							.add {
+								width: 60px;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.top-navigation {
+			display: flex;
+			flex-direction: row;
+			border-radius: 5px;
+			flex-wrap: nowrap;
+			justify-content: space-between;
+			margin-top: 10px;
+			position: relative;
+			transition: $transition;
+
+			.icon {
+				border-radius: 60px;
+				height: 30px;
+				width: 30px;
+				display: grid;
+				place-items: center;
+				background: map-get($color, "white");
+			}
+
+			.friendrequest-wrapper {
+				position: relative;
+				width: 30px;
+
+				.unseen {
+					position: absolute;
+					top: -14px;
+					right: -3px;
+					background: #5f8389;
+					height: 20px;
+					width: 20px;
+					border-radius: 50%;
+					display: grid;
+					place-content: center;
+					font-weight: 600;
+					color: white;
+					font-size: smaller;
+				}
+				.request-box {
+					width: 0px;
+					height: 0px;
+					overflow: hidden;
+					position: fixed;
+					top: 90px;
+					left: 50%;
+					border-radius: 10px;
+					transform: translateX(-50%);
+					z-index: 100;
+					transition: $transition;
+					background: map-get($color, "lightergrey");
+				}
+				@mixin check() {
+					@if (100vw > 1366px) {
+						color: calc(100vw / 2 + 100px);
+					}
+				}
+				.request-box.show {
+					width: 600px;
+					overflow: auto;
+					height: calc(100vh - 100px);
+					box-shadow: $shadow;
+					z-index: 1000000;
+
+					@include media_649() {
+						width: 500px;
+					}
+
+					@include media_549() {
+						top: 0;
+						height: 100vh;
+						width: 100vw;
+					}
+				}
+
+				.request-header {
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: space-between;
+					padding: 20px;
+
+					.title {
+						padding: 8px 15px;
+						border-radius: 50px;
+						box-shadow: $shadow;
+						background: map-get($color, "white");
+						font-weight: 500;
+
+						h3 {
+							font-size: map-get($fonts, "small");
+						}
+						* {
+							color: map-get($map: $color, $key: "brown");
+						}
+					}
+
+					.close-modal * {
+						padding: 5px 10px;
+						border-radius: 50px;
+						box-shadow: $shadow;
+						cursor: pointer;
+						background: map-get($color, "white");
+						font-size: map-get($fonts, "smaller");
+						font-weight: 600;
+					}
+				}
+
+				@include users();
+				.users {
+					.user {
+						.btn:first-child {
+							margin-right: 10px;
+						}
+						.accept {
+							background: map-get(
+								$map: $color,
+								$key: "lightergrey"
+							);
+							color: map-get($color, "skyblue");
+						}
+
+						.reject {
+							background: map-get($color, "red");
+							color: map-get($color, "brown");
+						}
+
+						@include media_399() {
+							.accept,
+							.reject {
+								width: 50px;
+								border-radius: 10px;
+							}
+						}
+						@include media_549() {
+							.accept,
+							.reject {
+								width: 60px;
+							}
+						}
+					}
+				}
+
+				.request-box.expand .users {
+					visibility: visible;
+				}
+
+				.friends .title {
+					padding: 3px 15px;
+					font-weight: 600;
+					font-size: map-get($fonts, "small");
+					background: map-get($color, "white");
+					margin: 15px 0px;
+				}
+			}
+
+			.profile-link-wrapper {
+				width: 100px;
+				border-radius: 60px;
+				background: map-get($map: $color, $key: "white");
+				position: relative;
+				transition: $transition;
+				border: none;
+				float: right;
+				outline: none;
+				z-index: 100;
+
+				@include media_549() {
+					width: 30px;
+				}
+				&.a {
+					border: none;
+					outline: none;
+					width: 200px;
+					border-radius: 5px;
+				}
+
+				.profile-preview {
+					display: flex;
+					flex-grow: 10px;
+					align-items: center;
+
+					.image,
+					.user-image {
+						width: 30px;
+						height: 30px;
+						border-radius: 50px;
+					}
+
+					.username {
+						font-size: map-get($map: $fonts, $key: "smaller");
+						font-weight: 600;
+						margin-left: 2px;
+						text-overflow: ellipsis;
+					}
+
+					.user-preview-name {
+						@include media_549() {
+							display: none;
+						}
+					}
+				}
+
+				.profile-expand {
+					height: 0;
+					overflow: hidden;
+				}
+
+				&.a .profile-expand {
+					overflow: visible;
+					width: 200px;
+					position: absolute;
+					height: 350px;
+					padding: 10px 5px;
+					border-radius: 5px;
+					top: 0;
+					left: 0;
+					z-index: 100;
+					background: map-get($color, "white");
+					box-shadow: 0px 0px 10px 5px
+						map-get($map: $color, $key: "lightgrey");
+
+					.image,
+					.user-image {
+						width: 30px;
+						height: 30px;
+						border-radius: 50px;
+					}
+					.profile-header {
+						display: grid;
+						place-items: center;
+
+						.name-wrapper {
+							padding-bottom: 3px;
+							border-bottom: 1px solid
+								map-get($map: $color, $key: "blue");
+						}
+						.name-wrapper,
+						.name {
+							width: 100%;
+							display: flex;
+							text-align: center;
+							justify-content: center;
+							flex-direction: column;
+							font-family: calibri;
+							font-weight: 600;
+						}
+						.name {
+							line-height: 16px;
+							margin: 5px;
+							font-weight: 500;
+
+							.username {
+								color: map-get($color, "blue");
+								font-size: map-get($fonts, "small");
+							}
+						}
+						.email {
+							font-size: map-get($fonts, "small");
+						}
+					}
+				}
+			}
+
+			.notifications-wrapper {
+				position: relative;
+
+				.unseen {
+					position: absolute;
+					top: -14px;
+					right: -3px;
+					background: #5f8389;
+					height: 20px;
+					width: 20px;
+					border-radius: 50%;
+					display: grid;
+					place-content: center;
+					font-weight: 600;
+					color: white;
+					font-size: smaller;
+				}
+				.notifications-box {
+					width: 0px;
+					height: 0px;
+					overflow: hidden;
+					position: fixed;
+					top: 90px;
+					left: 50%;
+					transform: translateX(-50%);
+					border-radius: 10px;
+					z-index: 10000;
+					transition: $transition;
+					background: map-get($color, "lightergrey");
+
+					&.show {
+						width: 600px;
+						height: calc(100vh - 100px);
+						overflow: auto;
+						box-shadow: $shadow;
+
+						@include media_649() {
+							width: 500px;
+						}
+
+						@include media_549() {
+							top: 0;
+							height: 100vh;
+							width: 100vw;
+						}
+					}
+					.notifications-header {
+						display: flex;
+						flex-wrap: wrap;
+						justify-content: space-between;
+						padding: 10px;
+
+						.title {
+							padding: 8px 15px;
+							border-radius: 50px;
+							box-shadow: $shadow;
+							background: map-get($color, "white");
+							font-weight: 500;
+
+							h3 {
+								font-size: map-get($fonts, "small");
+							}
+							* {
+								color: map-get($map: $color, $key: "brown");
+							}
+						}
+
+						.close-modal * {
+							padding: 5px 10px;
+							border-radius: 50px;
+							box-shadow: $shadow;
+							background: map-get($color, "white");
+							font-size: map-get($fonts, "smaller");
+							font-weight: 600;
+							cursor: pointer;
+						}
+					}
+				}
+				.date {
+					padding: 3px 10px;
+					background: map-get($color, "white");
+					color: map-get($color, "skyblue");
+					font-size: map-get($fonts, "smaller");
+					font-weight: 600;
+				}
+
+				.notification-image {
+					margin-right: 10px;
+
+					.image img {
+						width: 30px;
+						height: 30px;
+						border-radius: 50px;
+					}
+				}
+
+				.notifications-list {
+					list-style: none;
+					padding: 10px 20px;
+					visibility: visible;
+					font-weight: 600;
+
+					.notification {
+						background: map-get($color, "white");
+						padding: 5px;
+						margin-bottom: 10px;
+						box-shadow: $shadow;
+						display: flex;
+					}
+
+					.text {
+						line-height: 13px;
+						font-weight: 600;
+						font-size: map-get($fonts, "smaller");
+
+						b {
+							color: map-get($color, "skyblue");
+						}
+					}
+
+					.assigned-name {
+						font-weight: 700;
+						font-size: map-get($fonts, "small");
+						color: map-get($color, "brown");
+					}
+				}
+			}
+
+			& > * {
+				height: 30px;
+				box-shadow: 0px 0px 10px -5px map-get($color, "brown");
+				border-radius: 50px;
+			}
+
+			& > :not(.profile-link-wrapper) {
+				margin-right: 5px;
+			}
+		}
+	}
+
+	.main {
+		display: flex;
+		flex-wrap: nowrap;
+		position: relative;
+		overflow: hidden;
+
+		@include media_1049() {
+			max-width: 100vw;
+		}
+
+		// @include media_549() {
+		// 	display: block;
+		// }
+	}
+
+	.sidebar {
+		background: map-get($map: $color, $key: "lightergrey");
+		height: calc(100vh - 85px);
+		margin-top: 5px;
+		position: relative;
+		transition: $transition;
+
+		.navigator-wrapper {
+			height: calc(100vh - 85px);
+			overflow: auto scroll;
+
+			&::-webkit-scrollbar {
+				width: 0px;
+			}
+		}
+		@include media_549() {
+			width: 200px;
+			position: absolute;
+			left: -200px;
+			z-index: 100;
+
+			&.show {
+				left: 0px;
+			}
+
+			@include toggle();
+			.toggle {
+				border-radius: 0px 5px 5px 0px;
+				right: -20px;
+
+				&::before {
+					right: 7px;
+				}
+				&::after {
+					right: 14px;
+				}
+			}
+			&.show .toggle {
+				top: 0;
+				border-radius: 0px 0px 10px 0px;
+				box-shadow: $shadow;
+				height: 40px;
+				background: map-get($map: $color, $key: "brown");
+
+				&::before,
+				&::after {
+					background: map-get($map: $color, $key: "lightgrey");
+				}
+			}
+		}
+		.preview-profile {
+			background: map-get($map: $color, $key: "lowgrey");
+			padding: 10px;
+			padding-bottom: 15px;
+			position: -webkit-sticky;
+			position: sticky;
+			backdrop-filter: blur(5px);
+			-webkit-backdrop-filter: blur(5px);
+			top: 0;
+
+			.user-image-name-wrapper {
+				display: flex;
+				flex-wrap: nowrap;
+				margin-bottom: 20px;
+
+				.image {
+					width: 35px;
+					height: 35px;
+					border-radius: 50%;
+				}
+
+				.name {
+					font-size: 13px;
+					font-weight: 600;
+					line-height: 13px;
+					color: #4d4646;
+					margin-top: 5px;
+					margin-left: 5px;
+					.username {
+						font-size: map-get($fonts, "smaller");
+						color: map-get($color, "skyblue");
+					}
+				}
+			}
+			.message {
+				font-size: map-get($fonts, "small");
+			}
+		}
+
+		.navigators {
+			.group-1 {
+				border-bottom: 25px solid map-get($map: $color, $key: "lowgrey");
+			}
+			.links-list {
+				list-style: none;
+				padding: 10px;
+
+				li {
+					display: flex;
+					flex-wrap: nowrap;
+					margin-bottom: 5px;
+
+					.icon-wrap svg {
+						width: 24px;
+						height: 24px;
+						fill: map-get($color, "brown");
+					}
+
+					.icon-wrap {
+						margin-right: 10px;
+					}
+
+					.link a {
+						font-weight: 600;
+						font-size: map-get($fonts, "small");
+						color: map-get($color, "brown");
+						text-decoration: none;
+					}
+					&:hover > .link a {
+						color: map-get($map: $color, $key: "skyblue");
+					}
+					&:hover ~ svg {
+						fill: map-get($map: $color, $key: "skyblue");
+					}
+				}
+			}
+		}
+	}
+
+	.main-body {
+		flex: 0.9;
+		height: calc(100vh - 80px);
+		margin-top: 5px;
+		position: relative;
+		overflow: clip scroll;
+
+		&::-webkit-scrollbar {
+			width: 0px;
+		}
+		@include media_1049() {
+			flex: 1.5;
+		}
+
+		.posts.social-feeds {
+			flex: 0.6;
+			position: relative;
+			height: 100%;
+			overflow: auto scroll;
+			max-width: 500px;
+			margin: auto;
+
+			&::-webkit-scrollbar {
+				width: 0px;
+			}
+			.active-feeds {
+				padding: 20px 10px;
+				background: map-get($color, "lowgrey");
+				.feeds-list ul {
+					list-style: none;
+					display: inline-flex;
+
+					.feeds {
+						border-radius: 50%;
+						border: 2px dashed map-get($map: $color, $key: "brown");
+						height: 42px;
+						width: 42px;
+						display: flex;
+						justify-items: center;
+						justify-content: center;
+						position: relative;
+						margin-right: 5px;
+
+						.image {
+							width: 35px;
+							height: 35px;
+							border-radius: 50%;
+							position: absolute;
+							transform: translate(-50%, -50%);
+							left: 50%;
+							top: 50%;
+						}
+					}
+				}
+			}
+
+			.upload.create-post {
+				position: relative;
+				padding: 10px;
+			}
+
+			.text-box {
+				position: relative;
+
+				.post-btn {
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					right: 10px;
+
+					.upload {
+						background: transparent;
+
+						.svg {
+							fill: map-get($map: $color, $key: "skyblue");
+						}
+					}
+				}
+			}
+			.text-control {
+				width: 100%;
+				height: 40px;
+				white-space: wrap;
+				padding: 10px 5px 0px;
+				border-radius: none;
+				border: 2px groove map-get($color, "lightgrey");
+				resize: none;
+
+				&::-webkit-scrollbar {
+					-webkit-appearance: none;
+					width: 0px;
+					height: 0px;
+				}
+			}
+
+			.alternate-post {
+				.alternate-wrap {
+					display: flex;
+					width: 100%;
+					justify-content: center;
+				}
+
+				.alternate {
+					display: grid;
+					place-items: center;
+					width: 32%;
+					padding: 5px;
+					margin-right: 3px;
+					border-radius: 20px;
+					background: map-get($map: $color, $key: "lowgrey");
+				}
+				.svg {
+					fill: map-get($map: $color, $key: "brown");
+					&:hover {
+						fill: map-get($map: $color, $key: "skyblue");
+					}
+				}
+			}
+
+			.post {
+				background: map-get($map: $color, $key: "lowgrey");
+				width: 90%;
+				margin: auto;
+				margin-bottom: 10px;
+			}
+			.general {
+				list-style: none;
+			}
+			.post-content {
+				position: relative;
+
+				.uploader-wrap {
+					display: flex;
+					flex-wrap: wrap;
+					align-items: center;
+					padding: 10px;
+				}
+				.user-image {
+					margin-right: 5px;
+
+					.image {
+						width: 30px;
+						height: 30px;
+						border-radius: 50%;
+					}
+				}
+
+				.text {
+					font-size: map-get($map: $fonts, $key: "small");
+					font-weight: 600;
+				}
+
+				.image-post .image {
+					width: 100%;
+					max-height: 350px;
+				}
+			}
+			.feedback {
+				display: flex;
+				justify-content: center;
+				padding: 2px 10px;
+				font-size: map-get($map: $fonts, $key: "smaller");
+				font-weight: 600;
+
+				.replys {
+					text-align: center;
+					width: 33.3%;
+					padding: 0px 5px;
+					.count {
+						background: map-get($map: $color, $key: "white");
+						padding: 3px;
+						border-radius: 5px;
+						width: 100%;
+						margin: auto;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+				}
+
+				.shares-counts svg {
+					transform: rotateY(180deg);
+				}
+			}
+
+			.recent-comment {
+				padding: 5px;
+				font-size: map-get($map: $fonts, $key: "small");
+				display: flex;
+				align-items: center;
+				.user {
+					display: flex;
+					align-items: center;
+					font-weight: 600;
+					margin-right: 10px;
+					.image {
+						width: 20px;
+						height: 20px;
+						border-radius: 50%;
+					}
+					.user-image {
+						margin-right: 5px;
+					}
+				}
+			}
+			.comment-create-box {
+				position: relative;
+				padding: 5px 15px;
+
+				.text-control {
+					width: 100%;
+					height: 35px;
+					padding: 10px 30px 0px;
+					border: none;
+					border-radius: 5px;
+					background: map-get($map: $color, $key: "white");
+				}
+
+				.media-icon {
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					left: 20px;
+				}
+				.send-btn {
+					position: absolute;
+					top: 50%;
+					transform: translateY(-50%);
+					right: 20px;
+
+					.btn {
+						background: transparent;
+					}
+				}
+
+				svg {
+					fill: map-get($map: $color, $key: "skyblue");
+					width: 20px;
+					height: 20px;
+				}
+				.media-comment-wrapper {
+					position: absolute;
+					background: map-get($map: $color, $key: "white");
+					left: 15px;
+					top: 50%;
+					border-radius: 5px;
+					transform: translateY(-50%);
+					width: 50%;
+					clip-path: circle(0.4% at 0 100%);
+
+					&.show {
+						clip-path: circle(70.7% at 50% 50%);
+					}
+
+					.media-list {
+						display: flex;
+						justify-content: space-between;
+						list-style: none;
+					}
+				}
+			}
+		}
+
+		.chat-form-container {
+			flex: 0.6;
+			// overflow: hidden;
+			position: absolute;
+			right: 0;
+			bottom: 10px;
+			flex-direction: row;
+			display: flex;
+			background: white;
+			border-radius: 10px;
+			flex-wrap: wrap;
+			// display: none;
+
+			@include media_1049() {
+				right: 30px;
+				// top: 0;
+			}
+			@include media_649() {
+				height: 100%;
+				width: 100%;
+				padding: 20px;
+				right: 0px;
+				bottom: 0;
+				// top: 0;
+				border-radius: 0;
+				left: 0;
+			}
+
+			@include media_399() {
+				position: fixed;
+				height: 100vh;
+				width: 100vw;
+				padding: 0px;
+				z-index: 10000;
+			}
+
+			.chats-form {
+				height: 100%;
+				width: 300px;
+				margin: auto;
+				border-radius: 10px;
+				background: map-get($color, "lightergrey");
+				margin-right: 15px;
+				box-shadow: 0px 2px 5px 0px lightgrey;
+				overflow: visible;
+				position: relative;
+
+				&::-webkit-scrollbar {
+					width: 0px;
+				}
+				.close-card {
+					font-weight: 600;
+					background: map-get($map: $color, $key: "lowgrey");
+					position: absolute;
+					left: 50%;
+					transform: translateX(-50%);
+					backdrop-filter: blur(10px);
+					height: 30px;
+					top: -20px;
+					width: 30px;
+					display: grid;
+					place-items: center;
+					border-radius: 50%;
+					cursor: pointer;
+				}
+				@include media_649() {
+					max-width: 500px;
+					margin: auto;
+					border-radius: 0;
+				}
+
+				@include media_399() {
+					margin-top: 20px;
+				}
+				.room-header {
+					height: 50px;
+					background: map-get($color, "lowgrey");
+					padding: 5px;
+
+					.image {
+						width: 35px;
+						height: 35px;
+						border-radius: 50%;
+					}
+
+					.profile {
+						display: flex;
+
+						.image-wrap {
+							margin-right: 10px;
+						}
+
+						.name {
+							line-height: 15px;
+						}
+						.textname {
+							font-size: map-get($fonts, "smaller");
+							font-weight: 600;
+						}
+
+						.active-text {
+							font-size: map-get($fonts, "smaller");
+							color: map-get($color, "green");
+						}
+					}
+				}
+
+				.room-body {
+					width: 100%;
+					height: calc(100vh / 2.5);
+					padding: 10px 1px 0px 10px;
+					display: flex;
+					overflow-y: scroll;
+					flex-direction: column;
+
+					&::-webkit-scrollbar {
+						width: 5px;
+						// background: white;
+					}
+
+					@include media_649() {
+						height: calc(100vh - 226px);
+					}
+					@include media_399() {
+						height: calc(100vh - 119px);
+					}
+
+					.alert-message {
+						position: absolute;
+						bottom: 30%;
+						right: 6px;
+						font-size: 10px;
+						background: #6e8e93;
+						height: 20px;
+						z-index: 200;
+						visibility: hidden;
+						pointer-events: none;
+						width: 20px;
+						display: grid;
+						color: white;
+						font-weight: 800;
+						place-content: center;
+						border-radius: 50%;
+
+						&.show {
+							visibility: visible;
+							pointer-events: visible;
+							cursor: pointer;
+						}
+					}
+					.incoming-message {
+						width: 100%;
+						position: relative;
+						margin-bottom: 10px;
+
+						&.adjust,
+						&.adjust-mg {
+							margin-bottom: 3px;
+						}
+
+						.user-image {
+							position: absolute;
+							top: -10px;
+							left: -10px;
+						}
+						.plain-message {
+							padding-left: 10px;
+						}
+						&.adjust .plain-message,
+						&.adjust-pd .plain-message {
+							padding-left: 0px;
+						}
+						.text {
+							padding: 3px 6px 3px 6px;
+						}
+					}
+
+					.text {
+						font-size: map-get($fonts, "smaller");
+						font-weight: 600;
+						line-height: 11px;
+						word-break: break-word;
+					}
+
+					.image {
+						width: 25px;
+						height: 25px;
+						border-radius: 50%;
+					}
+
+					.time {
+						text-align: right;
+						border-bottom-right-radius: 20px;
+						display: grid;
+						padding-right: 5px;
+
+						small {
+							font-size: 9px;
+							font-weight: 600;
+							color: map-get($map: $color, $key: "skyblue");
+						}
+					}
+					.group {
+						width: fit-content;
+						margin: auto;
+						font-size: 9px;
+						font-weight: 600;
+						margin-bottom: 10px;
+						background: white;
+						padding: 4px;
+						border-radius: 4px;
+					}
+					.message-wrapper {
+						max-width: 70%;
+					}
+					.plain-message,
+					.form-message {
+						width: fit-content;
+						background: map-get($color, "white");
+						border-radius: 10px;
+						box-shadow: $shadow;
+					}
+
+					.form-message {
+						max-width: 70%;
+						position: relative;
+
+						.user-image {
+							z-index: 20px;
+						}
+						.poll-question {
+							display: flex;
+							flex-direction: column;
+							padding: 0px 0px 5px;
+							background: map-get($map: $color, $key: "white");
+							border-radius: 20px 20px 0px 0px;
+						}
+
+						.poll-question-header {
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							padding: 5px;
+						}
+						.coin,
+						.time-count {
+							// background: map-get($map: $color, $key: "lowgrey");
+							padding: 5px;
+							width: fit-content;
+							border-top-right-radius: 20px;
+							font-weight: 600;
+							color: map-get($map: $color, $key: "brown");
+							font-size: map-get($map: $fonts, $key: "smaller");
+
+							b {
+								color: map-get($map: $color, $key: "skyblue");
+							}
+						}
+						.time-count {
+							border-radius: 0;
+							border-top-left-radius: 20px;
+							padding-left: 15px;
+						}
+
+						.text {
+							background: map-get($map: $color, $key: "lowgrey");
+						}
+						.options {
+							list-style: none;
+							padding: 5px;
+
+							.option {
+								display: flex;
+								flex-wrap: wrap;
+								align-items: center;
+								font-weight: 600;
+								box-shadow: $shadow;
+								padding: 3px 8px 3px 3px;
+								border-radius: 20px;
+								margin-bottom: 10px;
+								color: map-get($map: $color, $key: "brown");
+								font-size: map-get(
+									$map: $fonts,
+									$key: "smaller"
+								);
+
+								.form-group {
+									margin-right: 5px;
+								}
+
+								#option {
+									width: 20px;
+									height: 20px;
+									-webkit-appearance: none;
+									border-radius: 50%;
+									box-shadow: inset 0px 0px 4px 2px
+										map-get($map: $color, $key: "skyblue");
+								}
+								#option:checked {
+									box-shadow: inset 0px 0px 13px 2px
+										map-get($map: $color, $key: "skyblue");
+								}
+							}
+						}
+
+						.response {
+							position: absolute;
+							bottom: 0;
+							background: map-get($map: $color, $key: "white");
+							box-shadow: 0px -2px 5px 0px map-get($map: $color, $key:
+										"lightgrey");
+							width: 100%;
+							border-radius: 20px;
+							text-align: center;
+							font-weight: 600;
+							padding: 10px;
+							font-size: map-get($map: $fonts, $key: "small");
+
+							&.won {
+								color: map-get($map: $color, $key: "green");
+							}
+						}
+					}
+
+					.outgoing-message {
+						width: 100%;
+						position: relative;
+						margin-bottom: 10px;
+
+						&.adjust {
+							margin-bottom: 3px;
+						}
+						.time-count {
+							padding: 5px;
+						}
+
+						.message-wrapper {
+							float: right;
+						}
+
+						.form-message {
+							float: right;
+						}
+
+						.text {
+							padding: 4px 5px 2px 5px;
+						}
+					}
+				}
+
+				.message-options {
+					position: absolute;
+				}
+				.welcome-message {
+					font-size: map-get($fonts, "smaller");
+					text-align: center;
+					font-weight: 600;
+					margin-bottom: 10px;
+				}
+				.room-footer {
+					position: relative;
+					background: map-get($color, "lowgrey");
+					width: 100%;
+					padding: 10px 10px 10px;
+					height: 56px;
+					backdrop-filter: blur(10px);
+
+					.media-icon {
+						position: absolute;
+						top: 50%;
+						left: 20px;
+						cursor: pointer;
+						display: grid;
+						place-items: center;
+						transform: translateY(-50%);
+					}
+					.input-group .text-control {
+						width: 100%;
+						height: 34px;
+						resize: none;
+						border-radius: 10px;
+						padding: 10px 40px 0px;
+						font-size: smaller;
+						&::-webkit-scrollbar {
+							width: 0px;
+						}
+					}
+
+					.send-btn {
+						position: absolute;
+						right: 15px;
+						top: 50%;
+						height: 100%;
+						display: grid;
+						cursor: pointer;
+						place-items: center;
+						transform: translateY(-50%);
+
+						.btn {
+							background: transparent;
+							&:focus {
+								outline: none;
+								border: none;
+							}
+						}
+						.btn.send.activated .svg {
+							fill: map-get($map: $color, $key: "skyblue");
+						}
+					}
+
+					.media-message-wrapper {
+						position: absolute;
+						width: 100%;
+						left: 0px;
+						bottom: 0px;
+						transition: $transition;
+						clip-path: circle(0.4% at 0 100%);
+						overflow: hidden;
+
+						&.active {
+							background: map-get($map: $color, $key: "lowgrey");
+							backdrop-filter: blur(10px);
+							border-radius: 10px 10px 0px 0px;
+							z-index: 100;
+							clip-path: circle(141% at 0 100%);
+						}
+						&.toggle {
+							width: 100%;
+							border-radius: 20px 20px 0px 0px;
+						}
+
+						.media-list {
+							display: flex;
+							justify-content: center;
+							flex-direction: row;
+							flex-wrap: wrap;
+							align-items: center;
+							padding: 10px;
+							list-style: none;
+
+							.media,
+							.poll {
+								text-align: center;
+								cursor: pointer;
+
+								align-items: center;
+								font-size: map-get(
+									$map: $fonts,
+									$key: "smaller"
+								);
+								margin-left: 15px;
+
+								.icon {
+									background: white;
+									height: 30px;
+									width: 30px;
+									display: grid;
+									place-items: center;
+									border-radius: 50%;
+								}
+
+								.svg {
+									width: 20px;
+									height: 20px;
+									fill: map-get(
+										$map: $color,
+										$key: "skyblue"
+									);
+								}
+							}
+						}
+					}
+
+					.create-question {
+						position: absolute;
+						bottom: 0px;
+						left: 0px;
+						width: 100%;
+						box-shadow: $shadow;
+						transition: $transition;
+						border-radius: 10px 10px 0px 0px;
+						background: map-get($map: $color, $key: "lightergrey");
+						backdrop-filter: blur(10px);
+						max-height: 150px;
+						overflow: hidden scroll;
+						clip-path: circle(0.4% at 0 100%);
+
+						&.active {
+							clip-path: circle(141% at 0 100%);
+						}
+						&::-webkit-scrollbar {
+							width: 2px;
+							border-radius: 30%;
+						}
+						&::-webkit-scrollbar-thumb {
+							border-radius: 30%;
+							background: rgb(79, 79, 79);
+						}
+
+						.poll-header {
+							background: map-get($map: $color, $key: "lowgrey");
+							padding-top: 2px;
+							position: sticky;
+							position: -webkit-sticky;
+							top: 0;
+							z-index: 100000;
+							backdrop-filter: blur(10px);
+							-webkit-backdrop-filter: blur(10px);
+
+							.title {
+								font-weight: 600;
+								font-size: map-get(
+									$map: $fonts,
+									$key: "medium"
+								);
+								text-align: center;
+							}
+
+							.discard-wrap,
+							.create-wrap {
+								position: absolute;
+								background: map-get(
+									$map: $color,
+									$key: "white"
+								);
+								top: 0;
+								cursor: pointer;
+								transition: $transition;
+								padding: 5px 10px;
+								font-size: map-get(
+									$map: $fonts,
+									$key: "smaller"
+								);
+								font-weight: 600;
+							}
+
+							.discard-wrap {
+								left: 0;
+								border-top-left-radius: 10px;
+							}
+							.create-wrap {
+								right: 0;
+								border-top-right-radius: 10px;
+
+								&.active.create {
+									background: map-get(
+										$map: $color,
+										$key: "skyblue"
+									);
+									color: white;
+								}
+							}
+						}
+
+						.poll-body {
+							padding: 5px;
+							.text {
+								font-size: map-get(
+									$map: $fonts,
+									$key: "smaller"
+								);
+								font-weight: 600;
+							}
+							.question > .text-control {
+								height: 35px;
+								width: 100%;
+								resize: none;
+								padding: 10px 10px 0px 5px;
+								font-size: smaller;
+								border-radius: 2px;
+
+								&.empty {
+									box-shadow: 0px 0px 3px rgb(255, 0, 0);
+								}
+							}
+
+							.question-options {
+								.header {
+									display: flex;
+									justify-content: space-between;
+									box-shadow: $shadow;
+									height: 25px;
+									border-radius: 2px;
+									align-items: center;
+									margin-bottom: 5px;
+
+									.text {
+										padding-left: 5px;
+									}
+									.add {
+										background: map-get(
+											$map: $color,
+											$key: "white"
+										);
+										display: grid;
+										place-items: center;
+										width: 25px;
+										height: 100%;
+										cursor: pointer;
+
+										&.more-option-required {
+											animation: shadow 1s alternate
+												infinite ease-in-out;
+										}
+									}
+								}
+								.option-list {
+									list-style: none;
+
+									.option {
+										position: relative;
+									}
+
+									#answer {
+										-webkit-appearance: none;
+										position: absolute;
+										left: 0;
+										top: 0;
+										height: 25px;
+										width: 25px;
+										border: 1.5px groove;
+
+										&::before {
+											position: absolute;
+											content: "A";
+											height: 100%;
+											width: 100%;
+											padding-bottom: 5px;
+											color: white;
+											display: grid;
+											place-items: center;
+										}
+										&:checked {
+											background: map-get(
+												$map: $color,
+												$key: "brown"
+											);
+										}
+
+										&.required {
+											animation: shadow 1s alternate
+												infinite ease-in-out;
+										}
+									}
+								}
+								.remove-option {
+									background: map-get(
+										$map: $color,
+										$key: "lightgrey"
+									);
+									border-radius: 50px;
+									display: grid;
+									cursor: pointer;
+									place-items: center;
+									width: 25px;
+									height: 25px;
+									position: absolute;
+									right: 0;
+									top: 0;
+								}
+								.text-control {
+									height: 25px;
+									width: 100%;
+									resize: none;
+									font-size: smaller;
+									padding: 5px 5px 5px 27px;
+									border-radius: 10px 50px 50px 10px;
+
+									&.empty {
+										box-shadow: 0px 0px 3px rgb(255, 0, 0);
+									}
+								}
+							}
+
+							.additional-options {
+								.options {
+									display: flex;
+									flex-wrap: wrap;
+									justify-content: space-between;
+									margin-bottom: 10px;
+
+									.option-wrap {
+										width: 31%;
+										padding: 5px;
+										display: flex;
+										box-shadow: $shadow;
+										flex-direction: column;
+										justify-content: center;
+										align-items: center;
+										border-radius: 3px;
+									}
+								}
+								label {
+									font-size: map-get(
+										$map: $fonts,
+										$key: "smaller"
+									);
+									font-weight: 600;
+								}
+
+								.text-control {
+									width: 80%;
+									font-size: map-get(
+										$map: $fonts,
+										$key: "smaller"
+									);
+									padding: 5px;
+									border-radius: 10px;
+									text-align: center;
+									font-weight: 500;
+									color: map-get($map: $color, $key: "brown");
+
+									&.required {
+										animation: shadow 1s alternate infinite
+											ease-in-out;
+									}
+								}
+
+								.challenge {
+									position: relative;
+
+									.control {
+										height: 20px;
+									}
+									input.challenge {
+										-webkit-appearance: none;
+										width: 20px;
+										height: 20px;
+										background: white;
+										border-radius: 50%;
+										box-shadow: 0px 0px 0px 3px
+											map-get($map: $color, $key: "black");
+										cursor: pointer;
+
+										&::before {
+											position: absolute;
+											content: "C";
+											height: 100%;
+											width: 100%;
+											padding-bottom: 5px;
+											color: white;
+											display: grid;
+											place-items: center;
+											border-radius: 50%;
+										}
+										&:checked {
+											background: map-get(
+												$map: $color,
+												$key: "brown"
+											);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	.chats-container {
+		flex: 0.3;
+		background: map-get($map: $color, $key: "lightergrey");
+		height: calc(100vh - 80px);
+		margin-top: 5px;
+		border-top-left-radius: 10px;
+		transition: $transition;
+		// overflow:  scroll;
+
+		@include media_1049 {
+			flex: 0;
+			position: absolute;
+			right: -300px;
+			width: 300px;
+			z-index: 100;
+
+			&.show {
+				right: 0;
+			}
+
+			@include toggle();
+			.toggle {
+				left: -20px;
+				border-radius: 5px 0px 0px 5px;
+
+				&::before {
+					left: 7px;
+				}
+				&::after {
+					left: 14px;
+				}
+			}
+
+			&.show .toggle {
+				left: 280px;
+				top: 0;
+				border-radius: 0px 0px 0px 10px;
+				box-shadow: $shadow;
+				height: 40px;
+				background: map-get($map: $color, $key: "brown");
+
+				&::before,
+				&::after {
+					background: map-get($map: $color, $key: "lightgrey");
+				}
+			}
+		}
+
+		@include media_399 {
+			&.show {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 10000;
+				width: 100vw;
+				height: 100vh;
+				margin: 0;
+				border-radius: 0;
+
+				.toggle {
+					left: 95%;
+				}
+			}
+		}
+		.chat-wrapper {
+			height: calc(100vh - 80px);
+			overflow: auto scroll;
+
+			&::-webkit-scrollbar {
+				width: 0px;
+			}
+			@include media_399() {
+				height: 100vh;
+			}
+		}
+		.chats-header {
+			z-index: 10;
+			background: map-get($color, "lowgrey");
+			font-weight: 600;
+			border-radius: 10px 0px 0px;
+			transition: $transition;
+			position: -webkit-sticky;
+			position: sticky;
+			top: 0;
+			backdrop-filter: blur(5px);
+			-webkit-backdrop-filter: blur(5px);
+
+			@include media_399() {
+				border-radius: 0;
+			}
+
+			.title {
+				font-size: map-get($fonts, "medium");
+				padding: 10px;
+			}
+
+			.chats-nav {
+				display: flex;
+				flex-wrap: nowrap;
+				border-radius: 10px 0px 0px;
+				background: map-get($color, "lowgrey");
+				position: relative;
+
+				.common,
+				.private {
+					flex: 0.6;
+					display: grid;
+					place-items: center;
+					.icon {
+						max-width: 50px;
+					}
+				}
+				.nav-active {
+					position: absolute;
+					bottom: 0;
+					width: 50%;
+					left: 0;
+					transition: $transition;
+					border-bottom: 2px solid map-get($color, "skyblue");
+
+					&.p {
+						left: 50%;
+					}
+				}
+			}
+		}
+		.chats-body {
+			position: relative;
+			// @include media_399() {
+			// 	height: calc(100vh - 60px);
+			// }
+			.common-chats.pub-chats,
+			.private-chats {
+				width: 100%;
+				padding: 10px;
+				transition: $transition;
+				position: absolute;
+				top: 0;
+				left: 0;
+				background: map-get($map: $color, $key: "lightergrey");
+				// height: calc(100vh - 150px);
+				// overflow: scroll;
+
+				@include media_399() {
+					height: calc(100vh - 60px);
+				}
+			}
+
+			.private-chats {
+				visibility: hidden;
+
+				&.p {
+					z-index: 5;
+					visibility: visible;
+				}
+				.chat-security {
+					display: grid;
+					place-items: center;
+					place-content: center;
+					height: 300px;
+				}
+				.label {
+					margin-bottom: 20px;
+
+					h4 {
+						font-size: map-get($fonts, "big");
+						color: map-get($color, "brown");
+					}
+				}
+				.unlock {
+					width: 200px;
+					height: 30px;
+					padding: 10px;
+					background: map-get($color, "white");
+					border-radius: 50px;
+					box-shadow: $shadow;
+				}
+			}
+			.chats-list {
+				list-style: none;
+
+				.chat {
+					display: flex;
+					flex-wrap: nowrap;
+					border-radius: 30px;
+					background: map-get($color, "white");
+					margin-bottom: 7px;
+					position: relative;
+					padding-left: 40px;
+
+					.user {
+						position: absolute;
+						left: 0;
+						top: -2px;
+					}
+					.image {
+						width: 40px;
+						height: 40px;
+						border-radius: 50%;
+					}
+
+					.username {
+						width: 80%;
+						line-height: 13px;
+						font-weight: 600;
+						padding: 5px;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						font-size: map-get($fonts, "small");
+						color: map-get($color, "brown");
+
+						.name {
+							overflow: hidden;
+							white-space: nowrap;
+							text-overflow: ellipsis;
+						}
+
+						.last-message {
+							color: map-get($color, "skyblue");
+							font-size: map-get($fonts, "smaller");
+						}
+					}
+					.status.not-seen-message {
+						width: 20%;
+						position: relative;
+
+						.active {
+							width: 5px;
+							height: 5px;
+							background: map-get($color, "skyblue");
+							border-radius: 50%;
+							position: absolute;
+							top: 6px;
+							right: 15px;
+						}
+						.not-seen {
+							width: 15px;
+							height: 15px;
+							font-size: map-get($map: $fonts, $key: "smaller");
+							position: absolute;
+							bottom: 6px;
+							right: 10px;
+							border-radius: 50%;
+							display: grid;
+							place-items: center;
+							background: map-get(
+								$map: $color,
+								$key: "lightgrey"
+							);
+						}
+					}
+				}
+			}
+		}
+	}
+}
