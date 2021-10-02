@@ -120,7 +120,7 @@ function ChatBoard() {
 		j(".nav-active").addClass("p");
 		j(".private-chats").addClass("p").fadeIn(1000);
 	};
-	function openRoom(user, e) {
+	function openRoom(data, e) {
 		console.log(
 			parseInt(j(e.target).parents(".user").find(".not-seen span").html())
 		);
@@ -129,9 +129,10 @@ function ChatBoard() {
 				j(e.target).parents(".user").find(".not-seen span").html()
 			) > 0;
 		if (html) {
+			const friendId = user?.IdPack.Friends;
 			setFriends((state) => {
 				state = state.map((u) => {
-					if (u.Id === user.Id) {
+					if (u.Id === data.Id) {
 						u.UnseenMessages = 0;
 					}
 					return u;
@@ -139,8 +140,14 @@ function ChatBoard() {
 
 				return state;
 			});
+			socket.emit("CLEARSEEN", {_id: friendId}, (err, done) => {
+				if (err) {
+					alert("Internal server error: restarting window now");
+					location.reload();
+				}
+			});
 		}
-		ChatRoom({j, user, from: props?.user.id, e, socket});
+		ChatRoom({j, data, from: props?.user.id, e, socket});
 	}
 
 	console.log(friends);

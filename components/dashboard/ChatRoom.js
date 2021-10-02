@@ -862,7 +862,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 	const Status = (data) => {
 		if (data._id === to) {
-			Online.html(data.online);
+			Online.html(data.online ? "online" : "offline");
 		}
 	};
 

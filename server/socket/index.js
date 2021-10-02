@@ -362,20 +362,19 @@ function ControlSocketActions(socket) {
 				},
 			}).exec();
 
-			console.log("Passed Messages");
-			Friends.findAndUpdate(
-				{_id: new ObjectId(data.to), "friends._id": data._id},
+			Friends.updateMany(
+				{
+					"friends._id": new ObjectId(data._id),
+				},
 				{
 					$set: {
 						"friends.$.Last_Message": data.message,
-						$inc: {
-							"friends.$.UnseenMessages": 1,
-						},
+					},
+					$inc: {
+						"friends.$.UnseenMessages": 1,
 					},
 				}
 			).exec();
-
-			console.log("PAssed friends");
 
 			const soc = await Activities.find({UserId: data.to});
 			data.date = new Date();
@@ -388,6 +387,18 @@ function ControlSocketActions(socket) {
 		}
 	});
 
+	socket.on("CLEANSEEN", async ({_id}, callback) => {
+		try {
+			await Friends.findByIdAndUpdate(_id, {
+				$set: {
+					"friends.UnseenMessages": 0,
+				},
+			});
+			callback(null, "done");
+		} catch (err) {
+			callback("There iss error", null);
+		}
+	});
 	socket.on("disconnect", (user) => {
 		Activities.findOneAndDelete({SocketId: socket.id}, async (err) => {
 			if (!err) {
