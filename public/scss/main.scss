@@ -1346,6 +1346,8 @@ body {
 					display: flex;
 					overflow-y: scroll;
 					flex-direction: column;
+					-webkit-user-select: none;
+					user-select: none;
 
 					&::-webkit-scrollbar {
 						width: 5px;
@@ -1409,6 +1411,39 @@ body {
 						}
 					}
 
+					.outgoing-message {
+						width: 100%;
+						position: relative;
+						margin-bottom: 10px;
+
+						.form-message {
+							&.failed.before::before {
+								content: "Your friend failed it";
+							}
+							&.correct.before::before {
+								content: "Your friend got your question";
+							}
+						}
+						&.adjust {
+							margin-bottom: 3px;
+						}
+						.time-count {
+							padding: 5px;
+						}
+
+						.message-wrapper {
+							float: right;
+						}
+
+						.form-message {
+							float: right;
+						}
+
+						.text {
+							padding: 4px 5px 2px 5px;
+						}
+					}
+
 					.text {
 						font-size: map-get($fonts, "smaller");
 						font-weight: 600;
@@ -1459,6 +1494,41 @@ body {
 						max-width: 70%;
 						position: relative;
 
+						&.correct {
+							box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
+						}
+						&.failed {
+							box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
+						}
+						&.correct,
+						&.failed {
+							&.before::before {
+								position: absolute;
+								content: "Correct. Congrats";
+								display: grid;
+								place-items: center;
+								text-align: center;
+								color: rgb(255, 255, 255);
+								font-size: 11px;
+								height: 20%;
+								bottom: 0px;
+								font-weight: 700;
+								border-radius: 10px;
+								width: 100%;
+								z-index: 20;
+								pointer-events: none;
+								background: rgba(47, 181, 47, 0.974);
+								backdrop-filter: blur(10px);
+								-webkit-backdrop-filter: blur(10px);
+							}
+						}
+
+						&.failed.before::before {
+							content: "fail. Sorry!";
+
+							background: rgba(216, 50, 50, 0.974);
+						}
+
 						.user-image {
 							z-index: 20px;
 						}
@@ -1497,6 +1567,7 @@ body {
 						}
 
 						.text {
+							padding: 5px;
 							background: map-get($map: $color, $key: "lowgrey");
 						}
 						.options {
@@ -1505,19 +1576,28 @@ body {
 
 							.option {
 								display: flex;
-								flex-wrap: wrap;
+								flex-wrap: nowrap;
+								line-height: 9px;
 								align-items: center;
 								font-weight: 600;
 								box-shadow: $shadow;
 								padding: 3px 8px 3px 3px;
 								border-radius: 20px;
-								margin-bottom: 10px;
+								margin-bottom: 5px;
 								color: map-get($map: $color, $key: "brown");
 								font-size: map-get(
 									$map: $fonts,
 									$key: "smaller"
 								);
 
+								&.correct {
+									box-shadow: 0px 0px 5px
+										rgba(0, 255, 0, 0.522);
+								}
+								&.failed {
+									box-shadow: 0px 0px 5px
+										rgba(255, 0, 0, 0.556);
+								}
 								.form-group {
 									margin-right: 5px;
 								}
@@ -1553,31 +1633,6 @@ body {
 							&.won {
 								color: map-get($map: $color, $key: "green");
 							}
-						}
-					}
-
-					.outgoing-message {
-						width: 100%;
-						position: relative;
-						margin-bottom: 10px;
-
-						&.adjust {
-							margin-bottom: 3px;
-						}
-						.time-count {
-							padding: 5px;
-						}
-
-						.message-wrapper {
-							float: right;
-						}
-
-						.form-message {
-							float: right;
-						}
-
-						.text {
-							padding: 4px 5px 2px 5px;
 						}
 					}
 				}

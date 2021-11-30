@@ -15,10 +15,7 @@ function ChatBoard() {
 
 	const NewFriend = useCallback((data) => {
 		console.log("NewFriends emitted", data);
-		setFriends((state) => {
-			state = [data, ...state];
-			return state;
-		});
+		setFriends([data, ...friends]);
 	}, []);
 
 	const IncomingMessage = useCallback((data) => {
@@ -52,10 +49,8 @@ function ChatBoard() {
 			state.map((user) => {
 				if (user.Id === data.to) {
 					user.Last_Message = "You: " + data.message;
-
 					oldState.unshift(user);
 				}
-				return;
 			});
 
 			return oldState;
@@ -65,14 +60,16 @@ function ChatBoard() {
 	const Status = useCallback((data) => {
 		setFriends((state) => {
 			const newState = state.map((user) => {
-				if (user.Id === data._id) {
-					user.active = data.online;
-				}
+				if (user.Id === data._id) user.active = data.online;
 				return user;
 			});
 
 			return newState;
 		});
+	}, []);
+
+	const ANSWERED = useCallback((data) => {
+		console.log(data);
 	}, []);
 
 	useEffect(() => {
@@ -81,6 +78,7 @@ function ChatBoard() {
 			socket.on("INCOMINGMESSAGE", IncomingMessage);
 			socket.on("OUTGOINGMESSAGE", OutgoingMessage);
 			socket.on("STATUS", Status);
+			socket.on("ANSWERED", ANSWERED);
 		}
 
 		socket.emit("ACTIVEUSERS", (actives) => {
@@ -89,11 +87,10 @@ function ChatBoard() {
 				state = state.map((user) => {
 					const _id = user.Id.slice(19, 24);
 					const active = actives.includes(_id);
-					if (active) {
-						user.active = true;
-					} else {
-						user.active = false;
-					}
+
+					if (active) user.active = true;
+					else user.active = false;
+
 					return user;
 				});
 
@@ -108,6 +105,7 @@ function ChatBoard() {
 			socket.off("INCOMINGMESSAGE", IncomingMessage);
 			socket.off("OUTGOINGMESSAGE", OutgoingMessage);
 			socket.off("STATUS", Status);
+			socket.off("ANSWERED", ANSWERED);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [socket]);
@@ -120,34 +118,35 @@ function ChatBoard() {
 		j(".nav-active").addClass("p");
 		j(".private-chats").addClass("p").fadeIn(1000);
 	};
+
 	function openRoom(data, e) {
-		console.log(
-			parseInt(j(e.target).parents(".user").find(".not-seen span").html())
-		);
 		var html =
 			parseInt(
 				j(e.target).parents(".user").find(".not-seen span").html()
 			) > 0;
 		if (html) {
-			const friendId = user?.IdPack.Friends;
+			const friendId = props?.user.id;
 			setFriends((state) => {
 				state = state.map((u) => {
-					if (u.Id === data.Id) {
-						u.UnseenMessages = 0;
-					}
+					if (u.Id === data.Id) u.UnseenMessages = 0;
 					return u;
 				});
-
 				return state;
 			});
-			socket.emit("CLEARSEEN", {_id: friendId}, (err, done) => {
-				if (err) {
-					alert("Internal server error: restarting window now");
-					location.reload();
+			socket.emit(
+				"CLEANSEEN",
+				{_id: friendId, Id: data._id},
+				(err, done) => {
+					console.log(err || done);
+					if (err) {
+						alert("Internal server error: restarting window now");
+						location.reload();
+					}
 				}
-			});
+			);
 		}
-		ChatRoom({j, data, from: props?.user.id, e, socket});
+
+		ChatRoom({j, user: data, from: props?.user.id, e, socket});
 	}
 
 	console.log(friends);

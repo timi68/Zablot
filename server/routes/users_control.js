@@ -14,7 +14,6 @@ const uuid = require("uuid");
 const {ObjectId} = require("mongodb");
 const async = require("async");
 const {v4: uuidv4} = uuid;
-const calluser = ({id, session_id}) => {};
 
 const addUsers = async (body) => {
 	try {
@@ -23,15 +22,10 @@ const addUsers = async (body) => {
 
 		const salt = await bcrypt.genSalt(10);
 		const hash = await bcrypt.hash(body.Password, salt);
-		const IdPack = {
-			Settings: new mongoose.Types.ObjectId(),
-			Friends: new mongoose.Types.ObjectId(),
-			Notifications: new mongoose.Types.ObjectId(),
-			FriendRequests: new mongoose.Types.ObjectId(),
-			Uploads: new mongoose.Types.ObjectId(),
-		};
+		const _id = new mongoose.Types.ObjectId();
 
 		const user = new Users({
+			_id: _id,
 			FullName: body.fullName,
 			UserName: body.UserName,
 			Email: body.Email,
@@ -43,12 +37,11 @@ const addUsers = async (body) => {
 			Gender: body.gender,
 			Online: false,
 			Account_Creation_Date: new Date(),
-			IdPack,
-			Settings: IdPack.Settings,
-			Friends: IdPack.Friends,
-			Notifications: IdPack.Notifications,
-			FriendRequests: IdPack.FriendRequests,
-			Uploads: IdPack.Uploads,
+			Settings: _id,
+			Friends: _id,
+			Notifications: _id,
+			FriendRequests: _id,
+			Uploads: _id,
 		});
 
 		await user.save();
@@ -222,32 +215,10 @@ const FetchUserDetails = async (id, cb) => {
 				FriendRequests: user.FriendRequests[0].requests,
 				Settings: user.Settings[0].settings,
 				PendingRequests: user.PendingRequests,
-				IdPack: user.IdPack,
 			};
 
 			return cb(user || null);
 		});
-};
-
-const CancelRequest = (from, to, cb) => {
-	try {
-		Users.findByIdAndUpdate(from, {
-			$pull: {PendingRequests: to},
-		}).exec();
-
-		Users.findById(to)
-			.populate("FriendRequests")
-			.exec((err, user) => {
-				const requestId = user.FriendRequests[0]._id;
-				FriendRequests.findByIdAndUpdate(requestId, {
-					$pull: {requests: {From: from}},
-				}).exec();
-			});
-
-		cb(null);
-	} catch (err) {
-		cb("Server error");
-	}
 };
 
 const fetchMessages = async (id, cb) => {
@@ -265,6 +236,5 @@ module.exports = {
 	checkUser,
 	Search,
 	FetchUsers,
-	CancelRequest,
 	fetchMessages,
 };

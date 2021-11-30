@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+// @ts-check
+
 import {v4 as uuid} from "uuid";
-import GroupNotification from "../../lib/GroupNotifications";
 
 export function ChatRoom({j, user, from, e, socket}) {
 	console.log(user);
@@ -220,6 +221,10 @@ export function ChatRoom({j, user, from, e, socket}) {
 		}
 	}
 
+	/**
+	 * @param {any} t
+	 * @param {string} _class
+	 */
 	function sendMessage(t, _class) {
 		const hrs = new Date().getHours();
 		const mins =
@@ -251,24 +256,28 @@ export function ChatRoom({j, user, from, e, socket}) {
 		if (_class === "outgoing-message") {
 			console.log("emitting now");
 
+			const I = {
+				_id,
+				from,
+				to,
+				type: "plain",
+				message: t,
+			};
 			socket.emit(
 				"OUTGOINGMESSAGE",
-				{
-					_id,
-					from,
-					to,
-					type: "plain",
-					message: t,
-				},
-				(err, done) => {
-					if (!err) {
+				I,
+				(/** @type {any} */ err, {messageId}) => {
+					console.log(err ?? messageId, "from emitter");
+					if (!err && messageId) {
 						if (lastChild.is(".outgoing-message")) {
 							lastChild.addClass("adjust");
 						}
+
 						if (lastTime) {
 							roomBody.append(group);
 						}
 						outgoing
+							.attr("id", messageId)
 							.appendTo(roomBody)
 							.parent()
 							.animate(
@@ -282,6 +291,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 					}
 				}
 			);
+			j(message).val("");
 		}
 
 		if (_class === "incoming-message") {
@@ -305,9 +315,11 @@ export function ChatRoom({j, user, from, e, socket}) {
 					"slow"
 				);
 		}
-		j(message).val("");
 	}
 
+	/**
+	 * @param {any} e
+	 */
 	function MediaList(e) {
 		j(media).toggleClass("active");
 	}
@@ -315,7 +327,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 	function CloseCard() {
 		socket.off("INCOMINGMESSAGE", IncomingMessage);
 		socket.off("STATUS", Status);
-		socket.off("INCOMINGFORM");
+		socket.off("INCOMINGFORM", IncomingForm);
+		socket.off("ANSWERED", ANSWERED);
 		j(this)
 			.parents(".chats-form")
 			.slideToggle(700)
@@ -431,7 +444,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 				}
 				j(optionList)
 					.find("textarea")
-					.each((i, e) => {
+					.each((/** @type {number} */ i, /** @type {any} */ e) => {
 						let val = j(e).val();
 						if (val == "") {
 							let jscroll =
@@ -461,13 +474,9 @@ export function ChatRoom({j, user, from, e, socket}) {
 		{
 			var options = j(CreatePoll)
 				.find(".answer")
-				.map(function (i, e) {
+				.map(function (/** @type {any} */ i, /** @type {any} */ e) {
 					let option = [];
-					var text = j(e)
-						.parents(".option")
-						.find("textarea")
-						.eq(0)
-						.val();
+					var text = j(e).parents("li").find("textarea").eq(0).val();
 					var checked = j(e).is(":checked");
 					option.push({
 						index: i,
@@ -482,7 +491,10 @@ export function ChatRoom({j, user, from, e, socket}) {
 			var hasClass = j(this).is(".create.active");
 			if (hasClass) {
 				var isChecked = j(options)
-					.filter((i) => options[i].checked === true)
+					.filter(
+						(/** @type {string | number} */ i) =>
+							options[i].checked === true
+					)
 					.toArray().length;
 
 				if (isChecked === 0) {
@@ -556,10 +568,29 @@ export function ChatRoom({j, user, from, e, socket}) {
 			};
 
 			resetPollStateToDefault();
-			CreateQuestionPreview(data);
-			socket.emit("OUTGOINGFORM", data, (err, done) => {
-				console.log(err ?? done);
-			});
+
+			socket.emit(
+				"OUTGOINGFORM",
+				data,
+				(
+					/** @type {any} */ err,
+					/** @type {{ formId: any; }} */ res
+				) => {
+					console.log(err ?? res);
+					if (!err && res?.formId) {
+						data._id = res.formId;
+						CreateQuestionPreview(data, true);
+						j(roomBody).animate(
+							{
+								scrollTop: j(roomBody).prop("scrollHeight"),
+							},
+							"slow"
+						);
+					} else {
+						console.log("There is error sending form message");
+					}
+				}
+			);
 		}
 	}
 
@@ -570,45 +601,79 @@ export function ChatRoom({j, user, from, e, socket}) {
 			.removeClass("active");
 	}
 
-	function CreateQuestionPreview(data, _class) {
+	/**
+	 * @param {{ answered?: object; _id?: any; options?: any[]; question?: String; coin?: Number; timer?: Number; }} data
+	 * @param {boolean} outgoing
+	 */
+	function CreateQuestionPreview(data, outgoing) {
 		console.log(data);
+		var answer = data.options.filter(
+			(option) => option.checked === true
+		)[0];
+		var choosed = data.answered?.index ? data.answered : null;
+		var key = uuid().slice(0, 12);
 
 		const timeCount = j("<div>", {class: "time-count"});
 		const timer = j("<div>", {class: "timer"});
 		const coin = j("<div>", {class: "coin"});
 		const coinAdded = j("<div>", {class: "coin-added"});
 		const pollQuestionHeader = j("<div>", {class: "poll-question-header"});
-		const question = j("<div>", {class: "text"});
+		const question = j("<div>", {class: "text", id: "question"});
 		const pollQuestion = j("<div>", {class: "poll-question"});
 		const formGroup = j("<div>", {class: "form-group"});
-		const formMessage = j("<div>", {class: "form-message poll question"});
+		const formMessage = j("<div>", {
+			class: `form-message poll question ${
+				choosed != undefined
+					? choosed.index === answer.index
+						? "correct"
+						: "failed"
+					: ""
+			}`,
+			id: data._id,
+		});
 		const wrapper = j("<div>", {
 			class: "outgoing-message outgoing-form",
+			id: data._id.slice(0, 10),
 		});
 		const pollOptions = j("<div>", {class: "poll-options"});
 		const ul = j("<ul>", {class: "options"}).append(
-			data.options.map((option, i) => {
-				return j("<li>", {
-					class: "option",
-				})
-					.append(
-						j("<div>", {
-							class: "form-group",
-						}).append(
-							j("<input>", {
-								type: "radio",
-								name: `option`,
-								id: "option",
-								class: `option${i}`,
-							})
+			data.options.map(
+				(
+					/** @type {{ index: any; checked: any; text: any; }} */ option,
+					/** @type {any} */ i
+				) => {
+					return j("<li>", {
+						class: `option ${
+							choosed != undefined
+								? choosed.index === option.index
+									? choosed.checked
+										? "correct"
+										: "failed"
+									: option.checked
+									? "correct"
+									: ""
+								: ""
+						}`,
+					})
+						.append(
+							j("<div>", {
+								class: "form-group",
+							}).append(
+								j("<input>", {
+									type: "radio",
+									name: key,
+									id: "option",
+									class: `option${i}`,
+								})
+							)
 						)
-					)
-					.append(
-						j("<div>", {
-							class: "option-text label",
-						}).append(j("<label>").text(option.text))
-					);
-			})
+						.append(
+							j("<div>", {
+								class: "option-text label",
+							}).append(j("<label>").text(option.text))
+						);
+				}
+			)
 		);
 
 		question.text(data.question);
@@ -625,7 +690,17 @@ export function ChatRoom({j, user, from, e, socket}) {
 		formGroup.append(pollQuestion, pollOptions);
 		formMessage.append(formGroup);
 		wrapper.append(formMessage);
-		wrapper.appendTo(roomBody);
+
+		if (outgoing == true) {
+			wrapper.appendTo(roomBody);
+			return;
+		}
+
+		if (choosed) {
+			j(ul).find("input").eq(choosed.index).prop("checked", true);
+			j(wrapper).css("pointerEvents", "none");
+		}
+		return wrapper;
 	}
 
 	function UpdatePoll() {
@@ -634,7 +709,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 		let question = j(textControl).val();
 		j(optionList)
 			.find("textarea")
-			.each((i, e) => {
+			.each((/** @type {any} */ i, /** @type {any} */ e) => {
 				let val = j(e).val();
 				!val ?? val === "" ? count++ : "";
 			});
@@ -670,7 +745,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 			.find(".create-question")
 			.removeClass("active")
 			.delay(500)
-			.queue(function (next) {
+			.queue(function (/** @type {() => void} */ next) {
 				j(chatForm)
 					.find(".text-control")
 					.val("")
@@ -692,6 +767,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 	const optionListMutation = new MutationObserver(function (e) {
 		if (e[0].removedNodes) {
+			// @ts-ignore
 			const childrenLength = e[0].target.children.length;
 			{
 				if (childrenLength >= 4) {
@@ -703,7 +779,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 		}
 	});
 
-	j(".option-list").each((i, e) => {
+	j(".option-list").each((/** @type {any} */ i, /** @type {Node} */ e) => {
 		if (i == index) {
 			optionListMutation.observe(e, {
 				childList: true,
@@ -738,100 +814,122 @@ export function ChatRoom({j, user, from, e, socket}) {
 		}
 	};
 
-	const FetchedMessages = (messages) => {
+	const FetchedMessages = (
+		/** @type {{ Message: any[]; _id: string; }} */ messages
+	) => {
 		const fragmentArray = [];
-		messages.Message.map((data, i) => {
-			const hrs = new Date(data.date).getHours();
-			const mins =
-				new Date(data.date).getMinutes().toString().length > 1
-					? new Date(data.date).getMinutes()
-					: "0" + new Date(data.date).getMinutes();
-			const cur = new Date(data.date).getDate();
+		messages.Message.map(
+			(
+				/** @type {{ date: Date; coming: String; going: String; Format: string; message: string; answered? : object; picked? : object }} */ data,
+				/** @type {number} */ i
+			) => {
+				const hrs = new Date(data.date).getHours();
+				const mins =
+					new Date(data.date).getMinutes().toString().length > 1
+						? new Date(data.date).getMinutes()
+						: "0" + new Date(data.date).getMinutes();
+				const cur = new Date(data.date).getDate();
 
-			const pre =
-				i > 0 ? new Date(messages.Message[i - 1].date).getDate() : "";
+				const pre =
+					i > 0
+						? new Date(messages.Message[i - 1].date).getDate()
+						: "";
 
-			console.log(cur, pre);
-			const Group = GroupMessage({cur, pre, i});
+				const Group = GroupMessage({cur, pre, i});
 
-			if (Group) {
-				const group = j("<div>", {class: "group"}).html(
-					"<span>" + Group + "</span>"
-				);
-				fragmentArray.push(group);
-			}
+				if (Group) {
+					const group = j("<div>", {class: "group"}).html(
+						"<span>" + Group + "</span>"
+					);
+					fragmentArray.push(group);
+				}
 
-			const prevComingId =
-				i > 0 ? messages.Message[i - 1].coming === data.coming : false;
-			const nextComingId =
-				i > 0 && i < messages.Message.length - 1
-					? messages.Message[i + 1].coming === data.coming
-					: false;
-			const prevGoingId =
-				i > 0 ? messages.Message[i - 1].going === data.going : false;
-			const nextGoingId =
-				i > 0 && i < messages.Message.length - 1
-					? messages.Message[i + 1].going === data.going
-					: false;
+				const prevComingId =
+					i > 0
+						? messages.Message[i - 1].coming === data.coming
+						: false;
+				const nextComingId =
+					i > 0 && i < messages.Message.length - 1
+						? messages.Message[i + 1].coming === data.coming
+						: false;
+				const prevGoingId =
+					i > 0
+						? messages.Message[i - 1].going === data.going
+						: false;
+				const nextGoingId =
+					i > 0 && i < messages.Message.length - 1
+						? messages.Message[i + 1].going === data.going
+						: false;
 
-			if (data.coming === to) {
-				const text = j("<div>", {class: "text"}).html(data.message);
-				const image = j(e.target)
-					.parents(".user")
-					.find(".user-image")
-					.clone();
-				const time = j("<span>", {class: "time"}).html(
-					`<small> ${hrs + ":" + mins} </small>`
-				);
-				const plain = j("<div>", {class: "plain-message"}).append(
-					text,
-					prevComingId ? "" : image,
-					time
-				);
+				if (data.coming === to) {
+					if (data.Format === "Form") {
+						const incoming = IncomingForm(data);
+						fragmentArray.push(incoming);
+						return;
+					}
+					const text = j("<div>", {class: "text"}).html(data.message);
+					const image = j(e.target)
+						.parents(".user")
+						.find(".user-image")
+						.clone();
+					const time = j("<span>", {class: "time"}).html(
+						`<small> ${hrs + ":" + mins} </small>`
+					);
+					const plain = j("<div>", {class: "plain-message"}).append(
+						text,
+						prevComingId ? "" : image,
+						time
+					);
 
-				const wrapper = j("<div>", {class: "message-wrapper"}).append(
-					plain
-				);
-				const incoming = j("<div>", {
-					class: `incoming-message ${
-						prevComingId
-							? nextComingId
-								? "adjust"
-								: "adjust-pd"
-							: nextComingId
-							? "adjust-mg"
-							: ""
-					}`,
-				}).append(wrapper);
+					const wrapper = j("<div>", {
+						class: "message-wrapper",
+					}).append(plain);
+					const incoming = j("<div>", {
+						class: `incoming-message ${
+							prevComingId
+								? nextComingId
+									? "adjust"
+									: "adjust-pd"
+								: nextComingId
+								? "adjust-mg"
+								: ""
+						}`,
+					}).append(wrapper);
 
-				return fragmentArray.push(incoming);
-			} else {
-				const text = j("<div>", {class: "text"}).html(data.message);
-				const time = j("<span>", {class: "time"}).html(
-					`<small> ${hrs + ":" + mins} </small>`
-				);
-				const plain = j("<div>", {class: "plain-message"}).append(
-					text,
-					time
-				);
-				const wrapper = j("<div>", {class: "message-wrapper"}).append(
-					plain
-				);
-				const outgoing = j("<div>", {
-					class: `outgoing-message ${
-						prevGoingId
-							? nextGoingId
+					return fragmentArray.push(incoming);
+				} else {
+					if (data.Format == "Form") {
+						const outgoing = CreateQuestionPreview(data, false);
+						fragmentArray.push(outgoing);
+						return;
+					}
+					const text = j("<div>", {class: "text"}).html(data.message);
+					const time = j("<span>", {class: "time"}).html(
+						`<small> ${hrs + ":" + mins} </small>`
+					);
+					const plain = j("<div>", {class: "plain-message"}).append(
+						text,
+						time
+					);
+					const wrapper = j("<div>", {
+						class: "message-wrapper",
+					}).append(plain);
+					const outgoing = j("<div>", {
+						class: `outgoing-message ${
+							prevGoingId
+								? nextGoingId
+									? "adjust"
+									: ""
+								: nextGoingId
 								? "adjust"
 								: ""
-							: nextGoingId
-							? "adjust"
-							: ""
-					} `,
-				}).append(wrapper);
+						} `,
+					}).append(wrapper);
 
-				return fragmentArray.push(outgoing);
+					return fragmentArray.push(outgoing);
+				}
 			}
-		});
+		);
 		roomBody
 			.append(fragmentArray)
 			.prop("scrollTop", roomBody.prop("scrollHeight"));
@@ -842,16 +940,23 @@ export function ChatRoom({j, user, from, e, socket}) {
 		type: "POST",
 		data: JSON.stringify({_id}),
 		contentType: "application/json",
-		success: (messages) => {
-			console.log(messages);
-			if (messages?.Message?.length > 1) {
+		success: (/** @type {{ Message: any[]; _id: String; }} */ messages) => {
+			if (messages?.Message?.length > 0) {
 				FetchedMessages(messages);
 			}
 		},
-		error: (x, i, jqXHR) => {
+		error: (
+			/** @type {any} */ x,
+			/** @type {any} */ i,
+			/** @type {any} */ jqXHR
+		) => {
 			console.log(x, i, jqXHR);
 		},
 	});
+
+	/**
+	 * @param {{ from: any; message: any; }} data
+	 */
 
 	function IncomingMessage(data) {
 		console.log(data);
@@ -860,77 +965,346 @@ export function ChatRoom({j, user, from, e, socket}) {
 		}
 	}
 
-	const Status = (data) => {
+	/**
+	 * @param {{ _id: any; online: any; }} data
+	 */
+
+	function Status(data) {
 		if (data._id === to) {
 			Online.html(data.online ? "online" : "offline");
 		}
-	};
+	}
+
+	/**
+	 *
+	 * @param {{ answered?: object; date?: Date,  _id?: any; options?: any[]; going?: String; coming?: String; from?: String, to?: String; question?: String; coin?: Number; timer?: Number; }} data
+	 * @returns
+	 */
 
 	const IncomingForm = (data) => {
-		console.log(data);
+		console.log("this", data);
+
+		// stopping unwanted caller
+		// function must have this specific attribute to continue
+		// @from || @going && @coming from the parameter @data
+
 		if (data.from !== to) {
-			return;
+			if (!data.going || !data.coming) {
+				return;
+			}
 		}
+
+		/**
+		 * @var {{index: Number, text: String, checked: Boolean}} answer
+		 */
+		var answer = data.options.filter(
+			(option) => option.checked === true
+		)[0];
+		const choosed = data.answered?.index ? data.answered : null;
+		const qCoin = data.coin ? data.coin : null;
+		var key = uuid().slice(0, 12);
+
 		const timeCount = j("<div>", {class: "time-count"});
 		const timer = j("<div>", {class: "timer"});
 		const coin = j("<div>", {class: "coin"});
 		const coinAdded = j("<div>", {class: "coin-added"});
 		const pollQuestionHeader = j("<div>", {class: "poll-question-header"});
-		const question = j("<div>", {class: "text"});
+		const question = j("<div>", {class: "text", id: "question"});
 		const pollQuestion = j("<div>", {class: "poll-question"});
 		const formGroup = j("<div>", {class: "form-group"});
-		const formMessage = j("<div>", {class: "form-message poll question"});
+		const formMessage = j("<div>", {
+			class: `form-message poll question ${
+				choosed != undefined
+					? choosed.index === answer.index
+						? "correct"
+						: "failed"
+					: ""
+			}`,
+			id: data._id,
+		});
 		const wrapper = j("<div>", {
 			class: "incoming-message incoming-form",
+			id: data._id.slice(0, 10),
 		});
 		const pollOptions = j("<div>", {class: "poll-options"});
-		const ul = j("<ul>", {class: "options"}).append(
-			data.options.map((option, i) => {
-				return j("<li>", {
-					class: "option",
-				})
-					.append(
-						j("<div>", {
-							class: "form-group",
-						}).append(
-							j("<input>", {
-								type: "radio",
-								name: `option`,
-								id: "option",
-								class: `option${i}`,
-							}).click(function () {
-								console.log(option);
-							})
-						)
-					)
-					.append(
-						j("<div>", {
-							class: "option-text label",
-						}).append(j("<label>").text(option.text))
-					);
-			})
-		);
+		const ul = j("<ul>", {class: "options"}).append(data.options.map(Map));
 
-		question.text(data.question);
-		coin.html(`coins <b>${data.coin}</b>`);
-		timeCount.html(`Time remaining <b>${data.timer}s</b>`);
-		coinAdded.append(coin);
-		timer.append(timeCount);
-		pollQuestionHeader.append(
-			data.timer ? timer : "",
-			data.coin ? coinAdded : ""
-		);
-		pollQuestion.append(pollQuestionHeader, question);
-		pollOptions.append(ul);
-		formGroup.append(pollQuestion, pollOptions);
-		formMessage.append(formGroup);
-		wrapper.append(formMessage);
-		wrapper.appendTo(roomBody);
+		// Appending to elements created by jquery
+		{
+			question.text(data.question);
+			coin.html(`coins <b>${data.coin}</b>`);
+			timeCount.html(`Time remaining <b>${data.timer}</b>s`);
+			coinAdded.append(coin);
+			timer.append(timeCount);
+			pollQuestionHeader.append(
+				data.timer ? timer : "",
+				data.coin ? coinAdded : ""
+			);
+			pollQuestion.append(pollQuestionHeader, question);
+			pollOptions.append(ul);
+			formGroup.append(pollQuestion, pollOptions);
+			formMessage.append(formGroup);
+			wrapper.append(formMessage);
+		}
+
+		/**
+		 * @param {{ index?: Number; checked: Boolean; text?: String; }} option
+		 * @param {Number} i
+		 */
+
+		function Map(option, i) {
+			return j("<li>", {
+				class: `option ${
+					choosed != undefined
+						? choosed.index === option.index
+							? choosed.checked
+								? "correct"
+								: "failed"
+							: option.checked
+							? "correct"
+							: ""
+						: ""
+				}`,
+			})
+				.append(
+					j("<div>", {
+						class: "form-group",
+					}).append(
+						data.date || !choosed
+							? j("<input>", {
+									type: "radio",
+									name: key,
+									id: "option",
+									class: `option${i}`,
+							  }).click(function () {
+									ANSWERCLICKED(this, option, data._id);
+							  })
+							: j("<input>", {
+									type: "radio",
+									name: key,
+									id: "option",
+									class: `option${i}`,
+							  })
+					)
+				)
+				.append(
+					j("<div>", {
+						class: "option-text label",
+					}).append(j("<label>").text(option.text))
+				);
+		}
+
+		// function that will be triggered when one of the option is clicked
+		// user has only one chance of choosing an option
+
+		/**
+		 * @param {any} element
+		 * @param {{checked: boolean;}} option
+		 * @param {String} messageId
+		 */
+		function ANSWERCLICKED(element, option, messageId) {
+			if (option.checked === true) {
+				j(element).parents("li").addClass("correct");
+				j(formMessage).addClass("correct before");
+
+				const D = {
+					id: _id,
+					from,
+					to,
+					messageId,
+					picked: option,
+					answer,
+					coin: data.coin,
+					timer: data.timer,
+				};
+
+				socket.emit(
+					"ANSWERED",
+					D,
+					(/** @type {any} */ err, /** @type {any} */ done) => {
+						console.log(err || done, "from answered callback");
+
+						if (!err) {
+							if (qCoin) {
+								var text = j(".coin-count span").html();
+								text = parseInt(text);
+								var count = 0;
+								var decrement = setInterval(() => {
+									text++;
+									j(".coin-count span").html(text);
+									count++;
+
+									if (count == qCoin) {
+										clearInterval(decrement);
+									}
+								}, 20);
+							}
+						}
+					}
+				);
+			} else {
+				j(element).parents("li").addClass("failed");
+				j(formMessage).addClass("failed before");
+
+				j(formMessage)
+					.find(`.option${answer.index}`)
+					.parents("li")
+					.addClass("correct");
+
+				const D = {
+					id: _id,
+					from,
+					to,
+					messageId,
+					picked: option,
+					answer,
+					coin: data.coin,
+					timer: data.timer,
+				};
+
+				socket.emit(
+					"ANSWERED",
+					D,
+					(/** @type {any} */ err, /** @type {any} */ done) => {
+						console.log(err || done, "from answered callback");
+						if (!err) {
+							if (qCoin) {
+								var text = j(".coin-count span").html();
+								text = parseInt(text);
+								var count = 0;
+								var decrement = setInterval(() => {
+									text--;
+									j(".coin-count span").html(text);
+									count++;
+
+									if (count == qCoin) {
+										clearInterval(decrement);
+									}
+								}, 20);
+							}
+						}
+					}
+				);
+			}
+
+			j(formMessage)
+				.find("input")
+				.each((/** @type {any} */ i, /** @type {any} */ e) => {
+					j(e).off();
+				});
+
+			setTimeout(() => {
+				j(formMessage).removeClass("before");
+			}, 5000);
+		}
+
+		// clearing moovement cos the initial function is serving 2 caller
+		// checking where it's coming using this if statement
+		// @incoming is a parameter pass to the function
+
+		if (!choosed && data.from) {
+			wrapper.appendTo(roomBody);
+			j(roomBody).animate(
+				{
+					scrollTop: j(roomBody).prop("scrollHeight"),
+				},
+				"slow"
+			);
+			var timing = setInterval(() => {
+				var time = parseInt(j(timeCount).find("b").html()) - 1;
+				j(timeCount).find("b").html(time);
+
+				if (time === 0) {
+					console.log("the time is over");
+					clearInterval(timing);
+
+					j(ul)
+				}
+			}, 1000);
+		} else {
+			if (choosed) {
+				j(ul).find("input").eq(choosed.index).prop("checked", true);
+				j(wrapper).css("pointerEvents", "none");
+			}
+
+			return wrapper;
+		}
 	};
+
+	// Handler for socket ANSWERED event
+	/**
+	 * @param {{ coin: string; answer: { index: any; }; messageId: String; picked: { index: any; }; id: any; answered: { index: any; }; from: String;  _id: any; }} data
+	 */
+	function ANSWERED(data) {
+		console.log(data);
+
+		if (data.from !== to) {
+			return;
+		}
+
+		var qCoin = parseInt(data.coin);
+		var coin = parseInt(j(document).find(".coin-count span").html());
+
+		if (data.answer.index === data.picked.index) {
+			var count = 0;
+			console.log(
+				j(`#${data.messageId}`).find("input").eq(data.answer.index)
+			);
+			j(`#${data.messageId}`).addClass("correct before");
+
+			j(`#${data.messageId}`)
+				.find("input")
+				.eq(data.picked.index)
+				.prop("checked", true)
+				.parents("li")
+				.addClass("correct");
+
+			setTimeout(() => {
+				j(roomBody).find(`#${data.messageId}`).removeClass("before");
+			}, 5000);
+
+			var decrement = setInterval(() => {
+				coin--;
+				j(document).find(".coin-count span").html(coin);
+				count++;
+
+				if (count == qCoin) {
+					clearInterval(decrement);
+				}
+			}, 20);
+		} else {
+			var count = 0;
+			j(`#${data.messageId}`).addClass("failed before");
+			j(`#${data.messageId}`)
+				.find("input")
+				.eq(data.picked.index)
+				.prop("checked", true)
+				.parents("li")
+				.addClass("failed");
+
+			setTimeout(() => {
+				j(roomBody).find(`#${data.messageId}`).removeClass("before");
+			}, 5000);
+
+			var increment = setInterval(() => {
+				coin++;
+				j(document).find(".coin-count span").html(coin);
+				count++;
+
+				if (count == qCoin) {
+					clearInterval(increment);
+				}
+			}, 20);
+		}
+	}
+
+	// Socket handler; socket listener set when each group in created
+	// they are also removed when user close the room
 
 	socket.on("INCOMINGMESSAGE", IncomingMessage);
 	socket.on("STATUS", Status);
 	socket.on("INCOMINGFORM", IncomingForm);
+	socket.on("ANSWERED", ANSWERED);
 }
 
 export default ChatRoom;

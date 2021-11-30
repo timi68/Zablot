@@ -43,6 +43,7 @@ const SettingSchema = Schema(
 
 const UsersSchema = Schema(
 	{
+		_id: Schema.Types.ObjectId,
 		FullName: {
 			type: String,
 			required: true,
@@ -94,17 +95,23 @@ const UsersSchema = Schema(
 			profile: String,
 			cover: String,
 		},
-		PendingRequests: [],
-		IdPack: {
-			Settings: Schema.Types.ObjectId,
-			Friends: Schema.Types.ObjectId,
-			Notifications: Schema.Types.ObjectId,
-			FriendRequests: Schema.Types.ObjectId,
-			Uploads: Schema.Types.ObjectId,
+		PendingRequests: {
+			type: Array,
+			default: [],
 		},
-		Online: Boolean,
+		Online: {
+			type: Boolean,
+			default: false,
+		},
 		Last_Seen: String,
-		All_Logins: Array,
+		All_Logins: {
+			type: Array,
+			default: [],
+		},
+		Coins: {
+			type: Number,
+			default: 0,
+		},
 		Account_Creation_Date: Date,
 		DateOfBirth: Date,
 	},
@@ -145,16 +152,20 @@ const MessagesSchema = Schema(
 		},
 		Message: [
 			{
+				_id: Schema.Types.ObjectId,
 				Format: String,
 				message: String,
 				going: String,
 				coming: String,
 				question: String,
 				options: Array,
+				date: {
+					type: Date,
+					default: new Date(),
+				},
+				answered: Object,
 				coin: Number,
 				timer: Number,
-				date: Date,
-				seen: Boolean,
 			},
 		],
 		VoiceCall: [],

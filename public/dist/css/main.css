@@ -1425,6 +1425,7 @@ body {
   display: flex;
   overflow-y: scroll;
   flex-direction: column;
+  user-select: none;
 }
 
 .wrapper .main-body .chat-form-container .chats-form .room-body::-webkit-scrollbar {
@@ -1496,6 +1497,40 @@ body {
   padding: 3px 6px 3px 6px;
 }
 
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message {
+  width: 100%;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .form-message.failed.before::before {
+  content: "Your friend failed it";
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .form-message.correct.before::before {
+  content: "Your friend got your question";
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message.adjust {
+  margin-bottom: 3px;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .time-count {
+  padding: 5px;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .message-wrapper {
+  float: right;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .form-message {
+  float: right;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .text {
+  padding: 4px 5px 2px 5px;
+}
+
 .wrapper .main-body .chat-form-container .chats-form .room-body .text {
   font-size: 10px;
   font-weight: 600;
@@ -1550,6 +1585,39 @@ body {
   position: relative;
 }
 
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message.correct {
+  box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message.failed {
+  box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message.correct.before::before, .wrapper .main-body .chat-form-container .chats-form .room-body .form-message.failed.before::before {
+  position: absolute;
+  content: "Correct. Congrats";
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: white;
+  font-size: 11px;
+  height: 20%;
+  bottom: 0px;
+  font-weight: 700;
+  border-radius: 10px;
+  width: 100%;
+  z-index: 20;
+  pointer-events: none;
+  background: rgba(47, 181, 47, 0.974);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message.failed.before::before {
+  content: "fail. Sorry!";
+  background: rgba(216, 50, 50, 0.974);
+}
+
 .wrapper .main-body .chat-form-container .chats-form .room-body .form-message .user-image {
   z-index: 20px;
 }
@@ -1591,6 +1659,7 @@ body {
 }
 
 .wrapper .main-body .chat-form-container .chats-form .room-body .form-message .text {
+  padding: 5px;
   background: #d6d6d67d;
 }
 
@@ -1601,15 +1670,24 @@ body {
 
 .wrapper .main-body .chat-form-container .chats-form .room-body .form-message .options .option {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  line-height: 9px;
   align-items: center;
   font-weight: 600;
   box-shadow: 0px 0px 10px 1px rgba(102, 99, 99, 0.241);
   padding: 3px 8px 3px 3px;
   border-radius: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   color: #4d4646;
   font-size: 10px;
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message .options .option.correct {
+  box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
+}
+
+.wrapper .main-body .chat-form-container .chats-form .room-body .form-message .options .option.failed {
+  box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
 }
 
 .wrapper .main-body .chat-form-container .chats-form .room-body .form-message .options .option .form-group {
@@ -1643,32 +1721,6 @@ body {
 
 .wrapper .main-body .chat-form-container .chats-form .room-body .form-message .response.won {
   color: #597f85;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message {
-  width: 100%;
-  position: relative;
-  margin-bottom: 10px;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message.adjust {
-  margin-bottom: 3px;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .time-count {
-  padding: 5px;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .message-wrapper {
-  float: right;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .form-message {
-  float: right;
-}
-
-.wrapper .main-body .chat-form-container .chats-form .room-body .outgoing-message .text {
-  padding: 4px 5px 2px 5px;
 }
 
 .wrapper .main-body .chat-form-container .chats-form .message-options {

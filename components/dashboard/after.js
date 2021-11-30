@@ -7,7 +7,15 @@ import j from "jquery";
 import Notifications from "./header/Notifications";
 import UploadScreen from "./uploadsection/UploadScreen";
 import ChatRoom from "./ChatRoom";
-import {useContext, useEffect, useState, Fragment, useRef} from "react";
+import {
+	useContext,
+	useEffect,
+	useState,
+	useCallback,
+	Fragment,
+	useRef,
+	useMemo,
+} from "react";
 import Sidebar from "./sidebar/Sidebar";
 import ChatBoard from "./chatboard/ChatBoard";
 import FriendRequests from "./header/FriendRequest";
@@ -18,25 +26,26 @@ import {v4 as uuid} from "uuid";
 export default function AfterRender() {
 	const {socket, props, user} = useContext(SocketContext);
 	const Close = useRef(null);
+	const NotificationAlert = useRef(null);
+
+	const Handler = (data) => {
+		console.log(data);
+		j(NotificationAlert.current)
+			.animate(
+				{
+					left: "300px",
+				},
+				1000
+			)
+			.promise()
+			.done(function () {
+				setTimeout(() => {
+					j(NotificationAlert.current).css("left", "-300px");
+				}, 3000);
+			});
+	};
 
 	useEffect(() => {
-		const Handler = (data) => {
-			console.log(data);
-			j(document)
-				.find(".notification_alert")
-				.animate(
-					{
-						left: "300px",
-					},
-					1000
-				)
-				.promise()
-				.done(function () {
-					setTimeout(() => {
-						j(".notification_alert").css("left", "-300px");
-					}, 3000);
-				});
-		};
 		if (socket) {
 			socket.on("Notifications", Handler);
 		}
@@ -51,7 +60,7 @@ export default function AfterRender() {
 			j(".toggle").each((i, e) => {
 				j(e).click(function () {
 					if (!j(this).parent().hasClass("show"))
-						j(document).find(".show").removeClass("show expand");
+						j(document).find(".show").removeClass("show");
 					j(this).parent().toggleClass("show");
 				});
 			});
@@ -95,11 +104,40 @@ export default function AfterRender() {
 					}
 				}
 			});
+
 			chatform.observe(document.querySelector(".chat-form-container"), {
 				childList: true,
 			});
 		}
-	}, [props?.user.id]);
+	}, []);
+
+	const Memo = {
+		TopHeader: useMemo(() => {
+			return (
+				<div className="top-header flex-row">
+					<div className="logo-wrapper">
+						<div className="logo">
+							<h4 className="title">Zablot</h4>
+						</div>
+					</div>
+					<div className="coin-wrapper">
+						<div className="coin">
+							<h4 className="coin-count">
+								<span>500</span> <small>coins</small>
+							</h4>
+						</div>
+					</div>
+				</div>
+			);
+		}, []),
+		Profile: useMemo(() => <ProfileCard />, []),
+		Notification: useMemo(() => <Notifications />, []),
+		FriendRequests: useMemo(() => <FriendRequests />, []),
+		Sidebar: useMemo(() => <Sidebar />, []),
+		ChatBoard: useMemo(() => {
+			return <ChatBoard />;
+		}, []),
+	};
 
 	console.log("mounting from after");
 	return (
@@ -107,43 +145,30 @@ export default function AfterRender() {
 			<div className="container">
 				<div className="wrapper">
 					<header className="page-header header main-header">
-						<div className="top-header flex-row">
-							<div className="logo-wrapper">
-								<div className="logo">
-									<h4 className="title">Zablot</h4>
-								</div>
-							</div>
-							<div className="coin-wrapper">
-								<div className="coin">
-									<h4 className="coin-count">
-										500 <small>coins</small>
-									</h4>
-								</div>
-							</div>
-						</div>
+						{Memo.TopHeader}
 						<div className="bottom-header flex-row">
 							<SearchBar />
 							<div className="top-navigation notifications-container friendresquest-box profile-box">
-								<FriendRequests />
-								<Notifications />
-								<ProfileCard />
+								{Memo.FriendRequests}
+								{Memo.Notification}
+								{Memo.Profile}
 							</div>
 						</div>
 					</header>
 					<div className="main">
-						<Sidebar />
+						{Memo.Sidebar}
 						<section className="main-body wide center-content">
 							<div className="posts social-feeds informations view-screen">
 								<UploadScreen />
 							</div>
 							<div className="chat-form-container empty"></div>
 						</section>
-						<ChatBoard />
+						{Memo.ChatBoard}
 					</div>
 				</div>
 			</div>
 			<div className="toolpit"></div>
-			<div className="notification_alert">
+			<div className="notification_alert" ref={NotificationAlert}>
 				<div className="alert_message alert alert-info alert-dismissible">
 					<div className="message">There is a message for you</div>
 				</div>

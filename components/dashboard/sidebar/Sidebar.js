@@ -1,6 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import React, {useContext} from "react";
 import {SocketContext} from "../../../lib/socket";
+import Image from "next/image";
+import Link from "next/link";
+import Dashboard from "@material-ui/icons/Dashboard";
+import CreateQuiz from "@material-ui/icons/CreateOutlined";
 
 export default function Sidebar() {
 	const {socket, props, user} = useContext(SocketContext);
@@ -12,9 +16,12 @@ export default function Sidebar() {
 				<div className="preview-profile">
 					<div className="user-image-name-wrapper">
 						<div className="user-image">
-							<img
-								src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+							<Image
+								src="/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
 								alt="/"
+								width={30}
+								height={30}
+								priority={true}
 								className="image"
 							/>
 						</div>
@@ -41,20 +48,7 @@ export default function Sidebar() {
 						<ul className="links-list">
 							<li>
 								<div className="icon-wrap">
-									<i className="icon">
-										<svg
-											height="24px"
-											viewBox="0 0 24 24"
-											width="24px"
-											fill="#000000"
-										>
-											<path
-												d="M0 0h24v24H0z"
-												fill="none"
-											/>
-											<path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-										</svg>
-									</i>
+									<Dashboard className="svg" />
 								</div>
 								<div className="link">
 									<a
@@ -69,7 +63,7 @@ export default function Sidebar() {
 							<li>
 								<div className="icon-wrap">
 									<div className="icon">
-										<i>
+										{/* <i>
 											<svg
 												className="ionicon"
 												viewBox="0 0 512 512"
@@ -83,8 +77,9 @@ export default function Sidebar() {
 													strokeWidth="32"
 												/>
 												<path d="M459.94 53.25a16.06 16.06 0 00-23.22-.56L424.35 65a8 8 0 000 11.31l11.34 11.32a8 8 0 0011.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90L218.82 270.2a9 9 0 00-2.31 3.93L208.16 299a3.91 3.91 0 004.86 4.86l24.85-8.35a9 9 0 003.93-2.31L422 112.66a9 9 0 000-12.66l-9.95-10a9 9 0 00-12.71 0z" />
-											</svg>
-										</i>
+											</svg> */}
+										{/* </i> */}
+										<CreateQuiz className="svg" />
 									</div>
 								</div>
 								<div className="link">

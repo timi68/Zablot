@@ -78,7 +78,7 @@ function FriendRequests() {
 		});
 	};
 
-	const FRIENDSHIP_DEMAND = (data) => {
+	const FRIENDSHIPDEMAND = (data) => {
 		console.log(data);
 		const id = uuid();
 		const newRequest = {
@@ -96,15 +96,24 @@ function FriendRequests() {
 			return [newRequest, ...state];
 		});
 	};
+
+	const REMOVEREQUEST = (data) => {
+		setRequest((state) => {
+			return (state = state.filter((user) => user.From !== data.from));
+		});
+	};
+	
 	useEffect(() => {
 		console.log("mounting times 3");
 
 		if (socket) {
-			socket.on("FRIENDSHIP_DEMAND", FRIENDSHIP_DEMAND);
+			socket.on("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
+			socket.on("REMOVEREQUEST", REMOVEREQUEST);
 		}
 
 		return () => {
-			socket.off("FRIENDSHIP_DEMAND", FRIENDSHIP_DEMAND);
+			socket.off("REMOVEREQUEST", REMOVEREQUEST);
+			socket.off("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
 		};
 	}, [socket]);
 

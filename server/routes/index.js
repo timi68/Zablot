@@ -10,7 +10,6 @@ const {
 	Search,
 	FetchUsers,
 	FetchUserDetails,
-	CancelRequest,
 	fetchMessages,
 } = require("./users_control");
 const ensureIsAuthenticated = require("../config/auth");
@@ -83,17 +82,6 @@ router.post("/search", (req, res) => {
 	Search(searchText, ({error, matched}) => {
 		if (error) return res.status(400).json({error});
 		res.status(200).json(matched);
-		res.end();
-	});
-});
-
-router.put("/cancel/request", (req, res) => {
-	const {from, to} = req.body;
-	if (!from || !to) return res.status(400).send("Bad request");
-
-	CancelRequest(from, to, (err) => {
-		if (err) return res.status(500).send("Server Error");
-		res.status(200).send("done");
 		res.end();
 	});
 });

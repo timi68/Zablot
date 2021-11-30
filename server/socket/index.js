@@ -1,4 +1,4 @@
-//@ts-check
+// @ts-check
 
 const {
 	Activities,
@@ -16,31 +16,35 @@ function ControlSocketActions(socket) {
 	socket.emit("userid", socket.id);
 
 	socket.on("ACTIVEUSERS", async (callback) => {
-		const users = await Activities.find({}, {UserId: 1});
+		const users = await Activities.find({});
 		const usersId = await users.map((user) => {
-			return user.UserId.slice(19, 24);
+			return user.UserId.toString().slice(19, 24);
 		});
 		callback(usersId);
 	});
 
 	socket.on("ADD_JOINED_REQUEST", async (user, cb) => {
 		try {
+			const id = user.USERID;
+
 			const new_user = new Activities({
-				UserId: new ObjectId(`${user.USERID}`),
+				UserId: new ObjectId(id),
 				SocketId: user.SOCKET_ID,
 			});
 
 			await new_user.save();
-			await Users.findByIdAndUpdate(user.USERID, {
+			await Users.findByIdAndUpdate(id, {
 				Online: true,
 			}).exec();
 			socket.user = user;
+
 			socket.broadcast.emit("STATUS", {
-				_id: user.USERID,
+				_id: id,
 				online: true,
 			});
 			cb(null, "done");
 		} catch (error) {
+			console.log(error);
 			cb({error: "there is error"});
 		}
 	});
@@ -50,9 +54,7 @@ function ControlSocketActions(socket) {
 		try {
 			const extract_id = data.To;
 
-			const act = await Activities.find({
-				UserId: new ObjectId(extract_id),
-			});
+			const act = await Activities.find({UserId: extract_id});
 
 			Users.findByIdAndUpdate(data.From, {
 				$push: {
@@ -60,38 +62,30 @@ function ControlSocketActions(socket) {
 				},
 			}).exec();
 
-			Users.findById(extract_id)
-				.populate("FriendRequests")
-				.exec(async (err, user) => {
-					if (!user) return cb({reponse: "Error"});
-					const id = user.FriendRequests[0]._id;
-					FriendRequests.findOneAndUpdate(
-						{_id: new ObjectId(id)},
-						{
-							$push: {
-								requests: {
-									From: data.From,
-									Name: data.FullName,
-									UserName: data.UserName,
-									Image: data.Image,
-									Date: new Date(),
-									Accepted: false,
-								},
-							},
-						}
-					).exec();
+			FriendRequests.findOneAndUpdate(
+				{_id: new ObjectId(extract_id)},
+				{
+					$push: {
+						requests: {
+							From: data.From,
+							Name: data.FullName,
+							UserName: data.UserName,
+							Image: data.Image,
+							Date: new Date(),
+							Accepted: false,
+						},
+					},
+				}
+			).exec();
 
-					if (act?.length) {
-						act.forEach((active, index) => {
-							socket
-								.to(active.SocketId)
-								.emit("FRIENDSHIP_DEMAND", data);
-							console.log("emitted 1");
-						});
-					}
-
-					return cb({response: "done"});
+			if (act?.length) {
+				act.forEach((active, index) => {
+					socket.to(active.SocketId).emit("FRIENDSHIPDEMAND", data);
+					console.log("emitted 1");
 				});
+			}
+
+			return cb({response: "done"});
 		} catch (err) {
 			console.log(err);
 			return cb({Error: "there is error"});
@@ -99,24 +93,23 @@ function ControlSocketActions(socket) {
 	});
 
 	socket.on("REJECT_REQUEST", async (data, cb) => {
-		Users.findById(data.CID)
-			.populate("FriendRequests")
-			.exec((err, user) => {
-				var id = user.FriendRequests[0]._id;
-				FriendRequests.findByIdAndUpdate(
-					id,
-					{
-						$pull: {
-							requests: {
-								From: data.GID,
-							},
-						},
+		Users.findByIdAndUpdate(data.GID, {
+			$pull: {PendingRequests: data.CID},
+		}).exec();
+
+		FriendRequests.findByIdAndUpdate(
+			data.GID,
+			{
+				$pull: {
+					requests: {
+						From: data.GID,
 					},
-					(err, data) => {
-						ContinueReject();
-					}
-				);
-			});
+				},
+			},
+			(err, data) => {
+				ContinueReject();
+			}
+		);
 
 		function ContinueReject() {
 			const message = {
@@ -146,36 +139,47 @@ function ControlSocketActions(socket) {
 		return cb(null, "done");
 	});
 
+	socket.on("CANCELREQUEST", async ({from, to}, cb) => {
+		try {
+			Users.findByIdAndUpdate(from, {
+				$pull: {PendingRequests: to},
+			}).exec();
+
+			FriendRequests.findByIdAndUpdate(to, {
+				$pull: {requests: {From: from}},
+			}).exec();
+
+			const active = await Activities.find({UserId: new ObjectId(to)});
+
+			if (active?.length > 0) {
+				active.forEach(({SocketId}) => {
+					socket.to(SocketId).emit("REMOVEREQUEST", {from, to});
+				});
+			}
+
+			cb(null);
+		} catch (err) {
+			console.log(err);
+			cb("Server error");
+		}
+	});
+
 	socket.on("ACCEPT_REQUEST", async (data, cb) => {
-		Users.find({
-			_id: {$in: [new ObjectId(data.CID), new ObjectId(data.GID)]},
-		})
-			.populate("FriendRequests")
-			.populate("Friends")
-			.exec((err, user) => {
-				var CFID, GFID, CRID;
+		Users.findByIdAndUpdate(data.GID, {
+			$pull: {PendingRequests: data.CID},
+		}).exec();
 
-				user.forEach((user) => {
-					if (user._id === data.CID || user.id === data.CID) {
-						CFID = user.Friends[0]._id;
-						CRID = user.FriendRequests[0]._id;
-					} else if (user._id === data.GID || user.id === data.GID) {
-						GFID = user.Friends[0]._id;
-					}
-				});
+		FriendRequests.findByIdAndUpdate(data.CID, {
+			$pull: {
+				requests: {
+					From: data.GID,
+				},
+			},
+		}).then(() => {
+			ContinueAccept();
+		});
 
-				FriendRequests.findByIdAndUpdate(CRID, {
-					$pull: {
-						requests: {
-							From: data.GID,
-						},
-					},
-				}).then(() => {
-					ContinueAccept(GFID, CFID);
-				});
-			});
-
-		async function ContinueAccept(G, C) {
+		async function ContinueAccept() {
 			const newMessage = new Messages({
 				_id: new ObjectId(),
 				From: new ObjectId(data.CID),
@@ -184,7 +188,7 @@ function ControlSocketActions(socket) {
 
 			await newMessage.save();
 
-			Friends.findByIdAndUpdate(G, {
+			Friends.findByIdAndUpdate(data.GID, {
 				$push: {
 					friends: {
 						_id: newMessage._id,
@@ -198,7 +202,7 @@ function ControlSocketActions(socket) {
 				},
 			}).exec();
 
-			Friends.findByIdAndUpdate(C, {
+			Friends.findByIdAndUpdate(data.CID, {
 				$push: {
 					friends: {
 						_id: newMessage._id,
@@ -212,16 +216,6 @@ function ControlSocketActions(socket) {
 				},
 			}).exec();
 
-			socket.emit("NEWFRIEND", {
-				_id: newMessage._id,
-				Id: data.GID,
-				Name: data.GN,
-				Image: data.GI,
-				UnseenMessages: 1,
-				Last_Message: "You are now friends",
-				IsPrivate: false,
-			});
-
 			const message = {
 				title: "Friend request accepted",
 				Name: "Zablot",
@@ -233,57 +227,86 @@ function ControlSocketActions(socket) {
 			Activities.find({UserId: data.GID}, async (err, active) => {
 				if (err) return cb("There is error");
 				console.log(active);
-				if (active != null) {
-					socket.to(active.SocketId).emit("NEWFRIEND", {
-						_id: newMessage._id,
-						Id: data.CID,
-						Name: data.CN,
-						Image: data.CI,
-						UnseenMessages: 1,
-						Last_Message: "You are now friends",
-						IsPrivate: false,
-					});
-				}
 				active != null
-					? await AddNotification(
+					? (socket.emit("NEWFRIEND", {
+							_id: newMessage._id,
+							Id: data.GID,
+							Name: data.GN,
+							active: true,
+							Image: data.GI,
+							UnseenMessages: 1,
+							Last_Message: "You are now friends",
+							IsPrivate: false,
+					  }),
+					  active.forEach(({SocketId}) => {
+							socket.to(SocketId).emit("NEWFRIEND", {
+								_id: newMessage._id,
+								Id: data.CID,
+								Name: data.CN,
+								Image: data.CI,
+								UnseenMessages: 1,
+								active: true,
+								Last_Message: "You are now friends",
+								IsPrivate: false,
+								IsComing: true,
+							});
+					  }),
+					  await AddNotification(
 							data.GID,
 							message,
 							true,
 							active,
 							socket
-					  )
-					: await AddNotification(data.GID, message, false);
+					  ))
+					: socket.emit("NEWFRIEND", {
+							_id: newMessage._id,
+							Id: data.GID,
+							Name: data.GN,
+							Image: data.GI,
+							active: false,
+							UnseenMessages: 1,
+							Last_Message: "You are now friends",
+							IsPrivate: false,
+					  }),
+					await AddNotification(data.GID, message, false);
 			});
 		}
 
 		return cb(null, "done");
 	});
 
-	socket.on("answer_submitted", (data, callback) => {
+	socket.on("ANSWERED", async (data, callback) => {
 		try {
-			if (
-				data.quesAns.option == data.ans.option ||
-				data.quesAns.text == data.ans.text
-			) {
-				callback({res: "correct"});
-				Activities.find((err, user) => {
-					if (err) return console.log(err);
+			if (data.answer.index === data.picked.index) {
+				if (data.coin) {
+					const coin = parseInt(data.coin);
+					await Users.findByIdAndUpdate(data.from, {
+						$inc: {Coins: coin},
+					}).exec();
 
-					const d = JSON.parse(JSON.stringify(user[0].USERS));
-					let fil = d.filter((s) => s.user.id === data.user_id);
-
-					socket
-						.to(fil[0].user.socketId)
-						.emit("incoming_message", {res: "correct"});
-				});
-				socket.broadcast.emit("answered", {res: "correct"});
-			} else {
-				callback({res: "wrong"});
-				socket.broadcast.emit("answered", {res: "wrong"});
+					await Users.findByIdAndUpdate(data.to, {
+						$inc: {Coins: -coin},
+					}).exec();
+				}
 			}
+
+			await Messages.findOneAndUpdate(
+				{
+					_id: new ObjectId(data.id),
+					"Message._id": data.messageId,
+				},
+				{"Message.$.answered": data.picked}
+			).exec();
+
+			const active = await Activities.find({UserId: data.to});
+			active.forEach(({SocketId}) => {
+				socket.to(SocketId).emit("ANSWERED", data);
+			});
+
+			callback(null, "Done");
 		} catch (err) {
 			console.log(err);
-			callback({Error: "internal server error"});
+			callback({Error: "Internal server error"});
 		}
 	});
 
@@ -303,30 +326,41 @@ function ControlSocketActions(socket) {
 	});
 
 	socket.on("OUTGOINGFORM", async (data, callback) => {
-		data.date = new Date();
-		const soc = await Activities.find({UserId: data.to}, {SocketId: 1});
-		soc.forEach((user, i) => {
-			socket.to(user.SocketId).emit("INCOMINGFORM", data);
-		});
+		try {
+			const formId = new ObjectId();
 
-		Messages.findByIdAndUpdate(data._id, {
-			$push: {
-				Message: {
-					Format: data.type,
-					question: data.question,
-					options: data.options,
-					challenge: data.C,
-					coin: data.coin,
-					timer: data.timer,
-					date: new Date(),
-					seen: false,
-					going: data.to,
-					coming: data.from,
+			Messages.findByIdAndUpdate(data._id, {
+				$push: {
+					Message: {
+						_id: formId,
+						Format: data.type,
+						question: data.question,
+						options: data.options,
+						challenge: data.C,
+						coin: data.coin,
+						timer: data.timer,
+						answered: {index: null},
+						date: new Date(),
+						seen: false,
+						going: data.to,
+						coming: data.from,
+					},
 				},
-			},
-		}).exec();
+			}).exec();
 
-		return callback("done", null);
+			const soc = await Activities.find({UserId: data.to}, {SocketId: 1});
+			data.date = new Date();
+			data._id = formId;
+
+			soc.forEach((user, i) => {
+				socket.to(user.SocketId).emit("INCOMINGFORM", data);
+			});
+
+			return callback(null, {formId});
+		} catch (error) {
+			console.log(error);
+			return callback("Error sending form message", null);
+		}
 	});
 
 	socket.on("OUTGOINGMESSAGE", async (data, cb) => {
@@ -343,7 +377,7 @@ function ControlSocketActions(socket) {
 			// 	console.log("existed not");
 			// 	await newMessage.save();
 			// }
-
+			const messageId = new ObjectId();
 			socket.emit("OUTGOINGMESSAGE", {
 				to: data.to,
 				message: data.message,
@@ -352,6 +386,7 @@ function ControlSocketActions(socket) {
 			Messages.findByIdAndUpdate(data._id, {
 				$push: {
 					Message: {
+						_id: messageId,
 						Format: data.type,
 						message: data.message,
 						date: new Date(),
@@ -362,52 +397,78 @@ function ControlSocketActions(socket) {
 				},
 			}).exec();
 
-			Friends.updateMany(
-				{
-					"friends._id": new ObjectId(data._id),
-				},
-				{
-					$set: {
-						"friends.$.Last_Message": data.message,
-					},
-					$inc: {
-						"friends.$.UnseenMessages": 1,
-					},
-				}
-			).exec();
-
 			const soc = await Activities.find({UserId: data.to});
 			data.date = new Date();
-			soc.forEach((user, i) => {
-				socket.to(user.SocketId).emit("INCOMINGMESSAGE", data);
-			});
-			cb(null, "done");
+			data.messageId = messageId;
+
+			if (soc?.length > 0) {
+				Friends.updateMany(
+					{
+						_id: {$in: [data.from, data.to]},
+						"friends._id": new ObjectId(data._id),
+					},
+					{
+						$set: {
+							"friends.$.Last_Message": data.message,
+						},
+					}
+				).exec();
+				soc.forEach((user, i) => {
+					socket.to(user.SocketId).emit("INCOMINGMESSAGE", data);
+				});
+			} else {
+				Friends.updateMany(
+					{
+						_id: {$in: [data.from, data.to]},
+						"friends._id": new ObjectId(data._id),
+					},
+					{
+						$set: {
+							"friends.$.Last_Message": data.message,
+						},
+						$inc: {
+							"friends.$.UnseenMessages": 1,
+						},
+					}
+				).exec();
+			}
+
+			cb(null, {messageId});
 		} catch (err) {
+			console.log(err);
 			cb(err, null);
 		}
 	});
 
-	socket.on("CLEANSEEN", async ({_id}, callback) => {
+	socket.on("CLEANSEEN", async (data, callback) => {
 		try {
-			await Friends.findByIdAndUpdate(_id, {
-				$set: {
-					"friends.UnseenMessages": 0,
+			await Friends.findOneAndUpdate(
+				{
+					_id: new ObjectId(data._id),
+					"friends._id": new ObjectId(data.Id),
 				},
-			});
-			callback(null, "done");
+				{
+					$set: {
+						"friends.$.UnseenMessages": 0,
+					},
+				}
+			).exec();
+			callback(null, "Cleaned seen messages");
 		} catch (err) {
 			callback("There iss error", null);
 		}
 	});
+
 	socket.on("disconnect", (user) => {
 		Activities.findOneAndDelete({SocketId: socket.id}, async (err) => {
 			if (!err) {
 				console.log("One user is Disconnected ===>", socket.user);
-				await Users.findByIdAndUpdate(socket?.user.USERID || null, {
+				await Users.findByIdAndUpdate(socket?.user?.USERID || null, {
 					Online: false,
+					Last_Seen: new Date(),
 				}).exec();
 				socket.broadcast.emit("STATUS", {
-					_id: socket?.user.USERID || null,
+					_id: socket?.user?.USERID || null,
 					online: false,
 					Last_Seen: new Date(),
 				});
@@ -417,34 +478,25 @@ function ControlSocketActions(socket) {
 }
 
 async function AddNotification(id, message, emit, sid, socket) {
-	Users.findById(id)
-		.populate("Notifications")
-		.exec((err, user) => {
-			if (err ?? !user) return;
-
-			var id = user.Notifications[0]._id;
-			Notifications.findOneAndUpdate(
-				{_id: new ObjectId(id)},
-				{
-					$push: {
-						notifications: message,
-					},
-				},
-				(err) => {
-					console.log("this is ", emit);
-					if (emit) {
-						sid.forEach((active) => {
-							socket
-								.to(active.SocketId)
-								.emit("Notifications", message);
-						});
-						console.log("emitted to", sid);
-					}
-					console.log(err || "Error free from reject");
-					return;
-				}
-			);
-		});
+	Notifications.findByIdAndUpdate(
+		id,
+		{
+			$push: {
+				notifications: message,
+			},
+		},
+		(err) => {
+			console.log("this is ", emit);
+			if (emit) {
+				sid.forEach((active) => {
+					socket.to(active.SocketId).emit("Notifications", message);
+				});
+				console.log("emitted to", sid);
+			}
+			console.log(err || "Error free from reject");
+			return;
+		}
+	);
 }
 
 module.exports = ControlSocketActions;

@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 // @ts-check
-import React, {useEffect, useRef, useState, useContext} from "react";
+import React, {
+	useEffect,
+	useRef,
+	useState,
+	useContext,
+	useCallback,
+} from "react";
 import {SocketContext} from "../../../lib/socket";
 import ChatRoom from "../ChatRoom";
 import j from "jquery";
@@ -38,7 +44,6 @@ function SearchBar() {
 		} else {
 			j(".search-results").toggleClass("show");
 		}
-		j(".search-icon").click(Search);
 	};
 
 	const Close = function () {
@@ -58,6 +63,9 @@ function SearchBar() {
 			.promise()
 			.done(function () {
 				j(".search-results").removeClass("show").attr("style", "");
+				if (matched?.length) {
+					setMatched([]);
+				}
 			});
 		if (!media_649) {
 			setTimeout(() => {
@@ -71,60 +79,50 @@ function SearchBar() {
 		j(".search-icon").off("click", Search);
 	};
 
-	function Search() {
+	const Search = () => {
 		const searchText = j(searchbar.current).val();
-		if (!searchText) return;
+		if (searchText != "") {
+			const data = {searchText, id: props?.user.id};
 
-		console.log(friends);
-		const data = {searchText, id: props?.user.id};
-
-		// @ts-ignore
-		j.ajax({
-			url: `/api/search`,
-			type: "POST",
-			data: JSON.stringify(data),
-			headers: {
-				"Content-Type": "application/json",
-			},
-			success: (matched) => {
-				const friendsId = friends.map(
-					(/** @type {{ Id: any; }} */ user) => user.Id
-				);
-				matched = matched.filter(
-					(
-						/** @type {{ _id: any; sent: boolean; friends: boolean; }} */ user
-					) => {
-						if (user._id != props.user.id) {
-							if (pending.includes(user._id)) {
-								user.sent = true;
-							} else {
-								user.sent = false;
+			// @ts-ignore
+			j.ajax({
+				url: `/api/search`,
+				type: "POST",
+				data: JSON.stringify(data),
+				headers: {
+					"Content-Type": "application/json",
+				},
+				success: (matched) => {
+					if (matched?.length) {
+						const friendsId = friends.map(
+							(/** @type {{ Id: any; }} */ user) => user.Id
+						);
+						matched = matched.filter((user) => {
+							if (user._id != props.user.id) {
+								if (pending.includes(user._id)) {
+									user.sent = true;
+								}
+								if (friendsId.includes(user._id)) {
+									user.friends = true;
+								}
+								return user;
 							}
-
-							if (friendsId.includes(user._id)) {
-								user.friends = true;
-							} else {
-								user.friends = false;
-							}
-
-							return user;
-						}
+						});
+						setMatched(matched);
 					}
-				);
-				setMatched(matched);
-			},
-			error: (i, j, x) => {
-				console.log(j, x);
-			},
-		});
-	}
+				},
+				error: (i, j, x) => {
+					console.log(j, x);
+				},
+			});
+		}
+	};
 
 	/**
 	 * @param {String} id
 	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
 	 */
 	function processAdd(id, e) {
-		console.log("This add button is clicked", id);
 		const friend_request = {
 			FullName: user.FullName,
 			UserName: user.UserName,
@@ -137,13 +135,9 @@ function SearchBar() {
 			"FRIEND_REQUEST",
 			friend_request,
 			(/** @type {any} */ res) => {
-				console.log(res, e);
-				// j(e.target).replaceWith(
-				// 	"<div class='add btn sent'> Request Sent </div> "
-				// );
-				setPending([...pending, id]);
+				setPending([id, ...pending]);
 				setMatched((/** @type {any[]} */ state) => {
-					state = state.filter(
+					state = state.map(
 						(/** @type {{ _id: any; sent: boolean; }} */ user) => {
 							if (user._id === id) user.sent = true;
 							return user;
@@ -168,44 +162,54 @@ function SearchBar() {
 	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
 	 */
 	function processCancel(to, e) {
-		j.ajax({
-			url: "/api/cancel/request",
-			type: "PUT",
-			data: JSON.stringify({from: props.user.id, to}),
-			headers: {
-				"Content-type": "application/json",
-			},
-			success: (res) => {
-				if (res == "done") {
-					setMatched((/** @type {any[]} */ state) => {
-						state = state.filter(
-							(
-								/** @type {{ _id: any; sent: boolean; }} */ user
-							) => {
-								if (user._id === to) user.sent = false;
-								return user;
-							}
-						);
-						return state;
+		const data = {from: props.user.id, to};
+		socket.emit("CANCELREQUEST", data, (err) => {
+			if (!err) {
+				setMatched((/** @type {any[]} */ state) => {
+					state = state.map((user) => {
+						if (user._id === to) {
+							user.sent = false;
+						}
+						return user;
 					});
 
-					setPending((/** @type {any[]} */ state) => {
-						state = state.filter(
-							(/** @type {{ _id: any; }} */ user) =>
-								user._id !== to
-						);
-						return state;
-					});
-				} else {
-					alert(res);
-					// location.reload();
-				}
-			},
-			error: (err, x, i) => {
-				console.log("Error:", err || x || i);
-			},
+					return state;
+				});
+				setPending((/** @type {any[]} */ state) => {
+					state = state.filter((id) => id !== to);
+					return state;
+				});
+			} else {
+				console.log(err);
+			}
 		});
 	}
+
+	const NewFriend = useCallback(
+		(data) => {
+			console.log(data);
+			if (data?.IsComing) {
+				setFriends([data, ...friends]);
+				setPending((state) => {
+					return (state = state.filter((user) => user !== data.Id));
+				});
+				if (matched.length > 0) {
+					console.log(data, "IsComing");
+					setMatched((state) => {
+						const newstate = state.map((user) => {
+							if (user._id === data.Id) {
+								user.sent = false;
+								user.friends = true;
+							}
+							return user;
+						});
+						return newstate;
+					});
+				}
+			}
+		},
+		[matched]
+	);
 
 	useEffect(() => {
 		j(window).resize(function () {
@@ -221,12 +225,7 @@ function SearchBar() {
 	}, []);
 
 	useEffect(() => {
-		/**
-		 * @param {any} data
-		 */
-		function NewFriend(data) {
-			setFriends([data, ...friends]);
-		}
+		console.log("Mounting");
 		if (socket) {
 			socket.on("NEWFRIEND", NewFriend);
 		}
@@ -234,8 +233,9 @@ function SearchBar() {
 		return () => {
 			socket.off("NEWFRIEND", NewFriend);
 		};
-	}, [socket, friends]);
+	}, [socket, matched]);
 
+	console.log(matched, friends, pending);
 	console.log("mounting from searchbar");
 	return (
 		<div className="search-container not-focus">
@@ -330,13 +330,9 @@ function SearchBar() {
 					</ul>
 				</div>
 			</div>
-			<div
-				className="search-text-box"
-				id="search"
-				onClick={SearchBox.bind(SearchBox)}
-			>
+			<div className="search-text-box" id="search" onClick={SearchBox}>
 				<form action="#" className="search-form">
-					<div className="search-icon">
+					<div className="search-icon" onClick={Search}>
 						<svg
 							height="20px"
 							viewBox="0 0 24 24"
