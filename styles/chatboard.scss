@@ -1,0 +1,336 @@
+@import "./_variable";
+@import "./mixins";
+
+$white: #fdfcfc;
+$small: 1em;
+$smaller: 0.8em;
+$medium: 2em;
+$large: 2.5em;
+$xlarge: 3em;
+$borderColor: #d7cdcd;
+
+.chats-container {
+	flex: 0.3;
+	background: map-get($map: $color, $key: "lightergrey");
+	height: calc(100vh - 80px);
+	margin-top: 5px;
+	max-width: 300px;
+	border-top-left-radius: 10px;
+	transition: $transition;
+
+	@include media_1049 {
+		flex: 0;
+		position: absolute;
+		right: -300px;
+		width: 300px;
+		z-index: 100;
+
+		&.show {
+			right: 0;
+		}
+
+		@include toggle("open");
+		.open {
+			left: -20px;
+			border-radius: 5px 0px 0px 5px;
+
+			&::before {
+				left: 7px;
+			}
+			&::after {
+				left: 14px;
+			}
+		}
+
+		&.show .open {
+			left: 280px;
+			top: 0;
+			border-radius: 0px 0px 0px 10px;
+			box-shadow: $shadow;
+			height: 40px;
+			background: map-get($map: $color, $key: "brown");
+
+			&::before,
+			&::after {
+				background: map-get($map: $color, $key: "lightgrey");
+			}
+		}
+	}
+
+	@include media_399 {
+		&.show {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			z-index: 10000;
+			width: 100vw;
+			height: 100vh;
+			margin: 0;
+			border-radius: 0;
+
+			.toggle {
+				left: 95%;
+			}
+		}
+	}
+
+	.loader {
+		height: 100%;
+		width: 300px;
+		display: grid;
+		place-items: center;
+	}
+
+	.chat-wrapper {
+		overflow: auto scroll;
+		position: relative;
+		transition: $transition;
+
+		&::-webkit-scrollbar {
+			width: 0px;
+		}
+		@include media_399() {
+			height: 100vh;
+		}
+	}
+
+	.chats-header {
+		background: map-get($color, "lowgrey");
+		font-weight: 600;
+		border-radius: 10px 0px 0px;
+		box-shadow: 0 2px 2px 2px map-get($color, "lowgrey");
+		top: 0;
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
+
+		.title {
+			font-size: map-get($fonts, "medium");
+			padding: 10px;
+			text-align: center;
+		}
+
+		.chats-nav {
+			background: map-get($color, "lightgrey");
+		}
+
+		.tab_list {
+			width: 100%;
+
+			.MuiTabs-indicator {
+				background: grey;
+			}
+		}
+	}
+
+	.chats_listItem {
+		display: flex;
+		flex-wrap: nowrap;
+		padding: 10px;
+		align-items: center;
+		position: relative;
+		justify-content: flex-start;
+		gap: 0.5em;
+		padding-bottom: $small;
+		border-bottom: thin solid $borderColor;
+
+		.avatar {
+			width: 35px;
+			height: 35px;
+			border-radius: 50%;
+			position: relative;
+
+			.badge {
+				background-color: #44b700;
+				color: #44b700;
+				box-shadow: 0 0 0 2px $white;
+				width: 8px;
+				height: 8px;
+				position: absolute;
+				bottom: 10%;
+				right: 0;
+				border-radius: 50%;
+			}
+
+			.user_image {
+				border-radius: 50%;
+			}
+		}
+
+		.text {
+			width: calc(100% - 2.5em);
+			line-height: 1.2em;
+			white-space: nowrap;
+			overflow: hidden;
+
+			.primary_text {
+				font-size: $small;
+				font-weight: 500;
+				overflow: hidden;
+				text-transform: capitalize;
+				text-overflow: ellipsis;
+			}
+			.secondary_text {
+				font-size: $smaller;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+
+		.unseenmessages.badge {
+			position: absolute;
+			top: 0;
+			right: 0;
+			height: 17px;
+			width: 20px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			background: $white;
+			font-weight: 500;
+			font-size: $smaller;
+		}
+	}
+
+	.chats-body {
+		position: relative;
+		height: calc(100vh - 175px);
+		overflow: hidden scroll;
+		display: flex;
+		width: fit-content;
+
+		.chats_listbox {
+			width: 300px;
+			background: map-get($map: $color, $key: "lightergrey");
+			height: 100%;
+			overflow: auto;
+		}
+
+		.private_chats {
+			&.p {
+				z-index: 5;
+				visibility: visible;
+			}
+
+			.chat-security,
+			.private_chats_member {
+				display: grid;
+				place-items: center;
+				place-content: center;
+				height: 100%;
+			}
+			.label {
+				margin-bottom: 10px;
+
+				h4 {
+					font-size: map-get($fonts, "small");
+					color: map-get($color, "brown");
+					font-weight: 500;
+				}
+			}
+
+			.lock {
+				width: 80%;
+				margin: auto;
+			}
+			.unlock {
+				width: 100%;
+				padding: 10px;
+				padding: 10px;
+				text-align: center;
+				background: map-get($color, "white");
+				border-radius: 5px;
+				box-shadow: $shadow;
+			}
+
+			.add_private_chats {
+				background: map-get($map: $color, $key: "grey");
+				color: white;
+			}
+			.openPrivate {
+				width: 100%;
+				margin-top: 5px;
+				border: thin solid map-get($color, "grey");
+				border-radius: 5px;
+
+				&:hover {
+					background-color: map-get($color, "grey");
+					color: white;
+				}
+			}
+		}
+		.chats-list {
+			list-style: none;
+
+			.chat {
+				display: flex;
+				flex-wrap: nowrap;
+				border-radius: 30px;
+				background: map-get($color, "white");
+				margin-bottom: 7px;
+				position: relative;
+				padding-left: 40px;
+
+				.user {
+					position: absolute;
+					left: 0;
+					top: -2px;
+				}
+				.image {
+					width: 40px;
+					height: 40px;
+					border-radius: 50%;
+				}
+
+				.username {
+					width: 80%;
+					line-height: 13px;
+					font-weight: 600;
+					padding: 5px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					font-size: map-get($fonts, "small");
+					color: map-get($color, "brown");
+
+					.name {
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
+					}
+
+					.last-message {
+						color: map-get($color, "skyblue");
+						font-size: map-get($fonts, "smaller");
+					}
+				}
+				.status.not-seen-message {
+					width: 20%;
+					position: relative;
+
+					.active {
+						width: 5px;
+						height: 5px;
+						background: map-get($color, "skyblue");
+						border-radius: 50%;
+						position: absolute;
+						top: 6px;
+						right: 15px;
+					}
+					.not-seen {
+						width: 15px;
+						height: 15px;
+						font-size: map-get($map: $fonts, $key: "smaller");
+						position: absolute;
+						bottom: 6px;
+						right: 10px;
+						border-radius: 50%;
+						display: grid;
+						place-items: center;
+						background: map-get($map: $color, $key: "lightgrey");
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,4 +1,5 @@
 @import "./variable";
+@import "./mixins";
 
 *,
 :focus,
@@ -11,7 +12,7 @@
 }
 
 body {
-	font-family: Pop;
+	font-family: "Segoe UI", Roboto;
 	background: map-get($color, "white");
 	width: 100vw;
 	overflow: hidden;
@@ -52,146 +53,15 @@ body {
 		z-index: 10;
 	}
 }
-@mixin remove() {
-	@media (max-width: 800px) {
-		@content;
-	}
+
+.modal_open_signal.show {
+	position: absolute;
+	width: 100vw;
+	top: 0;
+	z-index: 9;
+	height: 100vh;
+	background: transparent;
 }
-
-@mixin expand() {
-	@media (max-width: 800px) {
-		@content;
-	}
-}
-
-@mixin Media() {
-	@media (min-width: 800px) {
-		@content;
-	}
-}
-
-@mixin media_1049 {
-	@media (max-width: 1049px) {
-		@content;
-	}
-}
-@mixin media_649 {
-	@media (max-width: 649px) {
-		@content;
-	}
-}
-@mixin media_549 {
-	@media (max-width: 549px) {
-		@content;
-	}
-}
-@mixin media_399 {
-	@media (max-width: 399px) {
-		@content;
-	}
-}
-@mixin users() {
-	.users {
-		list-style: none;
-		padding: 0px 10px;
-
-		.user {
-			border-radius: 50px;
-			background: map-get($color, "white");
-			display: flex;
-			padding: 5px 10px;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 10px;
-			box-shadow: $shadow;
-
-			.image {
-				height: 35px;
-				width: 35px;
-				border-radius: 50px;
-			}
-
-			.btn-wrapper {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				height: 100%;
-			}
-			.btn {
-				height: 30px;
-				border-radius: 50px;
-				width: 80px;
-				display: grid;
-				place-items: center;
-				font-size: map-get($fonts, "smaller");
-				font-weight: 600;
-				background: map-get($map: $color, $key: "lightergrey");
-				color: map-get($color, "skyblue");
-			}
-		}
-
-		.user-profile {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-
-			.user-name {
-				margin-left: 5px;
-				font-weight: 600;
-				line-height: 15px;
-				color: map-get($map: $color, $key: "brown");
-				font-size: map-get($fonts, "small");
-				text-align: left;
-				transition: $transition;
-
-				@include media_399() {
-					font-size: map-get($fonts, "smaller");
-				}
-
-				.username {
-					color: map-get($color, "blue");
-					font-size: map-get($fonts, "smaller");
-				}
-			}
-		}
-	}
-}
-
-@mixin toggle() {
-	.toggle {
-		position: absolute;
-		content: "";
-		height: 60px;
-		width: 20px;
-		top: 10px;
-		z-index: 100;
-		backdrop-filter: blur(10px);
-		transition: $transition;
-		background: map-get($map: $color, $key: "lowgrey");
-
-		&::before,
-		&::after {
-			position: absolute;
-			top: 50%;
-			width: 2px;
-			height: 50%;
-			transform: translateY(-50%);
-			content: "";
-			background: map-get($map: $color, $key: "brown");
-		}
-	}
-}
-
-@keyframes shadow {
-	50% {
-		box-shadow: 0px 0px 2px 2px #dc121261;
-	}
-
-	100% {
-		box-shadow: 0px 0px 4px 4px #dc121261;
-	}
-}
-
 .container {
 	position: relative;
 	max-width: 1366px;
@@ -205,8 +75,11 @@ body {
 		padding: 5px 10px;
 		-webkit-user-select: none;
 		user-select: none;
-		position: relative;
-		z-index: 10000;
+		position: sticky;
+		width: 100%;
+		top: 0;
+		left: 0;
+		z-index: 10;
 
 		.flex-row {
 			display: flex;
@@ -216,6 +89,8 @@ body {
 
 		.logo-wrapper {
 			font-weight: 500;
+			font-family: calibri, Tahoma;
+			font-size: 18px;
 		}
 		.coin-wrapper {
 			font-weight: 500;
@@ -237,61 +112,48 @@ body {
 
 			.search-form {
 				position: relative;
-				z-index: 10000;
-			}
-
-			.search-icon {
-				position: absolute;
-				top: 50%;
-				transform: translateY(-40%);
-				left: 10px;
-			}
-
-			&.not-focus .search-icon {
-				@include media_399() {
-					background: transparent;
-					left: 5px;
-				}
-			}
-
-			#search {
-				transition: $transition;
-				&.active {
-					top: 0;
-					position: fixed;
-					left: 15px;
-
-					@include media_649() {
-						top: 10px;
-					}
-
-					@include media_399() {
-						left: 5px;
-					}
-
-					#form-control {
-						@include media_549() {
-							display: block;
-						}
-					}
-				}
-			}
-
-			.form-control {
-				padding: 5px 5px 5px 40px;
 				border: none;
-				width: 220px;
+				background: white;
+				width: 300px;
 				height: 30px;
+				display: flex;
+				z-index: 100;
+				justify-content: flex-start;
+				align-items: center;
 				outline: none;
-				border-radius: 60px;
-				box-shadow: $shadow;
+				border-radius: 10px;
+				// box-shadow: $shadow;
 
 				@include Media {
 					width: 300px;
 				}
+			}
 
-				&::placeholder {
-					font-weight: 600;
+			.search-icon {
+				height: 100%;
+				width: 30px;
+				display: grid;
+				place-items: center;
+				border-radius: 10px 0 0 10px;
+
+				&.ready {
+					background: map-get($map: $color, $key: "grey");
+				}
+			}
+
+			.form-control {
+				height: 100%;
+				width: 270px;
+				border-radius: 0 10px 10px 0;
+				transition: $transition;
+				.text-control {
+					height: inherit;
+					border-radius: inherit;
+					width: 100%;
+					padding: 5px;
+					&::placeholder {
+						font-weight: 500;
+					}
 				}
 			}
 
@@ -304,6 +166,12 @@ body {
 					&::placeholder {
 						color: white;
 					}
+				}
+			}
+			&.not-focus .search-icon {
+				@include media_399() {
+					background: transparent;
+					left: 5px;
 				}
 			}
 
@@ -353,19 +221,6 @@ body {
 					font-size: map-get($fonts, "smaller");
 					font-weight: 600;
 					transition: $transition;
-
-					&::after {
-						padding: 5px 10px;
-						position: absolute;
-						content: "";
-						top: 0;
-						bottom: 0;
-						left: 8px;
-						right: 8px;
-						border-radius: 50px;
-						box-shadow: $shadow;
-						background: map-get($color, "white");
-					}
 
 					@include media_399() {
 						right: 0;
@@ -435,7 +290,7 @@ body {
 			transition: $transition;
 
 			.icon {
-				border-radius: 60px;
+				border-radius: 10px;
 				height: 30px;
 				width: 30px;
 				display: grid;
@@ -443,24 +298,24 @@ body {
 				background: map-get($color, "white");
 			}
 
+			.unseen {
+				position: absolute;
+				top: -14px;
+				left: -3px;
+				background: #5f8389;
+				height: 20px;
+				width: 20px;
+				border-radius: 50%;
+				display: flex;
+				justify-content: center;
+				font-weight: 600;
+				color: white;
+				font-size: smaller;
+			}
 			.friendrequest-wrapper {
 				position: relative;
 				width: 30px;
 
-				.unseen {
-					position: absolute;
-					top: -14px;
-					right: -3px;
-					background: #5f8389;
-					height: 20px;
-					width: 20px;
-					border-radius: 50%;
-					display: grid;
-					place-content: center;
-					font-weight: 600;
-					color: white;
-					font-size: smaller;
-				}
 				.request-box {
 					width: 0px;
 					height: 0px;
@@ -578,27 +433,18 @@ body {
 			}
 
 			.profile-link-wrapper {
-				width: 100px;
-				border-radius: 60px;
+				border-radius: 10px;
 				background: map-get($map: $color, $key: "white");
 				position: relative;
 				transition: $transition;
-				border: none;
-				float: right;
-				outline: none;
 				z-index: 100;
 
 				@include media_549() {
 					width: 30px;
 				}
-				&.a {
-					border: none;
-					outline: none;
-					width: 200px;
-					border-radius: 5px;
-				}
 
 				.profile-preview {
+					width: 100px;
 					display: flex;
 					flex-grow: 10px;
 					align-items: center;
@@ -607,7 +453,7 @@ body {
 					.user-image {
 						width: 30px;
 						height: 30px;
-						border-radius: 50px;
+						border-radius: 10px 0 0 10px;
 					}
 
 					.username {
@@ -625,47 +471,28 @@ body {
 				}
 
 				.profile-expand {
-					height: 0;
-					overflow: hidden;
-				}
-
-				&.a .profile-expand {
-					overflow: visible;
-					width: 200px;
+					width: 0px;
+					height: 0px;
 					position: absolute;
-					height: 350px;
-					padding: 10px 5px;
-					border-radius: 5px;
-					top: 0;
-					left: 0;
+					top: 118%;
+					right: -10px;
+					opacity: 0;
+					border-radius: 0px 0px 0px 5px;
 					z-index: 100;
-					background: map-get($color, "white");
-					box-shadow: 0px 0px 10px 5px
-						map-get($map: $color, $key: "lightgrey");
+					background: map-get($color, "lightergrey");
+					box-shadow: -3px 4px 5px 1px #00000017;
 
-					.image,
-					.user-image {
-						width: 30px;
-						height: 30px;
-						border-radius: 50px;
-					}
 					.profile-header {
-						display: grid;
-						place-items: center;
-
-						.name-wrapper {
+						.profile_details {
 							padding-bottom: 3px;
-							border-bottom: 1px solid
+							padding: 5px 10px;
+							text-align: right;
+							border-bottom: thin solid
 								map-get($map: $color, $key: "blue");
 						}
-						.name-wrapper,
 						.name {
 							width: 100%;
-							display: flex;
-							text-align: center;
-							justify-content: center;
-							flex-direction: column;
-							font-family: calibri;
+							display: block;
 							font-weight: 600;
 						}
 						.name {
@@ -688,20 +515,6 @@ body {
 			.notifications-wrapper {
 				position: relative;
 
-				.unseen {
-					position: absolute;
-					top: -14px;
-					right: -3px;
-					background: #5f8389;
-					height: 20px;
-					width: 20px;
-					border-radius: 50%;
-					display: grid;
-					place-content: center;
-					font-weight: 600;
-					color: white;
-					font-size: smaller;
-				}
 				.notifications-box {
 					width: 0px;
 					height: 0px;
@@ -843,9 +656,12 @@ body {
 	.sidebar {
 		background: map-get($map: $color, $key: "lightergrey");
 		height: calc(100vh - 85px);
+		width: 200px;
 		margin-top: 5px;
 		position: relative;
 		transition: $transition;
+		// font-family: calibri;
+		border-top-right-radius: 10px;
 
 		.navigator-wrapper {
 			height: calc(100vh - 85px);
@@ -856,7 +672,6 @@ body {
 			}
 		}
 		@include media_549() {
-			width: 200px;
 			position: absolute;
 			left: -200px;
 			z-index: 100;
@@ -865,8 +680,8 @@ body {
 				left: 0px;
 			}
 
-			@include toggle();
-			.toggle {
+			@include toggle("open");
+			.open {
 				border-radius: 0px 5px 5px 0px;
 				right: -20px;
 
@@ -877,12 +692,13 @@ body {
 					right: 14px;
 				}
 			}
-			&.show .toggle {
+			&.show .open {
 				top: 0;
-				border-radius: 0px 0px 10px 0px;
+				right: 0px;
+				border-radius: 0px 0px 0px 10px;
 				box-shadow: $shadow;
 				height: 40px;
-				background: map-get($map: $color, $key: "brown");
+				background: map-get($map: $color, $key: "grey");
 
 				&::before,
 				&::after {
@@ -897,11 +713,14 @@ body {
 			position: -webkit-sticky;
 			position: sticky;
 			backdrop-filter: blur(5px);
+			border-top-right-radius: 10px;
 			-webkit-backdrop-filter: blur(5px);
 			top: 0;
 
 			.user-image-name-wrapper {
 				display: flex;
+				align-items: center;
+				gap: 5px;
 				flex-wrap: nowrap;
 				margin-bottom: 20px;
 
@@ -912,14 +731,14 @@ body {
 				}
 
 				.name {
-					font-size: 13px;
-					font-weight: 600;
-					line-height: 13px;
-					color: #4d4646;
+					font-size: 1em;
+					line-height: 16px;
+					font-weight: 500;
+					color: map-get($color, "brown");
 					margin-top: 5px;
 					margin-left: 5px;
 					.username {
-						font-size: map-get($fonts, "smaller");
+						font-size: 0.8em;
 						color: map-get($color, "skyblue");
 					}
 				}
@@ -935,34 +754,42 @@ body {
 			}
 			.links-list {
 				list-style: none;
-				padding: 10px;
 
 				li {
 					display: flex;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 15px;
 					flex-wrap: nowrap;
-					margin-bottom: 5px;
-
-					.icon-wrap svg {
-						width: 24px;
-						height: 24px;
-						fill: map-get($color, "brown");
-					}
+					padding: 10px;
 
 					.icon-wrap {
-						margin-right: 10px;
+						height: 24px;
+						.svg {
+							width: 24px;
+							height: inherit;
+							fill: map-get($color, "brown");
+						}
 					}
 
 					.link a {
-						font-weight: 600;
-						font-size: map-get($fonts, "small");
+						display: block;
+						font-weight: 500;
+						font-size: 13px;
+						text-transform: uppercase;
 						color: map-get($color, "brown");
 						text-decoration: none;
 					}
-					&:hover > .link a {
-						color: map-get($map: $color, $key: "skyblue");
-					}
-					&:hover ~ svg {
-						fill: map-get($map: $color, $key: "skyblue");
+
+					&:hover {
+						background: map-get($map: $color, $key: "lowgrey");
+
+						.link a {
+							color: map-get($map: $color, $key: "grey");
+						}
+						.icon-wrap .svg {
+							fill: map-get($map: $color, $key: "grey");
+						}
 					}
 				}
 			}
@@ -1334,7 +1161,7 @@ body {
 
 						.active-text {
 							font-size: map-get($fonts, "smaller");
-							color: map-get($color, "green");
+							color: map-get($color, "grey");
 						}
 					}
 				}
@@ -1631,7 +1458,7 @@ body {
 							font-size: map-get($map: $fonts, $key: "small");
 
 							&.won {
-								color: map-get($map: $color, $key: "green");
+								color: map-get($map: $color, $key: "grey");
 							}
 						}
 					}
@@ -2041,263 +1868,6 @@ body {
 									}
 								}
 							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	.chats-container {
-		flex: 0.3;
-		background: map-get($map: $color, $key: "lightergrey");
-		height: calc(100vh - 80px);
-		margin-top: 5px;
-		border-top-left-radius: 10px;
-		transition: $transition;
-		// overflow:  scroll;
-
-		@include media_1049 {
-			flex: 0;
-			position: absolute;
-			right: -300px;
-			width: 300px;
-			z-index: 100;
-
-			&.show {
-				right: 0;
-			}
-
-			@include toggle();
-			.toggle {
-				left: -20px;
-				border-radius: 5px 0px 0px 5px;
-
-				&::before {
-					left: 7px;
-				}
-				&::after {
-					left: 14px;
-				}
-			}
-
-			&.show .toggle {
-				left: 280px;
-				top: 0;
-				border-radius: 0px 0px 0px 10px;
-				box-shadow: $shadow;
-				height: 40px;
-				background: map-get($map: $color, $key: "brown");
-
-				&::before,
-				&::after {
-					background: map-get($map: $color, $key: "lightgrey");
-				}
-			}
-		}
-
-		@include media_399 {
-			&.show {
-				position: fixed;
-				top: 0;
-				left: 0;
-				right: 0;
-				z-index: 10000;
-				width: 100vw;
-				height: 100vh;
-				margin: 0;
-				border-radius: 0;
-
-				.toggle {
-					left: 95%;
-				}
-			}
-		}
-		.chat-wrapper {
-			height: calc(100vh - 80px);
-			overflow: auto scroll;
-
-			&::-webkit-scrollbar {
-				width: 0px;
-			}
-			@include media_399() {
-				height: 100vh;
-			}
-		}
-		.chats-header {
-			z-index: 10;
-			background: map-get($color, "lowgrey");
-			font-weight: 600;
-			border-radius: 10px 0px 0px;
-			transition: $transition;
-			position: -webkit-sticky;
-			position: sticky;
-			top: 0;
-			backdrop-filter: blur(5px);
-			-webkit-backdrop-filter: blur(5px);
-
-			@include media_399() {
-				border-radius: 0;
-			}
-
-			.title {
-				font-size: map-get($fonts, "medium");
-				padding: 10px;
-			}
-
-			.chats-nav {
-				display: flex;
-				flex-wrap: nowrap;
-				border-radius: 10px 0px 0px;
-				background: map-get($color, "lowgrey");
-				position: relative;
-
-				.common,
-				.private {
-					flex: 0.6;
-					display: grid;
-					place-items: center;
-					.icon {
-						max-width: 50px;
-					}
-				}
-				.nav-active {
-					position: absolute;
-					bottom: 0;
-					width: 50%;
-					left: 0;
-					transition: $transition;
-					border-bottom: 2px solid map-get($color, "skyblue");
-
-					&.p {
-						left: 50%;
-					}
-				}
-			}
-		}
-		.chats-body {
-			position: relative;
-			// @include media_399() {
-			// 	height: calc(100vh - 60px);
-			// }
-			.common-chats.pub-chats,
-			.private-chats {
-				width: 100%;
-				padding: 10px;
-				transition: $transition;
-				position: absolute;
-				top: 0;
-				left: 0;
-				background: map-get($map: $color, $key: "lightergrey");
-				// height: calc(100vh - 150px);
-				// overflow: scroll;
-
-				@include media_399() {
-					height: calc(100vh - 60px);
-				}
-			}
-
-			.private-chats {
-				visibility: hidden;
-
-				&.p {
-					z-index: 5;
-					visibility: visible;
-				}
-				.chat-security {
-					display: grid;
-					place-items: center;
-					place-content: center;
-					height: 300px;
-				}
-				.label {
-					margin-bottom: 20px;
-
-					h4 {
-						font-size: map-get($fonts, "big");
-						color: map-get($color, "brown");
-					}
-				}
-				.unlock {
-					width: 200px;
-					height: 30px;
-					padding: 10px;
-					background: map-get($color, "white");
-					border-radius: 50px;
-					box-shadow: $shadow;
-				}
-			}
-			.chats-list {
-				list-style: none;
-
-				.chat {
-					display: flex;
-					flex-wrap: nowrap;
-					border-radius: 30px;
-					background: map-get($color, "white");
-					margin-bottom: 7px;
-					position: relative;
-					padding-left: 40px;
-
-					.user {
-						position: absolute;
-						left: 0;
-						top: -2px;
-					}
-					.image {
-						width: 40px;
-						height: 40px;
-						border-radius: 50%;
-					}
-
-					.username {
-						width: 80%;
-						line-height: 13px;
-						font-weight: 600;
-						padding: 5px;
-						overflow: hidden;
-						text-overflow: ellipsis;
-						font-size: map-get($fonts, "small");
-						color: map-get($color, "brown");
-
-						.name {
-							overflow: hidden;
-							white-space: nowrap;
-							text-overflow: ellipsis;
-						}
-
-						.last-message {
-							color: map-get($color, "skyblue");
-							font-size: map-get($fonts, "smaller");
-						}
-					}
-					.status.not-seen-message {
-						width: 20%;
-						position: relative;
-
-						.active {
-							width: 5px;
-							height: 5px;
-							background: map-get($color, "skyblue");
-							border-radius: 50%;
-							position: absolute;
-							top: 6px;
-							right: 15px;
-						}
-						.not-seen {
-							width: 15px;
-							height: 15px;
-							font-size: map-get($map: $fonts, $key: "smaller");
-							position: absolute;
-							bottom: 6px;
-							right: 10px;
-							border-radius: 50%;
-							display: grid;
-							place-items: center;
-							background: map-get(
-								$map: $color,
-								$key: "lightgrey"
-							);
 						}
 					}
 				}

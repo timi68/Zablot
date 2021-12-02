@@ -1,0 +1,141 @@
+@import "./variable";
+
+@mixin remove() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin expand() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin Media() {
+	@media (min-width: 800px) {
+		@content;
+	}
+}
+
+@mixin media_1049 {
+	@media (max-width: 1049px) {
+		@content;
+	}
+}
+@mixin media_649 {
+	@media (max-width: 649px) {
+		@content;
+	}
+}
+@mixin media_549 {
+	@media (max-width: 549px) {
+		@content;
+	}
+}
+@mixin media_399 {
+	@media (max-width: 399px) {
+		@content;
+	}
+}
+@mixin users() {
+	.users {
+		list-style: none;
+		padding: 0px 10px;
+
+		.user {
+			border-radius: 50px;
+			background: map-get($color, "white");
+			display: flex;
+			padding: 5px 10px;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10px;
+			box-shadow: $shadow;
+
+			.image {
+				height: 35px;
+				width: 35px;
+				border-radius: 50px;
+			}
+
+			.btn-wrapper {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				height: 100%;
+			}
+			.btn {
+				height: 30px;
+				border-radius: 50px;
+				width: 80px;
+				display: grid;
+				place-items: center;
+				font-size: map-get($fonts, "smaller");
+				font-weight: 600;
+				background: map-get($map: $color, $key: "lightergrey");
+				color: map-get($color, "skyblue");
+			}
+		}
+
+		.user-profile {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.user-name {
+				margin-left: 5px;
+				font-weight: 600;
+				line-height: 15px;
+				color: map-get($map: $color, $key: "brown");
+				font-size: map-get($fonts, "small");
+				text-align: left;
+				transition: $transition;
+
+				@include media_399() {
+					font-size: map-get($fonts, "smaller");
+				}
+
+				.username {
+					color: map-get($color, "blue");
+					font-size: map-get($fonts, "smaller");
+				}
+			}
+		}
+	}
+}
+
+@mixin toggle($className: "toggle") {
+	.#{$className} {
+		position: absolute;
+		content: "";
+		height: 60px;
+		width: 20px;
+		top: 10px;
+		z-index: 100;
+		backdrop-filter: blur(10px);
+		transition: $transition;
+		background: map-get($map: $color, $key: "lowgrey");
+
+		&::before,
+		&::after {
+			position: absolute;
+			top: 50%;
+			width: 2px;
+			height: 50%;
+			transform: translateY(-50%);
+			content: "";
+			background: map-get($map: $color, $key: "brown");
+		}
+	}
+}
+
+@keyframes shadow {
+	50% {
+		box-shadow: 0px 0px 2px 2px #dc121261;
+	}
+
+	100% {
+		box-shadow: 0px 0px 4px 4px #dc121261;
+	}
+}

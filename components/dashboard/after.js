@@ -28,32 +28,15 @@ export default function AfterRender() {
 	const Close = useRef(null);
 	const NotificationAlert = useRef(null);
 
-	const Handler = (data) => {
-		console.log(data);
-		j(NotificationAlert.current)
-			.animate(
-				{
-					left: "300px",
-				},
-				1000
-			)
-			.promise()
-			.done(function () {
-				setTimeout(() => {
-					j(NotificationAlert.current).css("left", "-300px");
-				}, 3000);
-			});
-	};
+	// useEffect(() => {
+	// 	if (socket) {
+	// 		socket.on("Notifications", Handler);
+	// 	}
 
-	useEffect(() => {
-		if (socket) {
-			socket.on("Notifications", Handler);
-		}
-
-		return () => {
-			socket.off("Notifications", Handler);
-		};
-	}, [socket]);
+	// 	return () => {
+	// 		socket.off("Notifications", Handler);
+	// 	};
+	// }, [socket]);
 
 	useEffect(() => {
 		{
@@ -167,7 +150,8 @@ export default function AfterRender() {
 					</div>
 				</div>
 			</div>
-			<div className="toolpit"></div>
+
+			{/* <div className="toolpit"></div>
 			<div className="notification_alert" ref={NotificationAlert}>
 				<div className="alert_message alert alert-info alert-dismissible">
 					<div className="message">There is a message for you</div>
@@ -175,7 +159,7 @@ export default function AfterRender() {
 				<div className="btn close" ref={Close}>
 					&times;
 				</div>
-			</div>
+			</div> */}
 		</Fragment>
 	);
 }

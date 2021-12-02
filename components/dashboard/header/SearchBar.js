@@ -10,73 +10,41 @@ import React, {
 } from "react";
 import {SocketContext} from "../../../lib/socket";
 import ChatRoom from "../ChatRoom";
+import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";
 
 function SearchBar() {
-	const {socket, props, user} = useContext(SocketContext);
+	const {socket, props, user, modalSignal} = useContext(SocketContext);
 	const [matched, setMatched] = useState(null);
 	const [skipper, setSkipper] = useState(null);
+	const [open, setOpen] = useState(false);
 	const [pending, setPending] = useState(user?.PendingRequests || []);
 	const [friends, setFriends] = useState(user?.Friends || []);
 	const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
 	const searchbar = useRef(null);
+	const searchIcon = useRef(null);
 
 	const SearchBox = function () {
-		const media_649 = window.innerWidth > 649;
-
-		if (!j(".search-results").hasClass("show"))
-			j(document).find(".show").removeClass("show");
-		if (j(".search-results").hasClass("show")) return;
-		if (media_649 === false) {
-			j(".search-results").toggleClass("show");
-
-			j("#search").fadeOut();
-			setTimeout(() => {
-				j(this)
-					.parent()
-					.toggleClass("not-focus focus-input")
-					.find("#search")
-					.toggleClass("active");
-				j("#search").fadeIn().find("#form-control").focus();
-			}, 500);
-			return;
-		} else {
-			j(".search-results").toggleClass("show");
-		}
+		if (open) return;
+		j(modalSignal.current).trigger("click").addClass("show");
+		setOpen(!open);
 	};
 
 	const Close = function () {
+		setOpen(!open);
 		const media_649 = window.innerWidth > 649;
 		if (media_649 === false) {
-			j("#search").fadeOut().find("#form-control").val("");
+			j("#search").fadeOut().find("#text-control").val("");
 		}
-		j("#search").find("#form-control").val("");
-		j(".search-results")
-			.animate(
-				{
-					width: "0px",
-					height: "0px",
-				},
-				500
-			)
-			.promise()
-			.done(function () {
-				j(".search-results").removeClass("show").attr("style", "");
-				if (matched?.length) {
-					setMatched([]);
-				}
-			});
-		if (!media_649) {
-			setTimeout(() => {
-				j(this)
-					.parents(".focus-input")
-					.toggleClass("not-focus focus-input");
-				j("#search").removeClass("active");
-				j("#search").fadeIn();
-			}, 1000);
-		}
-		j(".search-icon").off("click", Search);
+		j(".search-icon").off("click", Search).removeClass("ready");
+		j("#search").find("#text-control").val("");
+	};
+
+	const ReadyForSearch = (/** @type {any} */ e) => {
+		if (!j(e.target).val())
+			return j(searchIcon.current).removeClass("ready");
+		return j(searchIcon.current).addClass("ready");
 	};
 
 	const Search = () => {
@@ -212,17 +180,10 @@ function SearchBar() {
 	);
 
 	useEffect(() => {
-		j(window).resize(function () {
-			const media_649 = window.innerWidth > 649;
-			const is_visible = j(".search-results").hasClass("show");
-			if (!media_649 && is_visible) j("#search").addClass("active");
-			if (media_649 && is_visible) j("#search").removeClass("active");
+		j(modalSignal.current).click(function () {
+			setOpen(false);
 		});
-
-		return () => {
-			j(window).off();
-		};
-	}, []);
+	}, [modalSignal]);
 
 	useEffect(() => {
 		console.log("Mounting");
@@ -239,7 +200,44 @@ function SearchBar() {
 	console.log("mounting from searchbar");
 	return (
 		<div className="search-container not-focus">
-			<div className="search-results fetched matched">
+			<div className="search-text-box" id="search" onClick={SearchBox}>
+				<form action="#" className="search-form">
+					<div
+						className="search-icon"
+						ref={searchIcon}
+						onClick={Search}
+					>
+						<svg
+							height="20px"
+							viewBox="0 0 24 24"
+							width="20px"
+							fill="#000000"
+						>
+							<path d="M0 0h24v24H0V0z" fill="none" />
+							<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+						</svg>
+					</div>
+					<div className="form-control">
+						<input
+							type="text"
+							ref={searchbar}
+							onKeyUp={(e) => ReadyForSearch(e)}
+							className="text-control"
+							id="text-control"
+							placeholder="Search a friend.."
+							autoComplete="off"
+						/>
+					</div>
+				</form>
+			</div>
+			<motion.div
+				animate={{
+					height: open ? "calc(100vh - 60px)" : 0,
+					width: open ? 600 : 0,
+				}}
+				transition={{duration: 0.1}}
+				className="search-results fetched matched"
+			>
 				<div className="listed-matched">
 					<div className="header">
 						<div className="close-btn modal">
@@ -259,104 +257,83 @@ function SearchBar() {
 									) => {
 										var key = uuid();
 										return (
-											<li className="user" key={key}>
-												<div className="user-profile">
-													<div className="user-image">
-														<div className="image-wrapper">
-															<img
-																src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-																alt="user-image"
-																className="image"
-															/>
-														</div>
-													</div>
-													<div className="user-name">
-														<div className="name">
-															<span>
-																{user.FullName}
-															</span>
-														</div>
-														<div className="username">
-															<span>
-																{user.UserName}
-															</span>
-														</div>
-													</div>
-												</div>
-												<div className="friend-reject-accept-btn btn-wrapper">
-													{user.friends ? (
-														<button
-															className="add btn"
-															onClick={(e) => {
-																processFriend(
-																	user,
-																	e
-																);
-															}}
-														>
-															message
-														</button>
-													) : user.sent ? (
-														<button
-															className="add btn"
-															onClick={(e) => {
-																processCancel(
-																	user._id,
-																	e
-																);
-															}}
-														>
-															Cancel request
-														</button>
-													) : (
-														<button
-															className="add btn"
-															onClick={(e) => {
-																processAdd(
-																	user._id,
-																	e
-																);
-															}}
-														>
-															Add friend
-														</button>
-													)}
-												</div>
-											</li>
+											<MatchedUser
+												key={key}
+												processFriend={processFriend}
+												processAdd={processAdd}
+												processCancel={processCancel}
+												user={user}
+											/>
 										);
 									}
 							  )
 							: ""}
 					</ul>
 				</div>
-			</div>
-			<div className="search-text-box" id="search" onClick={SearchBox}>
-				<form action="#" className="search-form">
-					<div className="search-icon" onClick={Search}>
-						<svg
-							height="20px"
-							viewBox="0 0 24 24"
-							width="20px"
-							fill="#000000"
-						>
-							<path d="M0 0h24v24H0V0z" fill="none" />
-							<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-						</svg>
-					</div>
-					<div className="form-group">
-						<input
-							type="text"
-							ref={searchbar}
-							className="form-control"
-							id="form-control"
-							placeholder="Search a friend.."
-							autoComplete="off"
-						/>
-					</div>
-				</form>
-			</div>
+			</motion.div>
 		</div>
 	);
 }
 
+/**
+ *
+ * @param {{user: object, processFriend: Function, processCancel: Function, processAdd: Function}} props
+ * @returns
+ */
+function MatchedUser(props) {
+	const {user, processFriend, processCancel, processAdd} = props;
+	return (
+		<li className="user">
+			<div className="user-profile">
+				<div className="user-image">
+					<div className="image-wrapper">
+						<img
+							src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+							alt="user-image"
+							className="image"
+						/>
+					</div>
+				</div>
+				<div className="user-name">
+					<div className="name">
+						<span>{user.FullName}</span>
+					</div>
+					<div className="username">
+						<span>{user.UserName}</span>
+					</div>
+				</div>
+			</div>
+			<div className="friend-reject-accept-btn btn-wrapper">
+				{user.friends ? (
+					<button
+						className="add btn"
+						onClick={(e) => {
+							processFriend(user, e);
+						}}
+					>
+						message
+					</button>
+				) : user.sent ? (
+					<button
+						className="add btn"
+						onClick={(e) => {
+							processCancel(user._id, e);
+						}}
+					>
+						Cancel request
+					</button>
+				) : (
+					<button
+						className="add btn"
+						onClick={(e) => {
+							processAdd(user._id, e);
+						}}
+					>
+						Add friend
+					</button>
+				)}
+			</div>
+		</li>
+	);
+}
 export default SearchBar;

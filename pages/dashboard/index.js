@@ -3,20 +3,24 @@
 /* eslint-disable @next/next/link-passhref */
 /* eslint-disable @next/next/no-img-element */
 // @ts-check
-import Link from "next/link";
+
 import Head from "next/head";
-import {Fragment, useEffect, useContext, useCallback, useState} from "react";
-import Footer from "../../components/global/footer";
+import {useEffect, useState, useRef} from "react";
 import AfterRender from "../../components/dashboard/after";
 import {useSocket, SocketContext} from "../../lib/socket";
-import {useRouter} from "next/router";
 import j from "jquery";
 
 function Dashboard(props) {
 	const [user, setUser] = useState();
 	const [error, setError] = useState(null);
 	const [IsLoading, setIsLoading] = useState(true);
-	const router = useRouter();
+	const modalSignal = useRef(null);
+	const socket = useSocket("/");
+
+	const removeAllShowModal = () => {
+		console.log("clicked");
+		j(modalSignal.current).removeClass("show");
+	};
 
 	useEffect(() => {
 		document.addEventListener("click", function (e) {
@@ -52,7 +56,6 @@ function Dashboard(props) {
 		});
 	}, []);
 
-	const socket = useSocket("/");
 	useEffect(() => {
 		const handleJoined = (id) => {
 			console.log(id);
@@ -82,17 +85,23 @@ function Dashboard(props) {
 
 	// if (!props.user?.id) router.push("/login");
 	return (
-		<SocketContext.Provider value={{socket, props, user}}>
+		<SocketContext.Provider value={{socket, props, user, modalSignal}}>
 			<Head>
 				<title>Dashboard</title>
-				<link rel="stylesheet" href="/dist/css/main.css" />
 			</Head>
 			{IsLoading ? (
 				<h1>Is Loading</h1>
 			) : error ? (
 				<h1>There is an error</h1>
 			) : (
-				<AfterRender />
+				<>
+					<AfterRender />
+					<div
+						className="modal_open_signal"
+						ref={modalSignal}
+						onClick={removeAllShowModal}
+					></div>
+				</>
 			)}
 			{/* <Footer /> */}
 		</SocketContext.Provider>

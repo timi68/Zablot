@@ -2,6 +2,8 @@
 import NProgress from "nprogress";
 import Router from "next/router";
 import "nprogress/nprogress.css";
+import "../styles/main.scss";
+import "../styles/chatboard.scss";
 import Head from "next/head";
 import {Fragment} from "react";
 import "../public/dist/css/icons.css";
