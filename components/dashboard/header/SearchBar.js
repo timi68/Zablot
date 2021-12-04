@@ -13,6 +13,7 @@ import ChatRoom from "../ChatRoom";
 import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";
+import {CSSTransition} from "react-transition-group";
 
 function SearchBar() {
 	const {socket, props, user, modalSignal} = useContext(SocketContext);
@@ -24,19 +25,22 @@ function SearchBar() {
 	const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
 	const searchbar = useRef(null);
 	const searchIcon = useRef(null);
+	const container = useRef(null);
 
 	const SearchBox = function () {
 		if (open) return;
+
 		j(modalSignal.current).trigger("click").addClass("show");
+		j(container.current).addClass("focused");
 		setOpen(!open);
 	};
 
-	const Close = function () {
-		setOpen(!open);
-		const media_649 = window.innerWidth > 649;
-		if (media_649 === false) {
-			j("#search").fadeOut().find("#text-control").val("");
-		}
+	const Closemodal = function () {
+		if (open) setOpen(false);
+
+		j(modalSignal.current).removeClass("show");
+		j(container.current).removeClass("focused");
+
 		j(".search-icon").off("click", Search).removeClass("ready");
 		j("#search").find("#text-control").val("");
 	};
@@ -180,10 +184,12 @@ function SearchBar() {
 	);
 
 	useEffect(() => {
-		j(modalSignal.current).click(function () {
-			setOpen(false);
-		});
-	}, [modalSignal]);
+		const modal = modalSignal.current;
+		j(modalSignal.current).on("click", Closemodal);
+		return () => {
+			j(modal).off("click", Closemodal);
+		};
+	}, [open]);
 
 	useEffect(() => {
 		console.log("Mounting");
@@ -196,10 +202,9 @@ function SearchBar() {
 		};
 	}, [socket, matched]);
 
-	console.log(matched, friends, pending);
 	console.log("mounting from searchbar");
 	return (
-		<div className="search-container not-focus">
+		<div className="search-container" ref={container}>
 			<div className="search-text-box" id="search" onClick={SearchBox}>
 				<form action="#" className="search-form">
 					<div
@@ -219,9 +224,10 @@ function SearchBar() {
 					</div>
 					<div className="form-control">
 						<input
-							type="text"
+							type="search"
+							aria-autocomplete="none"
 							ref={searchbar}
-							onKeyUp={(e) => ReadyForSearch(e)}
+							onChange={(e) => ReadyForSearch(e)}
 							className="text-control"
 							id="text-control"
 							placeholder="Search a friend.."
@@ -230,47 +236,51 @@ function SearchBar() {
 					</div>
 				</form>
 			</div>
-			<motion.div
-				animate={{
-					height: open ? "calc(100vh - 60px)" : 0,
-					width: open ? 600 : 0,
-				}}
-				transition={{duration: 0.1}}
-				className="search-results fetched matched"
+			<CSSTransition
+				in={open}
+				timeout={200}
+				unmountOnExit
+				classNames="search-results"
 			>
-				<div className="listed-matched">
-					<div className="header">
-						<div className="close-btn modal">
-							<div className="close" onClick={Close.bind(Close)}>
-								<span>Close</span>
+				<div className="search-results fetched matched">
+					<div className="listed-matched">
+						<div className="header">
+							<div className="close-btn modal">
+								<div className="close" onClick={Closemodal}>
+									<span>Close</span>
+								</div>
 							</div>
 						</div>
-						<div className="title">
-							<div className="text">Matched Results</div>
-						</div>
+						<ul className="matched users">
+							<div className="title">
+								<div className="text">Matched Results</div>
+							</div>
+							{matched?.length
+								? matched.map(
+										(
+											/** @type {{ FullName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; UserName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; friends: any; sent: any; _id: any; }} */ user
+										) => {
+											var key = uuid();
+											return (
+												<MatchedUser
+													key={key}
+													processFriend={
+														processFriend
+													}
+													processAdd={processAdd}
+													processCancel={
+														processCancel
+													}
+													user={user}
+												/>
+											);
+										}
+								  )
+								: ""}
+						</ul>
 					</div>
-					<ul className="matched users">
-						{matched?.length
-							? matched.map(
-									(
-										/** @type {{ FullName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; UserName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; friends: any; sent: any; _id: any; }} */ user
-									) => {
-										var key = uuid();
-										return (
-											<MatchedUser
-												key={key}
-												processFriend={processFriend}
-												processAdd={processAdd}
-												processCancel={processCancel}
-												user={user}
-											/>
-										);
-									}
-							  )
-							: ""}
-					</ul>
 				</div>
-			</motion.div>
+			</CSSTransition>
 		</div>
 	);
 }

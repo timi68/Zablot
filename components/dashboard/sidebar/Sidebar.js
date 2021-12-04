@@ -18,7 +18,12 @@ import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlin
 export default function Sidebar() {
 	const {user} = useContext(SocketContext);
 	const sidebar = useRef(null);
-	const openSidebar = () => sidebar.current.classList.toggle("show");
+	const openSidebar = () => {
+		const bar = sidebar.current;
+		if (!bar.classList.contains("show"))
+			document.querySelector(".show")?.classList.remove("show");
+		bar.classList.toggle("show");
+	};
 	return (
 		<div className="navigator sidebar sticky" ref={sidebar}>
 			<div className="open" onClick={openSidebar}></div>

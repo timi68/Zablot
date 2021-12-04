@@ -13,12 +13,10 @@ $borderColor: #d7cdcd;
 	flex: 0.3;
 	background: map-get($map: $color, $key: "lightergrey");
 	height: calc(100vh - 80px);
-	margin-top: 5px;
 	max-width: 300px;
-	border-top-left-radius: 10px;
 	transition: $transition;
 
-	@include media_1049 {
+	@media screen and (max-width: 750px) {
 		flex: 0;
 		position: absolute;
 		right: -300px;
@@ -48,7 +46,7 @@ $borderColor: #d7cdcd;
 			border-radius: 0px 0px 0px 10px;
 			box-shadow: $shadow;
 			height: 40px;
-			background: map-get($map: $color, $key: "brown");
+			background: map-get($map: $color, $key: "grey");
 
 			&::before,
 			&::after {
@@ -68,8 +66,9 @@ $borderColor: #d7cdcd;
 			height: 100vh;
 			margin: 0;
 			border-radius: 0;
+			max-width: 100vw;
 
-			.toggle {
+			.open {
 				left: 95%;
 			}
 		}
@@ -98,7 +97,6 @@ $borderColor: #d7cdcd;
 	.chats-header {
 		background: map-get($color, "lowgrey");
 		font-weight: 600;
-		border-radius: 10px 0px 0px;
 		box-shadow: 0 2px 2px 2px map-get($color, "lowgrey");
 		top: 0;
 		backdrop-filter: blur(5px);
@@ -205,6 +203,10 @@ $borderColor: #d7cdcd;
 			background: map-get($map: $color, $key: "lightergrey");
 			height: 100%;
 			overflow: auto;
+
+			@include media_399 {
+				width: 100vw;
+			}
 		}
 
 		.private_chats {
@@ -218,7 +220,7 @@ $borderColor: #d7cdcd;
 				display: grid;
 				place-items: center;
 				place-content: center;
-				height: 100%;
+				padding-block: 10px;
 			}
 			.label {
 				margin-bottom: 10px;

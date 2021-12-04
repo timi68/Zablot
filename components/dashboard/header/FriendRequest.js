@@ -2,17 +2,20 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
 import {Fragment, useEffect, useContext, useState, useRef} from "react";
+import {motion} from "framer-motion";
+import {CSSTransition} from "react-transition-group";
 import {SocketContext} from "../../../lib/socket";
 import {v4 as uuid} from "uuid";
 import time from "../../../lib/calcuate-time";
 import j from "jquery";
 
 function FriendRequests() {
-	const {socket, props, user} = useContext(SocketContext);
+	const {socket, props, user, modalSignal} = useContext(SocketContext);
 	const [request, setRequest] = useState(
 		user?.FriendRequests.sort(() => -1) || []
 	);
 	const [date, setDate] = useState(new Date());
+	const [openModal, setOpenModal] = useState(false);
 
 	const Reject = (id, rm) => {
 		let data = {
@@ -102,7 +105,7 @@ function FriendRequests() {
 			return (state = state.filter((user) => user.From !== data.from));
 		});
 	};
-	
+
 	useEffect(() => {
 		console.log("mounting times 3");
 
@@ -117,37 +120,36 @@ function FriendRequests() {
 		};
 	}, [socket]);
 
-	// useEffect(() => {
-	// 	setTimeout(() => {
-	// 		setDate(() => {
-	// 			return new Date();
-	// 		});
-	// 	}, 60000);
-	// }, [date]);
+	useEffect(() => {
+		const modal = modalSignal.current;
+		j(modalSignal.current).on("click", closemodal);
+		return () => {
+			j(modal).off("click", closemodal);
+		};
+	}, [openModal]);
 
-	const Icon = () => {
-		if (!j(".request-box").hasClass("show"))
-			j(document).find(".show").removeClass("show expand");
-		if (request?.length) {
-			setTimeout(() => {
-				setDate(new Date());
-			}, 500);
-		}
-		j(".request-box").prop("scrollTop", 0).toggleClass("show");
+	const closemodal = () => {
+		if (!openModal) return;
+		setOpenModal(false);
+		j(modalSignal.current).removeClass("show");
 	};
 
-	const Modal = () => {
-		j(".request-box .close-modal").parents(".show").removeClass("show");
+	const handleOpen = () => {
+		if (!openModal)
+			j(modalSignal.current).trigger("click").addClass("show");
+		else j(modalSignal.current).removeClass("show");
 	};
 
-	console.log("this is request", request);
 	return (
 		<div className="friendrequest-wrapper">
 			<div className="unseen">0</div>
 			<div
 				className="request-icon icon"
 				alt="Friend Requests"
-				onClick={Icon}
+				onClick={() => {
+					setOpenModal(!openModal);
+					handleOpen();
+				}}
 			>
 				<svg
 					enableBackground="new 0 0 24 24"
@@ -176,126 +178,143 @@ function FriendRequests() {
 					</g>
 				</svg>
 			</div>
-			<div className="request-box">
-				<div className="request-header">
-					<div className="title">
-						<h3>Friend Requests</h3>
-					</div>
-					<div className="close-modal" onClick={Modal}>
-						<div className="close">
-							<span>Close</span>
+			<CSSTransition
+				in={openModal}
+				timeout={200}
+				unmountOnExit
+				classNames="requests-box"
+			>
+				<div className="requests-box">
+					<div className="requests-header">
+						<div className="title">Friend Requests</div>
+						<div className="close-modal" onClick={closemodal}>
+							<div className="close">
+								<span>Close</span>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div className="request-list">
-					<ul className="users">
-						{request?.length ? (
-							request.map((user) => {
-								var key = uuid();
-								var duration = time(date, user.Date);
+					<div className="requests-list">
+						<ul className="users">
+							{request?.length ? (
+								request.map((user) => {
+									var key = uuid();
+									var duration = time(date, user.Date);
 
-								return (
-									<li className="user" key={key}>
-										<div className="user-profile">
-											<div className="user-image">
-												<div className="image-wrapper">
-													<img
-														src={user.Image}
-														alt="user-image"
-														className="image"
-													/>
-												</div>
-											</div>
-											<div className="user-name">
-												<div className="name">
-													<span>{user.Name}</span>
-												</div>
-												<div className="username">
-													<span>
-														@{user.UserName}
-													</span>
-													&nbsp; &nbsp; &nbsp; &nbsp;
-													<span> {duration} </span>
-												</div>
-											</div>
-										</div>
-										{user?.Accepted ? (
-											<button className="btn open-chat">
-												{" "}
-												Message{" "}
-											</button>
-										) : (
-											<div className="friend-reject-accept-btn btn-wrapper">
-												<div className="accept btn">
-													<span
-														className="accept-text"
-														onClick={(e) => {
-															Accept(user, e);
-														}}
-													>
-														Accept
-													</span>
-												</div>
-												<div className="reject btn">
-													<span
-														className="reject-text"
-														onClick={(e) => {
-															Reject(
-																user.From,
-																e
-															);
-														}}
-													>
-														Reject
-													</span>
-												</div>
-											</div>
-										)}
-									</li>
-								);
-							})
-						) : (
-							<div className="no_request">
-								<h5>There is no request available</h5>
-							</div>
-						)}
-					</ul>
-				</div>
-				<div className="related-friends friends">
-					<div className="title">You might know this people</div>
-					<ul className="users">
-						<li className="user">
-							<div className="user-profile">
-								<div className="user-image">
-									<div className="image-wrapper">
-										<img
-											src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-											alt="user-image"
-											className="image"
+									return (
+										<Requests
+											key={key}
+											accept={Accept}
+											reject={Reject}
+											user={user}
+											duration={duration}
 										/>
-									</div>
+									);
+								})
+							) : (
+								<div className="no_request">
+									<h4>There is no request available</h4>
 								</div>
-								<div className="user-name">
-									<div className="name">
-										<span>Oderinde Tobi</span>
-									</div>
-									<div className="username">
-										<span>@tjdbbs</span>
-									</div>
-								</div>
-							</div>
-							<div className="friend-reject-accept-btn btn-wrapper">
-								<div className="accept btn">
-									<span className="accept-text">Add</span>
-								</div>
-								<div className="reject btn">
-									<span className="reject-text">Cancel</span>
-								</div>
-							</div>
-						</li>
-					</ul>
+							)}
+						</ul>
+					</div>
+					<PeopleYouMightKnow />
+				</div>
+			</CSSTransition>
+		</div>
+	);
+}
+
+function Requests(props) {
+	const {user, duration, accept: Accept, reject: Reject} = props;
+
+	return (
+		<li className="user" key={key}>
+			<div className="user-profile">
+				<div className="user-image">
+					<div className="image-wrapper">
+						<img
+							src={user.Image}
+							alt="user-image"
+							className="image"
+						/>
+					</div>
+				</div>
+				<div className="user-name">
+					<div className="name">
+						<span>{user.Name}</span>
+					</div>
+					<div className="username">
+						<span>@{user.UserName}</span>
+						&nbsp; &nbsp; &nbsp; &nbsp;
+						<span> {duration} </span>
+					</div>
 				</div>
 			</div>
+			{user?.Accepted ? (
+				<button className="btn open-chat"> Message </button>
+			) : (
+				<div className="friend-reject-accept-btn btn-wrapper">
+					<div className="accept btn">
+						<span
+							className="accept-text"
+							onClick={(e) => {
+								Accept(user, e);
+							}}
+						>
+							Accept
+						</span>
+					</div>
+					<div className="reject btn">
+						<span
+							className="reject-text"
+							onClick={(e) => {
+								Reject(user.From, e);
+							}}
+						>
+							Reject
+						</span>
+					</div>
+				</div>
+			)}
+		</li>
+	);
+}
+
+function PeopleYouMightKnow() {
+	return (
+		<div className="related-friends friends">
+			<div className="title">You might know this people</div>
+			<ul className="users">
+				<li className="user">
+					<div className="user-profile">
+						<div className="user-image">
+							<div className="image-wrapper">
+								<img
+									src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+									alt="user-image"
+									className="image"
+								/>
+							</div>
+						</div>
+						<div className="user-name">
+							<div className="name">
+								<span>Oderinde Tobi</span>
+							</div>
+							<div className="username">
+								<span>@tjdbbs</span>
+							</div>
+						</div>
+					</div>
+					<div className="friend-reject-accept-btn btn-wrapper">
+						<div className="accept btn">
+							<span className="accept-text">Add</span>
+						</div>
+						<div className="reject btn">
+							<span className="reject-text">Cancel</span>
+						</div>
+					</div>
+				</li>
+			</ul>
 		</div>
 	);
 }

@@ -46,6 +46,7 @@
 		"react-dom": "^17.0.2",
 		"react-ionicons": "^1.5.7",
 		"react-redux": "^7.2.5",
+		"react-transition-group": "^4.4.2",
 		"request": "^2.65.0",
 		"require_optional": "^1.0.1",
 		"socket.io": "^4.2.0",

@@ -51,9 +51,7 @@ function ProfileCard() {
 				</div>
 				<div className="user-preview-name">
 					<div className="user-preview-username">
-						<div className="username">
-							<span>@{user?.UserName}</span>
-						</div>
+						<div className="username">@{user?.UserName}</div>
 					</div>
 				</div>
 			</div>

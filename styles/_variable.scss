@@ -9,10 +9,10 @@ $color: (
 	"red": #e9d1d1,
 	"skyblue": #597f85,
 	"green": #597f85,
-	"black": rgba(102, 99, 99, 0.241),
+	"black": rgb(102, 99, 99, 40%),
 );
 
-$transition: all 0.5s ease-in-out;
+$transition: all 0.2s ease-out;
 $fonts: (
 	"smaller": 10px,
 	"small": 13px,
@@ -22,8 +22,4 @@ $fonts: (
 	"large": 30px,
 );
 
-$shadow: 0px 0px 10px 1px
-	map-get(
-		$map: $color,
-		$key: "black",
-	);
+$shadow: 0px 2px 7px rgb(25, 26, 26, 13%);

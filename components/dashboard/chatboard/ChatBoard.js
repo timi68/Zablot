@@ -12,7 +12,6 @@ import {motion} from "framer-motion";
 import {Tab, Tabs, CircularProgress} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import axios from "axios";
 import {Button, CardActionArea} from "@material-ui/core";
 
 function ChatBoard() {
@@ -151,7 +150,12 @@ function ChatBoard() {
 		ChatRoom({j, user: data, from: props?.user.id, e, socket});
 	}
 
-	const openChatBoard = () => j(chatBoard.current).toggleClass("show");
+	const openChatBoard = () => {
+		const bar = chatBoard.current;
+		if (!bar.classList.contains("show"))
+			document.querySelector(".show")?.classList.remove("show");
+		bar.classList.toggle("show");
+	};
 	return (
 		<div className="chats-container chat-board" ref={chatBoard}>
 			<div onClick={openChatBoard} className="open"></div>
@@ -167,7 +171,7 @@ function ChatBoard() {
 				</div>
 				<motion.div
 					animate={{
-						translateX: !Boolean(tabToOpen) ? "0%" : "-300px",
+						translateX: !Boolean(tabToOpen) ? "0%" : "-50%",
 					}}
 					transition={{duration: 0.2}}
 					className="chats-body"
@@ -275,17 +279,8 @@ function Chats({user, open}) {
 function Private(props) {
 	const {friends, openRoom} = props;
 	const [opened, setOpened] = useState(false);
-	const checkPin = useCallback(
-		async (pin) => {
-			/* const check = await axios.post("/check/private/password", pin);
-			// const*/
+	const checkPin = () => setOpened(true);
 
-			setOpened(true);
-		},
-		[opened]
-	);
-
-	console.log(friends);
 	const PrivateFriends = friends?.filter(
 		(friend) => friend.isPrivate === true
 	);
