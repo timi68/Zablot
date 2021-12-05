@@ -1,8 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import React, {useEffect, useContext, useState, useCallback} from "react";
 import {motion} from "framer-motion";
+import {IconButton} from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import {SocketContext} from "../../../lib/socket";
 import j from "jquery";
+import {CSSTransition} from "react-transition-group";
 
 function ProfileCard() {
 	const {user, modalSignal} = useContext(SocketContext);
@@ -32,53 +36,46 @@ function ProfileCard() {
 
 	return (
 		<div className="profile-link-wrapper">
-			<div
-				className="profile-preview"
-				alt="Profile card"
+			<IconButton
+				size="large"
+				className="open"
 				onClick={() => {
 					setExpand(!expand);
 					handleOpen();
 				}}
 			>
-				<div className="preview-image-wrapper">
-					<div className="user-profile-image image">
-						<img
-							src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-							alt="user-profile-image"
-							className="user-image"
-						/>
-					</div>
-				</div>
-				<div className="user-preview-name">
-					<div className="user-preview-username">
-						<div className="username">@{user?.UserName}</div>
-					</div>
-				</div>
-			</div>
-			<motion.div
-				animate={{
-					opacity: expand ? 1 : 0.3,
-					width: expand ? 200 : 0,
-					height: expand ? 300 : 0,
-				}}
-				transition={{duration: 0.2}}
-				className={expand ? "profile-expand expand" : "profile-expand"}
-			>
-				<div className="profile-header">
-					<div className="profile_details">
-						<div className="name">
-							<p className="userfullname">{user?.FullName}</p>
-							<div className="username">@{user?.UserName}</div>
-						</div>
-						<div className="email">
-							<span className="text">{user?.Email}</span>
+				{expand ? (
+					<ArrowDropUpIcon size="large" />
+				) : (
+					<ArrowDropDownIcon size="large" />
+				)}
+			</IconButton>
+			<CSSTransition in={expand} unmountOnExit>
+				<motion.div
+					animate={{
+						opacity: 1,
+					}}
+					transition={{duration: 0.2}}
+					className="profile-expand"
+				>
+					<div className="profile-header">
+						<div className="profile_details">
+							<div className="name">
+								<p className="userfullname">{user?.FullName}</p>
+								<div className="username">
+									@{user?.UserName}
+								</div>
+							</div>
+							<div className="email">
+								<span className="text">{user?.Email}</span>
+							</div>
 						</div>
 					</div>
-				</div>
-				<div className="profile-body">
-					<ul className="profile-list"></ul>
-				</div>
-			</motion.div>
+					<div className="profile-body">
+						<ul className="profile-list"></ul>
+					</div>
+				</motion.div>
+			</CSSTransition>
 		</div>
 	);
 }

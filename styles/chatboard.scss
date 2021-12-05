@@ -13,9 +13,14 @@ $borderColor: #d7cdcd;
 	flex: 0.3;
 	background: map-get($map: $color, $key: "lightergrey");
 	height: calc(100vh - 80px);
-	max-width: 300px;
+	border-top: thin solid white;
+	width: 300px;
+	max-width: 100vw;
 	transition: $transition;
 
+	@media screen and (max-width: 300px) {
+		right: -100%;
+	}
 	@media screen and (max-width: 750px) {
 		flex: 0;
 		position: absolute;
@@ -29,11 +34,11 @@ $borderColor: #d7cdcd;
 
 		@include toggle("open");
 		.open {
-			left: -20px;
+			left: -10px;
 			border-radius: 5px 0px 0px 5px;
 
 			&::before {
-				left: 7px;
+				left: 5px;
 			}
 			&::after {
 				left: 14px;
@@ -43,33 +48,23 @@ $borderColor: #d7cdcd;
 		&.show .open {
 			left: 280px;
 			top: 0;
-			border-radius: 0px 0px 0px 10px;
+			border-radius: 0px;
 			box-shadow: $shadow;
 			height: 40px;
 			background: map-get($map: $color, $key: "grey");
 
 			&::before,
 			&::after {
+				top: 40%;
+				left: 50%;
+				height: 25%;
 				background: map-get($map: $color, $key: "lightgrey");
 			}
-		}
-	}
-
-	@include media_399 {
-		&.show {
-			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			z-index: 10000;
-			width: 100vw;
-			height: 100vh;
-			margin: 0;
-			border-radius: 0;
-			max-width: 100vw;
-
-			.open {
-				left: 95%;
+			&::before {
+				transform: rotateZ(145deg);
+			}
+			&::after {
+				transform: rotateZ(-145deg);
 			}
 		}
 	}
@@ -82,25 +77,20 @@ $borderColor: #d7cdcd;
 	}
 
 	.chat-wrapper {
-		overflow: auto scroll;
+		overflow: hidden;
 		position: relative;
 		transition: $transition;
 
 		&::-webkit-scrollbar {
 			width: 0px;
 		}
-		@include media_399() {
-			height: 100vh;
-		}
 	}
 
 	.chats-header {
-		background: map-get($color, "lowgrey");
+		background: inherit;
 		font-weight: 600;
 		box-shadow: 0 2px 2px 2px map-get($color, "lowgrey");
-		top: 0;
-		backdrop-filter: blur(5px);
-		-webkit-backdrop-filter: blur(5px);
+		margin-bottom: 3px;
 
 		.title {
 			font-size: map-get($fonts, "medium");
@@ -129,9 +119,18 @@ $borderColor: #d7cdcd;
 		position: relative;
 		justify-content: flex-start;
 		gap: 0.5em;
+		position: relative;
 		padding-bottom: $small;
-		border-bottom: thin solid $borderColor;
 
+		&::before {
+			position: absolute;
+			content: "";
+			bottom: 0;
+			width: 90%;
+			border-bottom: thin solid $borderColor;
+			left: 50%;
+			transform: translateX(-50%);
+		}
 		.avatar {
 			width: 35px;
 			height: 35px;
@@ -198,18 +197,21 @@ $borderColor: #d7cdcd;
 		display: flex;
 		width: fit-content;
 
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
 		.chats_listbox {
 			width: 300px;
+			max-width: 100vw;
 			background: map-get($map: $color, $key: "lightergrey");
 			height: 100%;
 			overflow: auto;
-
-			@include media_399 {
-				width: 100vw;
-			}
 		}
 
 		.private_chats {
+			display: grid;
+			place-items: center;
 			&.p {
 				z-index: 5;
 				visibility: visible;
@@ -282,6 +284,7 @@ $borderColor: #d7cdcd;
 				.image {
 					width: 40px;
 					height: 40px;
+					border: thin solid map-get($map: $color, $key: "grey");
 					border-radius: 50%;
 				}
 

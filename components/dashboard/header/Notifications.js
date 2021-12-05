@@ -6,7 +6,9 @@ import {SocketContext} from "../../../lib/socket";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
 import GroupNotification from "../../../lib/GroupNotifications";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import {CSSTransition} from "react-transition-group";
+import {Badge, IconButton} from "@material-ui/core";
 
 function Notifications() {
 	const {socket, props, user, modalSignal} = useContext(SocketContext);
@@ -54,26 +56,18 @@ function Notifications() {
 	console.log("mounting from notification");
 	return (
 		<div className="notifications-wrapper">
-			<div className="unseen">0</div>
-			<div
-				className="notifications-icon icon"
-				onClick={() => {
-					setOpenModal(!openModal);
-					handleOpen();
-				}}
-				alt="Notification"
-			>
-				<svg
-					height="20px"
-					viewBox="0 0 24 24"
-					width="20px"
-					fill="#000000"
-					className="svg"
+			<Badge color="default" badgeContent={0} showZero>
+				<IconButton
+					size="large"
+					className="open"
+					onClick={() => {
+						setOpenModal(!openModal);
+						handleOpen();
+					}}
 				>
-					<path d="M0 0h24v24H0V0z" fill="none" />
-					<path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" />
-				</svg>
-			</div>
+					<NotificationsActiveIcon size="medium" />
+				</IconButton>
+			</Badge>
 			<CSSTransition
 				in={openModal}
 				timeout={200}

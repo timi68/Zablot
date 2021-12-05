@@ -7,6 +7,8 @@ import {CSSTransition} from "react-transition-group";
 import {SocketContext} from "../../../lib/socket";
 import {v4 as uuid} from "uuid";
 import time from "../../../lib/calcuate-time";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import {IconButton, Badge} from "@mui/material";
 import j from "jquery";
 
 function FriendRequests() {
@@ -142,42 +144,17 @@ function FriendRequests() {
 
 	return (
 		<div className="friendrequest-wrapper">
-			<div className="unseen">0</div>
-			<div
-				className="request-icon icon"
-				alt="Friend Requests"
-				onClick={() => {
-					setOpenModal(!openModal);
-					handleOpen();
-				}}
-			>
-				<svg
-					enableBackground="new 0 0 24 24"
-					height="20px"
-					viewBox="0 0 24 24"
-					width="20px"
-					fill="#000000"
+			<Badge color="secondary" badgeContent={0} showZero>
+				<IconButton
+					className="open"
+					onClick={() => {
+						setOpenModal(!openModal);
+						handleOpen();
+					}}
 				>
-					<g>
-						<rect
-							fill="none"
-							className="svg"
-							height="20"
-							width="20"
-						/>
-						<rect fill="none" height="20" width="20" />
-					</g>
-					<g>
-						<g>
-							<polygon points="22,9 22,7 20,7 20,9 18,9 18,11 20,11 20,13 22,13 22,11 24,11 24,9" />
-							<path d="M8,12c2.21,0,4-1.79,4-4s-1.79-4-4-4S4,5.79,4,8S5.79,12,8,12z M8,6c1.1,0,2,0.9,2,2s-0.9,2-2,2S6,9.1,6,8S6.9,6,8,6z" />
-							<path d="M8,13c-2.67,0-8,1.34-8,4v3h16v-3C16,14.34,10.67,13,8,13z M14,18H2v-0.99C2.2,16.29,5.3,15,8,15s5.8,1.29,6,2V18z" />
-							<path d="M12.51,4.05C13.43,5.11,14,6.49,14,8s-0.57,2.89-1.49,3.95C14.47,11.7,16,10.04,16,8S14.47,4.3,12.51,4.05z" />
-							<path d="M16.53,13.83C17.42,14.66,18,15.7,18,17v3h2v-3C20,15.55,18.41,14.49,16.53,13.83z" />
-						</g>
-					</g>
-				</svg>
-			</div>
+					<PersonAddIcon size="medium" />
+				</IconButton>
+			</Badge>
 			<CSSTransition
 				in={openModal}
 				timeout={200}
