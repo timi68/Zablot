@@ -9,7 +9,7 @@ import React, {
 	useCallback,
 } from "react";
 import {SocketContext} from "../../../lib/socket";
-import ChatRoom from "../ChatRoom";
+import {ChatRoom} from "../ChatRoom";
 import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";

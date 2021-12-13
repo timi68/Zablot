@@ -7,7 +7,7 @@ import {useRef, useContext, useEffect, useState, useCallback} from "react";
 import {SocketContext} from "../../../lib/socket";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
-import ChatRoom from "../ChatRoom";
+import {ChatRoom} from "../ChatRoom";
 import {motion} from "framer-motion";
 import {Tab, Tabs, CircularProgress} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
@@ -123,7 +123,7 @@ function ChatBoard() {
 	function openRoom(data, e) {
 		var html =
 			parseInt(
-				j(e.target).parents(".user").find(".not-seen span").html()
+				j(e.target).parents(".user").find(".unseenmessages span").html()
 			) > 0;
 		if (html) {
 			const friendId = props?.user.id;
@@ -156,6 +156,7 @@ function ChatBoard() {
 			document.querySelector(".show")?.classList.remove("show");
 		bar.classList.toggle("show");
 	};
+
 	return (
 		<div className="chats-container chat-board" ref={chatBoard}>
 			<div onClick={openChatBoard} className="open"></div>

@@ -14,71 +14,71 @@ export function ChatRoom({j, user, from, e, socket}) {
 		j(".chats-form:first").remove();
 	}
 
-	const chatForm = j("<div>", {classname: "chats-form", id});
+	const chatForm = j("<div>", {class: "chats-form", id});
 	const close = j("<div>", {
-		classname: "close-card",
+		class: "close-card",
 		"data-role": "Close card",
 	});
-	const formGroup = j("<div>", {classname: "form-group chats-room"});
-	const roomHeader = j("<div>", {classname: "room-header"});
-	const profile = j("<div>", {classname: "profile"});
-	const UserName = j("<div>", {classname: "name"});
-	const ActiveSign = j("<div>", {classname: "active-sign"});
-	const Online = j("<div>", {classname: "active-text"});
-	const Options = j("<div>", {classname: "options"});
+	const formGroup = j("<div>", {class: "form-group chats-room"});
+	const roomHeader = j("<div>", {class: "room-header"});
+	const profile = j("<div>", {class: "profile"});
+	const UserName = j("<div>", {class: "name"});
+	const ActiveSign = j("<div>", {class: "active-sign"});
+	const Online = j("<div>", {class: "active-text"});
+	const Options = j("<div>", {class: "options"});
 
 	// -------------- Room Body ---------------------
-	const roomBody = j("<div>", {classname: "room-body"});
-	const welcomeMessage = j("<div>", {classname: "welcome-message"});
-	const alertMessage = j("<div>", {classname: "alert-message"}).text(0);
+	const roomBody = j("<div>", {class: "room-body"});
+	const welcomeMessage = j("<div>", {class: "welcome-message"});
+	const alertMessage = j("<div>", {class: "alert-message"}).text(0);
 	welcomeMessage.html(
-		`<div classname="message"><span>You are now connected</span></div>`
+		`<div class="message"><span>You are now connected</span></div>`
 	);
 
 	// ------------------- ROOM FOOTER BORAD -------- --------- -------
-	const roomFooter = j("<div>", {classname: "room-footer"});
-	const createBox = j("<div>", {classname: "message-create-box input-box"});
-	const inputGroup = j("<div>", {classname: "input-group"});
-	const mediaIcon = j("<div>", {classname: "icon media-icon"});
+	const roomFooter = j("<div>", {class: "room-footer"});
+	const createBox = j("<div>", {class: "message-create-box input-box"});
+	const inputGroup = j("<div>", {class: "input-group"});
+	const mediaIcon = j("<div>", {class: "icon media-icon"});
 	const message = j("<textarea>", {
-		classname: "text-control",
+		class: "text-control",
 		name: "message",
 		id: "text-control message",
 		placeholder: "Type a message..",
 	});
-	const sendBtn = j("<div>", {classname: "send-btn"});
-	const send = j("<button>", {classname: "btn send"});
-	const media = j("<div>", {classname: "media-message-wrapper"});
-	const multimedia = j("<div>", {classname: "multimedia-list list"});
-	const mediaList = j("<ul>", {classname: "media-list"});
-	const mediaLi1 = j("<li>", {classname: "media"});
-	const mediaLi2 = j("<li>", {classname: "media"});
-	const mediaLi3 = j("<li>", {classname: "poll toggle-poll"});
+	const sendBtn = j("<div>", {class: "send-btn"});
+	const send = j("<button>", {class: "btn send"});
+	const media = j("<div>", {class: "media-message-wrapper"});
+	const multimedia = j("<div>", {class: "multimedia-list list"});
+	const mediaList = j("<ul>", {class: "media-list"});
+	const mediaLi1 = j("<li>", {class: "media"});
+	const mediaLi2 = j("<li>", {class: "media"});
+	const mediaLi3 = j("<li>", {class: "poll toggle-poll"});
 
 	// Room Footer ==> Create Poll Board
-	const CreatePoll = j("<div>", {classname: "create-question"});
-	const pollHeader = j("<div>", {classname: "poll-header"});
-	const discardPoll = j("<div>", {classname: "discard-wrap"});
-	const createPoll = j("<div>", {classname: "create-wrap"});
-	const pollBody = j("<div>", {classname: "poll-body"});
-	const questionBox = j("<div>", {classname: "question-box"});
-	const textBoxQuestion = j("<div>", {classname: "text-box question"});
+	const CreatePoll = j("<div>", {class: "create-question"});
+	const pollHeader = j("<div>", {class: "poll-header"});
+	const discardPoll = j("<div>", {class: "discard-wrap"});
+	const createPoll = j("<div>", {class: "create-wrap"});
+	const pollBody = j("<div>", {class: "poll-body"});
+	const questionBox = j("<div>", {class: "question-box"});
+	const textBoxQuestion = j("<div>", {class: "text-box question"});
 	const textControl = j("<textarea>", {
-		classname: "text-control",
+		class: "text-control",
 		id: "question",
 		name: "question",
 		placeholder: "Enter your question..",
 	});
-	const questionOptions = j("<div>", {classname: "question-options"});
-	const header = j("<div>", {classname: "header"});
-	const addOptions = j("<div>", {classname: "add-options add"});
-	const optionList = j("<ul>", {classname: "option-list wrap"});
-	const additionalOptions = j("<div>", {classname: "additional-options"});
-	const options = j("<div>", {classname: "options"});
-	const timer = j("<div>", {classname: "option-wrap timer"});
-	const coin = j("<div>", {classname: "coin option-wrap"});
+	const questionOptions = j("<div>", {class: "question-options"});
+	const header = j("<div>", {class: "header"});
+	const addOptions = j("<div>", {class: "add-options add"});
+	const optionList = j("<ul>", {class: "option-list wrap"});
+	const additionalOptions = j("<div>", {class: "additional-options"});
+	const options = j("<div>", {class: "options"});
+	const timer = j("<div>", {class: "option-wrap timer"});
+	const coin = j("<div>", {class: "coin option-wrap"});
 	const inputTime = j("<input>", {
-		classname: "text-control time",
+		class: "text-control time",
 		type: "text",
 		id: "timing",
 		name: "time",
@@ -86,7 +86,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 		autocomplete: "off",
 	});
 	const inputCoin = j("<input>", {
-		classname: "text-control coin",
+		class: "text-control coin",
 		type: "text",
 		id: "coin",
 		name: "coin",
@@ -94,13 +94,13 @@ export function ChatRoom({j, user, from, e, socket}) {
 		autocomplete: "off",
 	});
 	const challenge = j("<input>", {
-		classname: "radio challenge",
+		class: "radio challenge",
 		type: "checkbox",
 		id: "challenge",
 		name: "challenge",
 	});
-	const control = j("<div>", {classname: "control"});
-	const challengeOption = j("<div>", {classname: "challenge option-wrap"});
+	const control = j("<div>", {class: "control"});
+	const challengeOption = j("<div>", {class: "challenge option-wrap"});
 
 	{
 		close.click(CloseCard);
@@ -130,49 +130,48 @@ export function ChatRoom({j, user, from, e, socket}) {
 		});
 	}
 
+	// Assigning the Elements Html
 	{
 		mediaLi1.html(
-			`<i classname="ion-ios-image icon image-icon"></i><label classname="icon-label">Image</label>`
+			`<i class="ion-ios-image icon image-icon"></i><label class="icon-label">Image</label>`
 		);
 		send.html(
-			` <svg classname="svg" alt="send message" height="24px"viewBox="0 0 24 24" width="24px" fill="#000000">path d="M0 0h24v24H0V0z" fill="none" /><path d="M4.01 6.03l7.51 3.22-7.52-1 .01-2.22m7.5 8.72L4 17.97v-2.22l7.51-1M2.01 3L2 10l15 2-15 2 .01 7L23 12 2.01 3z" /></svg>`
+			` <svg class="svg" alt="send message" height="24px"viewBox="0 0 24 24" width="24px" fill="#000000">path d="M0 0h24v24H0V0z" fill="none" /><path d="M4.01 6.03l7.51 3.22-7.52-1 .01-2.22m7.5 8.72L4 17.97v-2.22l7.51-1M2.01 3L2 10l15 2-15 2 .01 7L23 12 2.01 3z" /></svg>`
 		);
 		mediaLi2.html(
-			`<i classname="ion-ios-play-circle icon video-icon"></i><label classname="icon-label">Video</label>`
+			`<i class="ion-ios-play-circle icon video-icon"></i><label class="icon-label">Video</label>`
 		);
-		close.html("<div classname='icon'>&times;</div>");
+		close.html("<div class='icon'>&times;</div>");
 		mediaIcon.html(
 			`<svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" /></svg>`
 		);
 		challengeOption.html(
-			`<div classname="label-text"><div classname="text">Challenge</div></div>`
+			`<div class="label-text"><div class="text">Challenge</div></div>`
 		);
-		timer.html(`<label for="timing" classname="label">Set time(s)</label>`);
-		createPoll.html(`<div classname="text"><span>Create</span></div>`);
+		timer.html(`<label for="timing" class="label">Set time(s)</label>`);
+		createPoll.html(`<div class="text"><span>Create</span></div>`);
 		questionBox.html(
-			`<div classname="title"><div classname="text">Question</div></div>`
+			`<div class="title"><div class="text">Question</div></div>`
 		);
 		additionalOptions.html(
-			`<div classname="title"><div classname="text">Additional options</div></div>`
+			`<div class="title"><div class="text">Additional options</div></div>`
 		);
-		discardPoll.html(`<div classname="text"><span>Discard</span></div>`);
-		header.html(
-			`<div classname="title"><div classname="text">Options</div></div>`
-		);
-		coin.html(`<label for="coin" classname="label">Add coin</label>`);
-		addOptions.html(`<i classname="ion-ios-add icon"></i>`);
+		discardPoll.html(`<div class="text"><span>Discard</span></div>`);
+		header.html(`<div class="title"><div class="text">Options</div></div>`);
+		coin.html(`<label for="coin" class="label">Add coin</label>`);
+		addOptions.html(`<i class="ion-ios-add icon"></i>`);
 		pollHeader.html(
-			`<div classname="title"><div classname="text">Poll</div></div>`
+			`<div class="title"><div class="text">Poll</div></div>`
 		);
 		mediaLi3.html(
-			`<i classname="ion-ios-podium icon" id="poll-icon"></i><label classname="icon-label">Poll</label>`
+			`<i class="ion-ios-podium icon" id="poll-icon"></i><label class="icon-label">Poll</label>`
 		);
-		UserName.html(`<span classname="textname">${name}</span>`);
+		UserName.html(`<span class="textname">${name}</span>`);
 
 		Online.html(user.active ? "online" : "offline");
 		Options.html(
-			`<div classname="options-list">
-					<div classname="option navigate"></div>
+			`<div class="options-list">
+					<div class="option navigate"></div>
 				</div>
 			`
 		);
@@ -187,6 +186,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 			.prependTo(profile);
 	}
 
+	// Appending to their various parent element
+	// Arranging in order the elements should appear
 	{
 		sendBtn.append(send);
 		inputGroup.append(mediaIcon, message, sendBtn);
@@ -214,18 +215,6 @@ export function ChatRoom({j, user, from, e, socket}) {
 		chatForm.append(close, formGroup).appendTo(".chat-form-container");
 	}
 
-	function TextControl() {
-		if (!j(this).val()) {
-			j(send).removeClass("activated").off();
-		} else {
-			const message = j(this).val();
-			j(send)
-				.addClass("activated")
-				.off()
-				.click(() => sendMessage(message, "outgoing-message"));
-		}
-	}
-
 	/**
 	 * @param {any} t
 	 * @param {string} _class
@@ -240,15 +229,13 @@ export function ChatRoom({j, user, from, e, socket}) {
 		const secondLast = j(roomBody).children().eq(-2);
 		const lastTime =
 			parseInt(j(roomBody).find(".time small").last().html()) > hrs;
-		const group = j("<div>", {classname: "group"}).html(
-			"<span>Today</span>"
-		);
-		const text = j("<div>", {classname: "text"}).html(t);
-		const time = j("<span>", {classname: "time"}).html(
+		const group = j("<div>", {class: "group"}).html("<span>Today</span>");
+		const text = j("<div>", {class: "text"}).html(t);
+		const time = j("<span>", {class: "time"}).html(
 			`<small> ${hrs + ":" + mins} </small>`
 		);
 		const image = j(e.target).parents(".user").find(".user-image").clone();
-		const plain = j("<div>", {classname: "plain-message"}).append(
+		const plain = j("<div>", {class: "plain-message"}).append(
 			text,
 			_class === "incoming-message"
 				? lastChild.is(".incoming-message") === true
@@ -257,10 +244,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 				: "",
 			time
 		);
-		const wrapper = j("<div>", {classname: "message-wrapper"}).append(
-			plain
-		);
-		const outgoing = j("<div>", {classname: _class}).append(wrapper);
+		const wrapper = j("<div>", {class: "message-wrapper"}).append(plain);
+		const outgoing = j("<div>", {class: _class}).append(wrapper);
 
 		if (_class === "outgoing-message") {
 			console.log("emitting now");
@@ -278,13 +263,10 @@ export function ChatRoom({j, user, from, e, socket}) {
 				(/** @type {any} */ err, {messageId}) => {
 					console.log(err ?? messageId, "from emitter");
 					if (!err && messageId) {
-						if (lastChild.is(".outgoing-message")) {
+						if (lastChild.is(".outgoing-message"))
 							lastChild.addClass("adjust");
-						}
 
-						if (lastTime) {
-							roomBody.append(group);
-						}
+						if (lastTime) roomBody.append(group);
 						outgoing
 							.attr("id", messageId)
 							.appendTo(roomBody)
@@ -310,9 +292,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 					: lastChild.addClass("adjust-mg"),
 					outgoing.addClass("adjust-pd");
 			}
-			if (lastTime) {
-				roomBody.append(group);
-			}
+			if (lastTime) roomBody.append(group);
 
 			outgoing
 				.appendTo(roomBody)
@@ -323,6 +303,17 @@ export function ChatRoom({j, user, from, e, socket}) {
 					},
 					"slow"
 				);
+		}
+	}
+	function TextControl() {
+		if (!j(this).val()) {
+			j(send).removeClass("activated").off();
+		} else {
+			const message = j(this).val();
+			j(send)
+				.addClass("activated")
+				.off()
+				.click(() => sendMessage(message, "outgoing-message"));
 		}
 	}
 
@@ -338,12 +329,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 		socket.off("STATUS", Status);
 		socket.off("INCOMINGFORM", IncomingForm);
 		socket.off("ANSWERED", ANSWERED);
-		j(this)
-			.parents(".chats-form")
-			.slideToggle(700)
-			.queue(function () {
-				j(this).remove();
-			});
+		j(this).parents(".chats-form").remove();
 	}
 
 	function TogglePoll() {
@@ -361,22 +347,22 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 	function AddOptions() {
 		j(this).removeClass("more-option-required");
-		j("<li>", {classname: "option"})
+		j("<li>", {class: "option"})
 			.append(
-				j("<div>", {classname: "text-box"})
+				j("<div>", {class: "text-box"})
 					.append(
 						j("<input>", {
 							type: "radio",
 							name: "answer",
 							id: "answer",
-							classname: "answer",
+							class: "answer",
 						})
 					)
 					.append(
 						j("<textarea>", {
 							name: `option-input`,
 							placeholder: "Enter option..",
-							classname: "text-control text-box",
+							class: "text-control text-box",
 						}).keyup(function () {
 							j(this).removeClass("empty");
 							UpdatePoll();
@@ -384,7 +370,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 					)
 			)
 			.append(
-				j("<div>", {classname: "remove-option"})
+				j("<div>", {class: "remove-option"})
 					.click(function () {
 						j(this).parent().slideUp(500);
 						setTimeout(() => {
@@ -392,7 +378,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 							UpdatePoll();
 						}, 500);
 					})
-					.append(j("<div>", {classname: "icon", html: "&times;"}))
+					.append(j("<div>", {class: "icon", html: "&times;"}))
 			)
 			.slideUp(10)
 			.appendTo(optionList)
@@ -622,18 +608,18 @@ export function ChatRoom({j, user, from, e, socket}) {
 		var choosed = data.answered?.index ? data.answered : null;
 		var key = uuid().slice(0, 12);
 
-		const timeCount = j("<div>", {classname: "time-count"});
-		const timer = j("<div>", {classname: "timer"});
-		const coin = j("<div>", {classname: "coin"});
-		const coinAdded = j("<div>", {classname: "coin-added"});
+		const timeCount = j("<div>", {class: "time-count"});
+		const timer = j("<div>", {class: "timer"});
+		const coin = j("<div>", {class: "coin"});
+		const coinAdded = j("<div>", {class: "coin-added"});
 		const pollQuestionHeader = j("<div>", {
-			classname: "poll-question-header",
+			class: "poll-question-header",
 		});
-		const question = j("<div>", {classname: "text", id: "question"});
-		const pollQuestion = j("<div>", {classname: "poll-question"});
-		const formGroup = j("<div>", {classname: "form-group"});
+		const question = j("<div>", {class: "text", id: "question"});
+		const pollQuestion = j("<div>", {class: "poll-question"});
+		const formGroup = j("<div>", {class: "form-group"});
 		const formMessage = j("<div>", {
-			classname: `form-message poll question ${
+			class: `form-message poll question ${
 				choosed != undefined
 					? choosed.index === answer.index
 						? "correct"
@@ -643,18 +629,18 @@ export function ChatRoom({j, user, from, e, socket}) {
 			id: data._id,
 		});
 		const wrapper = j("<div>", {
-			classname: "outgoing-message outgoing-form",
+			class: "outgoing-message outgoing-form",
 			id: data._id.slice(0, 10),
 		});
-		const pollOptions = j("<div>", {classname: "poll-options"});
-		const ul = j("<ul>", {classname: "options"}).append(
+		const pollOptions = j("<div>", {class: "poll-options"});
+		const ul = j("<ul>", {class: "options"}).append(
 			data.options.map(
 				(
 					/** @type {{ index: any; checked: any; text: any; }} */ option,
 					/** @type {any} */ i
 				) => {
 					return j("<li>", {
-						classname: `option ${
+						class: `option ${
 							choosed != undefined
 								? choosed.index === option.index
 									? choosed.checked
@@ -668,19 +654,19 @@ export function ChatRoom({j, user, from, e, socket}) {
 					})
 						.append(
 							j("<div>", {
-								classname: "form-group",
+								class: "form-group",
 							}).append(
 								j("<input>", {
 									type: "radio",
 									name: key,
 									id: "option",
-									classname: `option${i}`,
+									class: `option${i}`,
 								})
 							)
 						)
 						.append(
 							j("<div>", {
-								classname: "option-text label",
+								class: "option-text label",
 							}).append(j("<label>").text(option.text))
 						);
 				}
@@ -689,7 +675,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 		question.text(data.question);
 		coin.html(`coins <b>${data.coin}</b>`);
-		timeCount.html(`Time remaining <b>${data.timer}s</b>`);
+		timeCount.html(`Time <b>${data.timer}s</b>`);
 		coinAdded.append(coin);
 		timer.append(timeCount);
 		pollQuestionHeader.append(
@@ -849,7 +835,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 				const Group = GroupMessage({cur, pre, i});
 
 				if (Group) {
-					const group = j("<div>", {classname: "group"}).html(
+					const group = j("<div>", {class: "group"}).html(
 						"<span>" + Group + "</span>"
 					);
 					fragmentArray.push(group);
@@ -878,25 +864,23 @@ export function ChatRoom({j, user, from, e, socket}) {
 						fragmentArray.push(incoming);
 						return;
 					}
-					const text = j("<div>", {classname: "text"}).html(
-						data.message
-					);
+					const text = j("<div>", {class: "text"}).html(data.message);
 					const image = j(e.target)
 						.parents(".user")
 						.find(".user-image")
 						.clone();
-					const time = j("<span>", {classname: "time"}).html(
+					const time = j("<span>", {class: "time"}).html(
 						`<small> ${hrs + ":" + mins} </small>`
 					);
 					const plain = j("<div>", {
-						classname: "plain-message",
+						class: "plain-message",
 					}).append(text, prevComingId ? "" : image, time);
 
 					const wrapper = j("<div>", {
-						classname: "message-wrapper",
+						class: "message-wrapper",
 					}).append(plain);
 					const incoming = j("<div>", {
-						classname: `incoming-message ${
+						class: `incoming-message ${
 							prevComingId
 								? nextComingId
 									? "adjust"
@@ -914,20 +898,18 @@ export function ChatRoom({j, user, from, e, socket}) {
 						fragmentArray.push(outgoing);
 						return;
 					}
-					const text = j("<div>", {classname: "text"}).html(
-						data.message
-					);
-					const time = j("<span>", {classname: "time"}).html(
+					const text = j("<div>", {class: "text"}).html(data.message);
+					const time = j("<span>", {class: "time"}).html(
 						`<small> ${hrs + ":" + mins} </small>`
 					);
 					const plain = j("<div>", {
-						classname: "plain-message",
+						class: "plain-message",
 					}).append(text, time);
 					const wrapper = j("<div>", {
-						classname: "message-wrapper",
+						class: "message-wrapper",
 					}).append(plain);
 					const outgoing = j("<div>", {
-						classname: `outgoing-message ${
+						class: `outgoing-message ${
 							prevGoingId
 								? nextGoingId
 									? "adjust"
@@ -1016,18 +998,18 @@ export function ChatRoom({j, user, from, e, socket}) {
 		const qCoin = data.coin ? data.coin : null;
 		var key = uuid().slice(0, 12);
 
-		const timeCount = j("<div>", {classname: "time-count"});
-		const timer = j("<div>", {classname: "timer"});
-		const coin = j("<div>", {classname: "coin"});
-		const coinAdded = j("<div>", {classname: "coin-added"});
+		const timeCount = j("<div>", {class: "time-count"});
+		const timer = j("<div>", {class: "timer"});
+		const coin = j("<div>", {class: "coin"});
+		const coinAdded = j("<div>", {class: "coin-added"});
 		const pollQuestionHeader = j("<div>", {
-			classname: "poll-question-header",
+			class: "poll-question-header",
 		});
-		const question = j("<div>", {classname: "text", id: "question"});
-		const pollQuestion = j("<div>", {classname: "poll-question"});
-		const formGroup = j("<div>", {classname: "form-group"});
+		const question = j("<div>", {class: "text", id: "question"});
+		const pollQuestion = j("<div>", {class: "poll-question"});
+		const formGroup = j("<div>", {class: "form-group"});
 		const formMessage = j("<div>", {
-			classname: `form-message poll question ${
+			class: `form-message poll question ${
 				choosed != undefined
 					? choosed.index === answer.index
 						? "correct"
@@ -1037,19 +1019,17 @@ export function ChatRoom({j, user, from, e, socket}) {
 			id: data._id,
 		});
 		const wrapper = j("<div>", {
-			classname: "incoming-message incoming-form",
+			class: "incoming-message incoming-form",
 			id: data._id.slice(0, 10),
 		});
-		const pollOptions = j("<div>", {classname: "poll-options"});
-		const ul = j("<ul>", {classname: "options"}).append(
-			data.options.map(Map)
-		);
+		const pollOptions = j("<div>", {class: "poll-options"});
+		const ul = j("<ul>", {class: "options"}).append(data.options.map(Map));
 
 		// Appending to elements created by jquery
 		{
 			question.text(data.question);
 			coin.html(`coins <b>${data.coin}</b>`);
-			timeCount.html(`Time remaining <b>${data.timer}</b>s`);
+			timeCount.html(`Time <b>${data.timer}</b>s`);
 			coinAdded.append(coin);
 			timer.append(timeCount);
 			pollQuestionHeader.append(
@@ -1070,7 +1050,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 		function Map(option, i) {
 			return j("<li>", {
-				classname: `option ${
+				class: `option ${
 					choosed != undefined
 						? choosed.index === option.index
 							? choosed.checked
@@ -1084,14 +1064,14 @@ export function ChatRoom({j, user, from, e, socket}) {
 			})
 				.append(
 					j("<div>", {
-						classname: "form-group",
+						class: "form-group",
 					}).append(
 						data.date || !choosed
 							? j("<input>", {
 									type: "radio",
 									name: key,
 									id: "option",
-									classname: `option${i}`,
+									class: `option${i}`,
 							  }).click(function () {
 									ANSWERCLICKED(this, option, data._id);
 							  })
@@ -1099,13 +1079,13 @@ export function ChatRoom({j, user, from, e, socket}) {
 									type: "radio",
 									name: key,
 									id: "option",
-									classname: `option${i}`,
+									class: `option${i}`,
 							  })
 					)
 				)
 				.append(
 					j("<div>", {
-						classname: "option-text label",
+						class: "option-text label",
 					}).append(j("<label>").text(option.text))
 				);
 		}
@@ -1249,7 +1229,15 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 	// Handler for socket ANSWERED event
 	/**
-	 * @param {{ coin: string; answer: { index: any; }; messageId: String; picked: { index: any; }; id: any; answered: { index: any; }; from: String;  _id: any; }} data
+	 * @param {{
+	 * coin: string;
+	 * answer: { index: any; };
+	 * messageId: String;
+	 * picked: { index: any; };
+	 * id: any;
+	 * answered: { index: any; };
+	 * from: String;  _id: any;
+	 * }} data
 	 */
 	function ANSWERED(data) {
 		console.log(data);
@@ -1321,343 +1309,4 @@ export function ChatRoom({j, user, from, e, socket}) {
 	socket.on("STATUS", Status);
 	socket.on("INCOMINGFORM", IncomingForm);
 	socket.on("ANSWERED", ANSWERED);
-}
-
-export default ChatRoom;
-
-function Chat() {
-	return (
-		<div className="chats-form" id="7c1e77f8207484344adc-e3a">
-			<div className="close-card" data-role="Close card">
-				<div className="icon">×</div>
-			</div>
-			<div className="form-group chats-room">
-				<div className="room-header">
-					<div className="profile">
-						<div className="name">
-							<span className="textname">oderinde James</span>
-							<div className="active-sign">
-								<div className="active-text">online</div>
-							</div>
-						</div>
-						<div className="options">
-							<div className="options-list">
-								<div className="option navigate"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div className="room-body">
-					<div className="welcome-message">
-						<div className="message">
-							<span>You are now connected</span>
-						</div>
-					</div>
-					<div className="alert-message">0</div>
-					<div
-						className="outgoing-message outgoing-form"
-						id="615eb5b83d"
-						style={{pointerEvents: "none"}}
-					>
-						<div
-							className="form-message poll question failed"
-							id="615eb5b83d4b7c1e77f8207f"
-						>
-							<div className="form-group">
-								<div className="poll-question">
-									<div className="poll-question-header">
-										<div className="timer">
-											<div className="time-count">
-												Time <b>33s</b>
-											</div>
-										</div>
-										<div className="coin-added">
-											<div className="coin">
-												coins <b>300</b>
-											</div>
-										</div>
-									</div>
-									<div className="text" id="question">
-										ggzdgfdfgfdg
-									</div>
-								</div>
-								<div className="poll-options">
-									<ul className="options">
-										<li className="option correct">
-											<div className="form-group">
-												<input
-													type="radio"
-													name="c6f99479-009"
-													id="option"
-													className="option0"
-												/>
-											</div>
-											<div className="option-text label">
-												<label>ffggfdgfgzfzd</label>
-											</div>
-										</li>
-										<li className="option failed">
-											<div className="form-group">
-												<input
-													type="radio"
-													name="c6f99479-009"
-													id="option"
-													className="option1"
-												/>
-											</div>
-											<div className="option-text label">
-												<label>gdfgdfggfdg</label>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div
-						className="incoming-message incoming-form"
-						id="615ef8aed1"
-						style={{pointerEvents: "none"}}
-					>
-						<div
-							className="form-message poll question failed"
-							id="615ef8aed16765ffc04f2e16"
-						>
-							<div className="form-group">
-								<div className="poll-question">
-									<div className="poll-question-header">
-										<div className="timer">
-											<div className="time-count">
-												Time remaining <b>34</b>s
-											</div>
-										</div>
-										<div className="coin-added">
-											<div className="coin">
-												coins <b>566</b>
-											</div>
-										</div>
-									</div>
-									<div className="text" id="question">
-										dffhfhghchchvghgfhfhghfhgh
-									</div>
-								</div>
-								<div className="poll-options">
-									<ul className="options">
-										<li className="option ">
-											<div className="form-group">
-												<input
-													type="radio"
-													name="299107bc-cc2"
-													id="option"
-													className="option0"
-												/>
-											</div>
-											<div className="option-text label">
-												<label>hvgghghghghghhch</label>
-											</div>
-										</li>
-										<li className="option failed">
-											<div className="form-group">
-												<input
-													type="radio"
-													name="299107bc-cc2"
-													id="option"
-													className="option1"
-												/>
-											</div>
-											<div className="option-text label">
-												<label>
-													chchchchchhchcv ngbnvghvg
-												</label>
-											</div>
-										</li>
-										<li className="option correct">
-											<div className="form-group">
-												<input
-													type="radio"
-													name="299107bc-cc2"
-													id="option"
-													className="option2"
-												/>
-											</div>
-											<div className="option-text label">
-												<label> hfgffdgdfdgddgdg</label>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div className="room-footer">
-					<div className="message-create-box input-box">
-						<div className="input-group">
-							<div className="icon media-icon">
-								<svg
-									height="24px"
-									viewBox="0 0 24 24"
-									width="24px"
-									fill="#000000"
-								>
-									<path
-										d="M0 0h24v24H0V0z"
-										fill="none"
-									></path>
-									<path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path>
-								</svg>
-							</div>
-							<textarea
-								className="text-control"
-								name="message"
-								id="text-control message"
-								placeholder="Type a message.."
-							></textarea>
-							<div className="send-btn">
-								<button className="btn send">
-									<svg
-										className="svg"
-										height="24px"
-										viewBox="0 0 24 24"
-										width="24px"
-										fill="#000000"
-									>
-										<path d="M0 0h24v24H0V0z" fill="none" />
-										<path d="M4.01 6.03l7.51 3.22-7.52-1 .01-2.22m7.5 8.72L4 17.97v-2.22l7.51-1M2.01 3L2 10l15 2-15 2 .01 7L23 12 2.01 3z"></path>
-									</svg>
-								</button>
-							</div>
-						</div>
-						<div className="media-message-wrapper">
-							<div className="multimedia-list list">
-								<ul className="media-list">
-									<li className="media">
-										<i className="ion-ios-image icon image-icon"></i>
-										<label className="icon-label">
-											Image
-										</label>
-									</li>
-									<li className="media">
-										<i className="ion-ios-play-circle icon video-icon"></i>
-										<label className="icon-label">
-											Video
-										</label>
-									</li>
-									<li className="poll toggle-poll">
-										<i
-											className="ion-ios-podium icon"
-											id="poll-icon"
-										></i>
-										<label className="icon-label">
-											Poll
-										</label>
-									</li>
-								</ul>
-							</div>
-						</div>
-						<div className="create-question">
-							<div className="poll-header">
-								<div className="title">
-									<div className="text">Poll</div>
-								</div>
-								<div className="discard-wrap">
-									<div className="text">
-										<span>Discard</span>
-									</div>
-								</div>
-								<div className="create-wrap">
-									<div className="text">
-										<span>Create</span>
-									</div>
-								</div>
-							</div>
-							<div className="poll-body">
-								<div className="question-box">
-									<div className="title">
-										<div className="text">Question</div>
-									</div>
-									<div className="text-box question">
-										<textarea
-											className="text-control"
-											id="question"
-											name="question"
-											placeholder="Enter your question.."
-										></textarea>
-									</div>
-								</div>
-								<div className="question-options">
-									<div className="header">
-										<div className="title">
-											<div className="text">Options</div>
-										</div>
-										<div className="add-options add">
-											<i className="ion-ios-add icon"></i>
-										</div>
-									</div>
-
-									<ul className="option-list wrap"></ul>
-								</div>
-								<div className="additional-options">
-									<div className="title">
-										<div className="text">
-											Additional options
-										</div>
-									</div>
-									<div className="options">
-										<div className="option-wrap timer">
-											<label
-												htmlFor="timing"
-												className="label"
-											>
-												Set time(s)
-											</label>
-											<input
-												className="text-control time"
-												type="text"
-												id="timing"
-												name="time"
-												maxLength={3}
-												autoComplete="off"
-											/>
-										</div>
-										<div className="coin option-wrap">
-											<label
-												htmlFor="coin"
-												className="label"
-											>
-												Add coin
-											</label>
-											<input
-												className="text-control coin"
-												type="text"
-												id="coin"
-												name="coin"
-												maxLength={3}
-												autoComplete="off"
-											/>
-										</div>
-									</div>
-									<div className="challenge option-wrap">
-										<div className="label-text">
-											<div className="text">
-												Challenge
-											</div>
-										</div>
-										<div className="control">
-											<input
-												className="radio challenge"
-												type="checkbox"
-												id="challenge"
-												name="challenge"
-											/>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
 }
