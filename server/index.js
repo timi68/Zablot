@@ -30,6 +30,7 @@ client
 		app.use(express.json());
 		app.use(cors());
 		app.use(compressor());
+		app.use("/uploads", express.static("uploads"));
 
 		// setting external assests
 		app.use(

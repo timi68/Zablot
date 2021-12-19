@@ -37,7 +37,7 @@ function ProfileCard() {
 	return (
 		<div className="profile-link-wrapper">
 			<IconButton
-				size="large"
+				size="medium"
 				className="open"
 				onClick={() => {
 					setExpand(!expand);
@@ -50,7 +50,7 @@ function ProfileCard() {
 					<ArrowDropDownIcon size="large" />
 				)}
 			</IconButton>
-			<CSSTransition in={expand} unmountOnExit>
+			<CSSTransition timeout={200} in={expand} unmountOnExit>
 				<motion.div
 					animate={{
 						opacity: 1,

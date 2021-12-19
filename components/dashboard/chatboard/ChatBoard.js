@@ -148,6 +148,7 @@ function ChatBoard() {
 		}
 
 		ChatRoom({j, user: data, from: props?.user.id, e, socket});
+		openChatBoard();
 	}
 
 	const openChatBoard = () => {
@@ -242,22 +243,22 @@ function Navbar(props) {
  */
 function Chats({user, open}) {
 	return (
-		<CardActionArea className="chats_listItem list_item" role="listitem">
-			<div className="avatar user_image list_item avatar" role="listitem">
+		<CardActionArea
+			className="chats_listItem list_item chat"
+			role="listitem"
+			onClick={(e) => open(user, e)}
+		>
+			<div className="avatar user_image list_item" role="listitem">
 				<Image
 					src={"/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
 					alt={user.Name}
 					layout="fill"
 					role="img"
-					className="user_image list_image"
+					className="image list_image"
 				/>
 				<div className="badge user_active_signal"></div>
 			</div>
-			<div
-				className="text"
-				role="listitem"
-				onClick={(e) => open(user, e)}
-			>
+			<div className="text" role="listitem">
 				<div className="user_name primary_text">{user.Name}</div>
 				<div className="last_message secondary_text">
 					{user.Last_Message}

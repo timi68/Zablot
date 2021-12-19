@@ -205,7 +205,7 @@ function Requests(props) {
 	const {user, duration, accept: Accept, reject: Reject} = props;
 
 	return (
-		<li className="user" key={key}>
+		<li className="user">
 			<div className="user-profile">
 				<div className="user-image">
 					<div className="image-wrapper">

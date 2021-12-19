@@ -270,11 +270,7 @@ $borderColor: #d7cdcd;
 			.chat {
 				display: flex;
 				flex-wrap: nowrap;
-				border-radius: 30px;
-				background: map-get($color, "white");
 				margin-bottom: 7px;
-				position: relative;
-				padding-left: 40px;
 
 				.user {
 					position: absolute;

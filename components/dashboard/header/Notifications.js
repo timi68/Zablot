@@ -58,14 +58,14 @@ function Notifications() {
 		<div className="notifications-wrapper">
 			<Badge color="default" badgeContent={0} showZero>
 				<IconButton
-					size="large"
+					size="small"
 					className="open"
 					onClick={() => {
 						setOpenModal(!openModal);
 						handleOpen();
 					}}
 				>
-					<NotificationsActiveIcon size="medium" />
+					<NotificationsActiveIcon size="small" />
 				</IconButton>
 			</Badge>
 			<CSSTransition
@@ -103,6 +103,7 @@ function Notifications() {
 										var key = uuid();
 										return (
 											<NotificationsPaper
+												key={key}
 												data={data}
 												current={current}
 												previous={previous}

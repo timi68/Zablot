@@ -3,6 +3,11 @@ const router = express.Router();
 const eventEmitter = require("events");
 const emitter = new eventEmitter();
 const {verify} = require("jsonwebtoken");
+const formidable = require("formidable");
+const {v4: uuid} = require("uuid");
+const fs = require("fs");
+const {promisify} = require("util");
+const Async = require("async");
 
 const {
 	checkUser,
@@ -13,6 +18,14 @@ const {
 	fetchMessages,
 } = require("./users_control");
 const ensureIsAuthenticated = require("../config/auth");
+const path = require("path");
+const cloudinary = require("cloudinary");
+
+cloudinary.config({
+	cloud_name: process.env.CLOUD_NAME,
+	api_key: process.env.API_KEY,
+	api_secret: process.env.API_SECRET,
+});
 
 router.post("/users/login", async (req, res, next) => {
 	const body = req.body;
@@ -93,6 +106,56 @@ router.post("/messages", (req, res) => {
 	fetchMessages(_id, (err, messages) => {
 		if (!err) return res.status(200).json(messages);
 		return res.status(400).json({err});
+	});
+});
+
+router.post("/media/upload", (req, res) => {
+	const form = formidable({multiples: true});
+
+	form.parse(req, (err, fields, files) => {
+		let f = Object.values(files);
+
+		if (f[0]?.length) f = f[0];
+
+		async function cloud(n, cb) {
+			try {
+				// await cloudinary.uploader.upload(f[0][n].filepath, (result) => {
+				// 	if (result?.public_id) return cb(null, result);
+				// 	else return cb("Error");
+				// });
+				let file = f[n];
+				fs.rename(
+					file.filepath,
+					path.resolve(
+						__dirname + "/",
+						"../../public/images/",
+						"./" + file.originalFilename
+					),
+					() => {
+						var fileProp = {
+							filename: file.originalFilename,
+							url: "./images/" + file.originalFilename,
+						};
+						return cb(null, fileProp);
+					}
+				);
+			} catch (err) {
+				return;
+			}
+		}
+		Async.times(
+			f.length,
+			function (n, next) {
+				cloud(n, (err, result) => {
+					if (err) return res.end("Connection lost");
+					next(err, result);
+				});
+			},
+			function (err, results) {
+				if (err) return res.end("No connection");
+				return res.json(results);
+			}
+		);
 	});
 });
 

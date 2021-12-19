@@ -9,6 +9,7 @@ const {
 	Messages,
 } = require("../models");
 const {ObjectId} = require("mongodb");
+// const {promisify} = require("util")
 
 function ControlSocketActions(socket) {
 	socket.broadcast.emit("join", socket.id);
@@ -164,6 +165,11 @@ function ControlSocketActions(socket) {
 		}
 	});
 
+	// Socket that listen to Friend request acceptance:
+	// Its get the coming id and the going id from the
+	// the data and gives a callback of if there is any
+	// error encountered or it is "done"
+
 	socket.on("ACCEPT_REQUEST", async (data, cb) => {
 		Users.findByIdAndUpdate(data.GID, {
 			$pull: {PendingRequests: data.CID},
@@ -188,32 +194,27 @@ function ControlSocketActions(socket) {
 
 			await newMessage.save();
 
-			Friends.findByIdAndUpdate(data.GID, {
-				$push: {
+			const friend_details = (type) => {
+				let check = type === "c";
+				return {
 					friends: {
 						_id: newMessage._id,
-						Id: data.CID,
-						Name: data.CN,
-						Image: data.CI,
+						Id: check ? data.CID : data.GID,
+						Name: check ? data.CN : data.GN,
+						Image: check ? data.CI : data.GI,
 						UnseenMessages: 1,
 						Last_Message: "You are now friends",
 						IsPrivate: false,
 					},
-				},
+				};
+			};
+
+			Friends.findByIdAndUpdate(data.GID, {
+				$push: friend_details("c"),
 			}).exec();
 
 			Friends.findByIdAndUpdate(data.CID, {
-				$push: {
-					friends: {
-						_id: newMessage._id,
-						Id: data.GID,
-						Name: data.GN,
-						Image: data.GI,
-						UnseenMessages: 1,
-						Last_Message: "You are now friends",
-						IsPrivate: false,
-					},
-				},
+				$push: friend_details("g"),
 			}).exec();
 
 			const message = {
@@ -388,8 +389,10 @@ function ControlSocketActions(socket) {
 					Message: {
 						_id: messageId,
 						Format: data.type,
-						message: data.message,
+						message: data?.message,
 						date: new Date(),
+						filename: data?.filename,
+						url: data?.url,
 						seen: false,
 						going: data.to,
 						coming: data.from,
@@ -433,6 +436,8 @@ function ControlSocketActions(socket) {
 				).exec();
 			}
 
+			if (soc?.length && data.type !== "plain")
+				return cb("The user is active");
 			cb(null, {messageId});
 		} catch (err) {
 			console.log(err);

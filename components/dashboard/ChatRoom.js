@@ -2,22 +2,31 @@
 // @ts-check
 
 import {v4 as uuid} from "uuid";
+import axios from "axios";
 
 export function ChatRoom({j, user, from, e, socket}) {
-	console.log(user);
 	const to = user.Id;
 	const _id = user._id;
 	const id = user._id.slice(12, user._id.length) + uuid().slice(0, 12);
 	const name = user.Name;
+	const fileId = uuid().substr(0, 12);
 	const index = j(".chat-form-container").children().length;
-	if (index == 2) {
-		j(".chats-form:first").remove();
-	}
+	if (index == 2) j(".chats-form:first").remove();
 
 	const chatForm = j("<div>", {class: "chats-form", id});
 	const close = j("<div>", {
 		class: "close-card",
 		"data-role": "Close card",
+	});
+
+	// image editor and previewer
+	const imagePreview = j("<div>", {
+		class: "image-preview-wrapper application",
+		role: "application",
+	});
+	const videoPreview = j("<div>", {
+		class: "video-preview-wrapper application",
+		role: "application",
 	});
 	const formGroup = j("<div>", {class: "form-group chats-room"});
 	const roomHeader = j("<div>", {class: "room-header"});
@@ -29,6 +38,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 	// -------------- Room Body ---------------------
 	const roomBody = j("<div>", {class: "room-body"});
+
 	const welcomeMessage = j("<div>", {class: "welcome-message"});
 	const alertMessage = j("<div>", {class: "alert-message"}).text(0);
 	welcomeMessage.html(
@@ -51,10 +61,25 @@ export function ChatRoom({j, user, from, e, socket}) {
 	const media = j("<div>", {class: "media-message-wrapper"});
 	const multimedia = j("<div>", {class: "multimedia-list list"});
 	const mediaList = j("<ul>", {class: "media-list"});
-	const mediaLi1 = j("<li>", {class: "media"});
-	const mediaLi2 = j("<li>", {class: "media"});
-	const mediaLi3 = j("<li>", {class: "poll toggle-poll"});
-
+	const mediaLi1 = j("<li>", {class: "media video toggle-video"});
+	const mediaLi2 = j("<li>", {class: "media image toggle-image"});
+	const mediaLi3 = j("<li>", {class: "media poll toggle-poll"});
+	const imageInput = j("<input>", {
+		class: "file-control image-file",
+		type: "file",
+		name: "image-file",
+		id: fileId + "image",
+		accept: "image/*",
+		hidden: "true",
+	});
+	const videoInput = j("<input>", {
+		class: "file-control video-file",
+		type: "file",
+		accept: "video/*",
+		id: fileId + "video",
+		name: "video-file",
+		hidden: "true",
+	});
 	// Room Footer ==> Create Poll Board
 	const CreatePoll = j("<div>", {class: "create-question"});
 	const pollHeader = j("<div>", {class: "poll-header"});
@@ -103,30 +128,52 @@ export function ChatRoom({j, user, from, e, socket}) {
 	const challengeOption = j("<div>", {class: "challenge option-wrap"});
 
 	{
-		close.click(CloseCard);
-		message.keyup(TextControl);
-		roomBody.click(RemoveMedia);
-		mediaIcon.click(MediaList);
-		createPoll.click(CreateWrap);
-		discardPoll.click(resetPollStateToDefault);
-		addOptions.click(AddOptions);
-		textControl.keyup(Question);
-		mediaLi3.click(TogglePoll);
-		inputTime.keyup(function () {
-			var text = j(this).val().match(/\D+/g);
-			if (text === null) {
-				j(this).removeClass("required");
-			} else {
-				j(this).addClass("required");
-			}
+		close.on("click", CloseCard);
+		message.on("keyup", TextControl);
+		roomBody.on("click", RemoveMedia);
+		roomBody.on("scroll", function (e) {
+			let scrollHeight = e.target.scrollHeight;
+			let scrollTop = e.target.scrollTop;
+
+			if (scrollHeight - scrollTop < 250)
+				alertMessage.removeClass("show").html(0);
 		});
-		inputCoin.keyup(function () {
+		alertMessage.on("click", function () {
+			j(roomBody).animate(
+				{
+					scrollTop: j(roomBody).prop("scrollHeight"),
+				},
+				"slow"
+			);
+			j(this).toggleClass("show").html(0);
+		});
+		mediaIcon.on("click", MediaList);
+		createPoll.on("click", CreateWrap);
+		discardPoll.on("click", resetPollStateToDefault);
+		addOptions.on("click", AddOptions);
+		textControl.on("keyup", Question);
+		mediaLi1.on("click", function () {
+			document.getElementById(fileId + "image").click();
+		});
+		mediaLi2.on("click", function () {
+			document.getElementById(fileId + "video").click();
+		});
+		mediaLi3.on("click", function () {
+			CreatePoll.toggleClass("active"), media.removeClass("active");
+		});
+		imageInput.on("change", handleFile);
+		videoInput.on("change", handleFile);
+		inputTime.on("keyup", function () {
 			var text = j(this).val().match(/\D+/g);
-			if (text === null) {
-				j(this).removeClass("required");
-			} else {
-				j(this).addClass("required");
-			}
+
+			if (text === null) j(this).removeClass("required");
+			else j(this).addClass("required");
+		});
+		inputCoin.on("keyup", function () {
+			var text = j(this).val().match(/\D+/g);
+
+			if (text === null) j(this).removeClass("required");
+			else j(this).addClass("required");
 		});
 	}
 
@@ -180,8 +227,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 		UserName.append(ActiveSign);
 		profile.append(UserName, Options);
 		j(e.target)
-			.parents(".user")
-			.find(".user-image")
+			.closest(".chat")
+			.find(".user_image")
 			.clone()
 			.prependTo(profile);
 	}
@@ -191,6 +238,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 	{
 		sendBtn.append(send);
 		inputGroup.append(mediaIcon, message, sendBtn);
+		mediaLi1.append(imageInput);
+		mediaLi2.append(videoInput);
 		mediaList.append(mediaLi1, mediaLi2, mediaLi3);
 		multimedia.append(mediaList);
 		media.append(multimedia);
@@ -212,12 +261,123 @@ export function ChatRoom({j, user, from, e, socket}) {
 		roomBody.append(welcomeMessage, alertMessage);
 		roomHeader.append(profile);
 		formGroup.append(roomHeader, roomBody, roomFooter);
-		chatForm.append(close, formGroup).appendTo(".chat-form-container");
+		chatForm
+			.append(close, imagePreview, videoPreview, formGroup)
+			.appendTo(".chat-form-container");
+	}
+
+	function handleFile(e) {
+		if (
+			!(
+				window.File &&
+				window.FileReader &&
+				window.FileList &&
+				window.Blob
+			)
+		) {
+			alert("The File APIs are not fully supported in this browser.");
+			return false;
+		}
+
+		let file = e.target.files[0];
+		let imageFileType = [
+			"image/jpeg",
+			"image/jpg",
+			"image/svg",
+			"image/png",
+			"image/jfif",
+		];
+		let videoFileType = [
+			"video/mp4",
+			"video/avi",
+			"video/mv4",
+			"video/ogm",
+			"video/mpg",
+		];
+
+		if (imageFileType.includes(file?.type)) {
+			// read the files
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(file);
+
+			reader.onload = function (event) {
+				// blob stuff
+				var blob = new Blob([event.target.result]); // create blob...
+				window.URL = window.URL || window.webkitURL;
+				var blobURL = window.URL.createObjectURL(blob); // and get it's URL
+
+				// helper Image object
+				var image = new Image();
+				image.src = blobURL;
+				image.setAttribute("class", "image-previewer");
+				image.setAttribute("alt", "previewer");
+				//preview.appendChild(image); // preview commented out, I am using the canvas instead
+				image.onload = function () {
+					// have to wait till it's loaded
+					// var resized = resizeMe(image); // send it to canvas
+					const message = j("<div>", {
+						class: "outgoing-media outgoing-message",
+					});
+					const message_wrapper = j("<div>", {
+						class: "message-wrapper",
+					});
+					const image_wrapper = j("<div>", {
+						class: "media-wrapper outgoing-picture",
+					}).append(image);
+
+					message_wrapper.append(image_wrapper);
+					roomBody.append(message.append(message_wrapper)).animate(
+						{
+							scrollTop: roomBody.prop("scrollHeight"),
+						},
+						"slow"
+					);
+
+					(async () => {
+						const form = new FormData();
+						form.append("image", file);
+
+						try {
+							const uploadImage = await axios.post(
+								"/api/media/upload",
+								form
+							);
+
+							let data = {
+								message: "Image",
+								type: "image",
+								_id,
+								from,
+								to,
+								url: uploadImage.data[0].url,
+								filename: uploadImage.data[0].filename,
+							};
+
+							socket.emit(
+								"OUTGOINGMESSAGE",
+								data,
+								(/** @type {String} */ active) => {
+									console.log(active);
+								}
+							);
+						} catch (err) {
+							console.log(err);
+							return;
+						}
+
+						// if (uploadImage.respons.success) {
+						// 	socket.emit()
+						// }
+					})();
+				};
+			};
+		}
 	}
 
 	/**
 	 * @param {any} t
 	 * @param {string} _class
+	 * @summary it controls the incoming and outgoing as at that active moment
 	 */
 	function sendMessage(t, _class) {
 		const hrs = new Date().getHours();
@@ -230,43 +390,56 @@ export function ChatRoom({j, user, from, e, socket}) {
 		const lastTime =
 			parseInt(j(roomBody).find(".time small").last().html()) > hrs;
 		const group = j("<div>", {class: "group"}).html("<span>Today</span>");
-		const text = j("<div>", {class: "text"}).html(t);
+
+		const text = j("<div>", {class: "text"}).html(t.message);
 		const time = j("<span>", {class: "time"}).html(
 			`<small> ${hrs + ":" + mins} </small>`
 		);
-		const image = j(e.target).parents(".user").find(".user-image").clone();
 		const plain = j("<div>", {class: "plain-message"}).append(
 			text,
 			_class === "incoming-message"
-				? lastChild.is(".incoming-message") === true
+				? lastChild.is(".incoming-message")
 					? ""
-					: image
+					: j(e.target).closest(".chat").find(".user_image").clone()
 				: "",
 			time
 		);
 		const wrapper = j("<div>", {class: "message-wrapper"}).append(plain);
-		const outgoing = j("<div>", {class: _class}).append(wrapper);
+		const outgoing = j("<div>", {class: _class});
 
+		// checking if the message is an outgoing message or not
 		if (_class === "outgoing-message") {
 			console.log("emitting now");
 
+			// message details
 			const I = {
 				_id,
 				from,
 				to,
 				type: "plain",
-				message: t,
+				message: t.message,
 			};
+
+			// since it an outgoing message, socket emit the message
+			// to the server with the message details
 			socket.emit(
 				"OUTGOINGMESSAGE",
 				I,
 				(/** @type {any} */ err, {messageId}) => {
+					//this is a callback gotten from the server
 					console.log(err ?? messageId, "from emitter");
 					if (!err && messageId) {
+						// Checking the previous message to know whether to
+						// adjust the look of messages arrangement(margin and padding to
+						// to be precise)
 						if (lastChild.is(".outgoing-message"))
 							lastChild.addClass("adjust");
 
+						// if the a new message is sent in a different at a
+						// particular moment a group is append to distinguish their
+						// day
 						if (lastTime) roomBody.append(group);
+						outgoing.append(wrapper);
 						outgoing
 							.attr("id", messageId)
 							.appendTo(roomBody)
@@ -283,28 +456,78 @@ export function ChatRoom({j, user, from, e, socket}) {
 				}
 			);
 			j(message).val("");
+			return;
 		}
 
+		// Checking if the message is an Incoming message or not
 		if (_class === "incoming-message") {
+			// Checking the previous message to know whether to
+			// adjust the look of messages arrangement(margin and padding to
+			// to be precise)
 			if (lastChild.is(".incoming-message")) {
 				secondLast.is(".incoming-message")
 					? lastChild.addClass("adjust")
 					: lastChild.addClass("adjust-mg"),
 					outgoing.addClass("adjust-pd");
 			}
+
+			// if the a new message is sent in a different at a
+			// particular moment a group is append to distinguish their
+			// day
 			if (lastTime) roomBody.append(group);
 
-			outgoing
-				.appendTo(roomBody)
-				.parent()
-				.animate(
+			// Checking if the message about to be sent is file/media (video|image)
+			if (t.type === "image" || t.type === "video") {
+				const image = j("<img>", {
+					class: "image-previewer",
+					alt: t.filename + " previewer",
+					src: t.url,
+				});
+				const message_wrapper = j("<div>", {
+					class: "message-wrapper",
+				});
+				const image_wrapper = j("<div>", {
+					class: "media-wrapper incoming-picture",
+				}).append(image);
+
+				message_wrapper.append(image_wrapper);
+				message_wrapper.append(
+					lastChild.is(".incoming-message")
+						? ""
+						: j(e.target)
+								.closest(".chat")
+								.find(".user_image")
+								.clone(), //Cloning the friend image from the chatboard(with jquery)
+					time.addClass("media")
+				);
+				outgoing.append(message_wrapper);
+			}
+			// then if not, it means the message is just plain text
+			else outgoing.append(wrapper);
+
+			outgoing.appendTo(roomBody);
+
+			// Checking if the user has scroll to check the top messages
+			// if the user up to more than 200 scrollHeight a message alert
+			// will be given, when clicked the roomBody will scroll to its height
+			// else the roomBody will just scroll to its scrollHeight
+			let scrollTop = j(roomBody).prop("scrollTop");
+			let scrollHeight = j(roomBody).prop("scrollHeight");
+
+			if (scrollHeight - scrollTop > 200) {
+				let downMessages = parseInt(alertMessage.text()) + 1;
+				alertMessage.text(downMessages).addClass("show");
+			} else {
+				j(roomBody).animate(
 					{
-						scrollTop: outgoing.parent().prop("scrollHeight"),
+						scrollTop: j(roomBody).prop("scrollHeight"),
 					},
 					"slow"
 				);
+			}
 		}
 	}
+
 	function TextControl() {
 		if (!j(this).val()) {
 			j(send).removeClass("activated").off();
@@ -313,7 +536,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 			j(send)
 				.addClass("activated")
 				.off()
-				.click(() => sendMessage(message, "outgoing-message"));
+				.on("click", () => sendMessage({message}, "outgoing-message"));
 		}
 	}
 
@@ -330,14 +553,6 @@ export function ChatRoom({j, user, from, e, socket}) {
 		socket.off("INCOMINGFORM", IncomingForm);
 		socket.off("ANSWERED", ANSWERED);
 		j(this).parents(".chats-form").remove();
-	}
-
-	function TogglePoll() {
-		j(this)
-			.parents(".chats-form")
-			.find(".create-question")
-			.toggleClass("active");
-		j(this).parents(".media-message-wrapper").removeClass("active");
 	}
 
 	function Question() {
@@ -363,7 +578,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 							name: `option-input`,
 							placeholder: "Enter option..",
 							class: "text-control text-box",
-						}).keyup(function () {
+						}).on("keyup", function () {
 							j(this).removeClass("empty");
 							UpdatePoll();
 						})
@@ -371,7 +586,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 			)
 			.append(
 				j("<div>", {class: "remove-option"})
-					.click(function () {
+					.on("click", function () {
 						j(this).parent().slideUp(500);
 						setTimeout(() => {
 							j(this).parent().remove();
@@ -815,9 +1030,10 @@ export function ChatRoom({j, user, from, e, socket}) {
 		/** @type {{ Message: any[]; _id: string; }} */ messages
 	) => {
 		const fragmentArray = [];
+		console.log(messages);
 		messages.Message.map(
 			(
-				/** @type {{ date: Date; coming: String; going: String; Format: string; message: string; answered? : object; picked? : object }} */ data,
+				/** @type {{ date: Date; coming: String; going: String; Format: string; message: string; answered? : object; picked? : object, url?: String, filename?: String }} */ data,
 				/** @type {number} */ i
 			) => {
 				const hrs = new Date(data.date).getHours();
@@ -825,15 +1041,17 @@ export function ChatRoom({j, user, from, e, socket}) {
 					new Date(data.date).getMinutes().toString().length > 1
 						? new Date(data.date).getMinutes()
 						: "0" + new Date(data.date).getMinutes();
-				const cur = new Date(data.date).getDate();
+				const time = j("<span>", {class: "time"}).html(
+					`<small> ${hrs + ":" + mins} </small>`
+				);
 
+				const cur = new Date(data.date).getDate();
 				const pre =
 					i > 0
 						? new Date(messages.Message[i - 1].date).getDate()
 						: "";
 
 				const Group = GroupMessage({cur, pre, i});
-
 				if (Group) {
 					const group = j("<div>", {class: "group"}).html(
 						"<span>" + Group + "</span>"
@@ -849,6 +1067,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 					i > 0 && i < messages.Message.length - 1
 						? messages.Message[i + 1].coming === data.coming
 						: false;
+
 				const prevGoingId =
 					i > 0
 						? messages.Message[i - 1].going === data.going
@@ -863,64 +1082,128 @@ export function ChatRoom({j, user, from, e, socket}) {
 						const incoming = IncomingForm(data);
 						fragmentArray.push(incoming);
 						return;
+					} else if (data.Format === "plain") {
+						const text = j("<div>", {class: "text"}).html(
+							data.message
+						);
+						const image = j(e.target)
+							.closest(".chat")
+							.find(".user_image")
+							.clone();
+
+						const plain = j("<div>", {
+							class: "plain-message",
+						}).append(prevComingId ? "" : image, text, time);
+
+						const wrapper = j("<div>", {
+							class: "message-wrapper",
+						}).append(plain);
+						const incoming = j("<div>", {
+							class: `incoming-message ${
+								prevComingId
+									? nextComingId
+										? "adjust"
+										: "adjust-pd"
+									: nextComingId
+									? "adjust-mg"
+									: ""
+							}`,
+						}).append(wrapper);
+
+						return fragmentArray.push(incoming);
+					} else if (data.Format === "image") {
+						const image = j("<img>", {
+							class: "image-previewer",
+							alt: data.filename + " previewer",
+							src: data.url,
+						});
+						const message = j("<div>", {
+							class: `inoming-media incoming-message ${
+								prevComingId
+									? nextComingId
+										? "adjust"
+										: "adjust-pd"
+									: nextComingId
+									? "adjust-mg"
+									: ""
+							}`,
+						});
+						const message_wrapper = j("<div>", {
+							class: "message-wrapper",
+						});
+						const image_wrapper = j("<div>", {
+							class: "media-wrapper incoming-picture",
+						}).append(image);
+
+						message_wrapper.append(
+							image_wrapper,
+							time.addClass("media")
+						);
+						message.append(message_wrapper);
+						return fragmentArray.push(message);
 					}
-					const text = j("<div>", {class: "text"}).html(data.message);
-					const image = j(e.target)
-						.parents(".user")
-						.find(".user-image")
-						.clone();
-					const time = j("<span>", {class: "time"}).html(
-						`<small> ${hrs + ":" + mins} </small>`
-					);
-					const plain = j("<div>", {
-						class: "plain-message",
-					}).append(text, prevComingId ? "" : image, time);
-
-					const wrapper = j("<div>", {
-						class: "message-wrapper",
-					}).append(plain);
-					const incoming = j("<div>", {
-						class: `incoming-message ${
-							prevComingId
-								? nextComingId
-									? "adjust"
-									: "adjust-pd"
-								: nextComingId
-								? "adjust-mg"
-								: ""
-						}`,
-					}).append(wrapper);
-
-					return fragmentArray.push(incoming);
 				} else {
 					if (data.Format == "Form") {
 						const outgoing = CreateQuestionPreview(data, false);
 						fragmentArray.push(outgoing);
 						return;
-					}
-					const text = j("<div>", {class: "text"}).html(data.message);
-					const time = j("<span>", {class: "time"}).html(
-						`<small> ${hrs + ":" + mins} </small>`
-					);
-					const plain = j("<div>", {
-						class: "plain-message",
-					}).append(text, time);
-					const wrapper = j("<div>", {
-						class: "message-wrapper",
-					}).append(plain);
-					const outgoing = j("<div>", {
-						class: `outgoing-message ${
-							prevGoingId
-								? nextGoingId
+					} else if (data.Format === "plain") {
+						const text = j("<div>", {class: "text"}).html(
+							data.message
+						);
+						const time = j("<span>", {class: "time"}).html(
+							`<small> ${hrs + ":" + mins} </small>`
+						);
+						const plain = j("<div>", {
+							class: "plain-message",
+						}).append(text, time);
+						const wrapper = j("<div>", {
+							class: "message-wrapper",
+						}).append(plain);
+						const outgoing = j("<div>", {
+							class: `outgoing-message ${
+								prevGoingId
+									? nextGoingId
+										? "adjust"
+										: ""
+									: nextGoingId
 									? "adjust"
 									: ""
-								: nextGoingId
-								? "adjust"
-								: ""
-						} `,
-					}).append(wrapper);
+							} `,
+						}).append(wrapper);
 
-					return fragmentArray.push(outgoing);
+						return fragmentArray.push(outgoing);
+					} else if (data.Format === "image") {
+						const image = j("<img>", {
+							class: "image-previewer",
+							alt: data.filename + " previewer",
+							src: data.url,
+						});
+						const message = j("<div>", {
+							class: `outgoing-media outgoing-message ${
+								prevGoingId
+									? nextGoingId
+										? "adjust"
+										: "adjust-pd"
+									: nextGoingId
+									? "adjust-mg"
+									: ""
+							}`,
+						});
+						const message_wrapper = j("<div>", {
+							class: "message-wrapper",
+						});
+						const image_wrapper = j("<div>", {
+							class: "media-wrapper outgoing-picture",
+						}).append(image);
+
+						message_wrapper.append(
+							image_wrapper,
+							time.addClass("media")
+						);
+						message.append(message_wrapper);
+						return fragmentArray.push(message);
+					}
 				}
 			}
 		);
@@ -953,9 +1236,8 @@ export function ChatRoom({j, user, from, e, socket}) {
 	 */
 
 	function IncomingMessage(data) {
-		console.log(data);
 		if (data.from === to) {
-			sendMessage(data?.message, "incoming-message");
+			sendMessage(data, "incoming-message");
 		}
 	}
 
@@ -1072,7 +1354,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 									name: key,
 									id: "option",
 									class: `option${i}`,
-							  }).click(function () {
+							  }).on("click", function () {
 									ANSWERCLICKED(this, option, data._id);
 							  })
 							: j("<input>", {
@@ -1194,7 +1476,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 			}, 5000);
 		}
 
-		// clearing moovement cos the initial function is serving 2 caller
+		// clearing movement cos the initial function is serving 2 caller
 		// checking where it's coming using this if statement
 		// @incoming is a parameter pass to the function
 
@@ -1251,9 +1533,6 @@ export function ChatRoom({j, user, from, e, socket}) {
 
 		if (data.answer.index === data.picked.index) {
 			var count = 0;
-			console.log(
-				j(`#${data.messageId}`).find("input").eq(data.answer.index)
-			);
 			j(`#${data.messageId}`).addClass("correct before");
 
 			j(`#${data.messageId}`)
@@ -1267,12 +1546,17 @@ export function ChatRoom({j, user, from, e, socket}) {
 				j(roomBody).find(`#${data.messageId}`).removeClass("before");
 			}, 5000);
 
+			// this is the interval that reduce coin if the
+			// if the question is gotten, it runs for the number
+			// of coins added to the question
 			var decrement = setInterval(() => {
 				coin--;
 				j(document).find(".coin-count span").html(coin);
 				count++;
 
 				if (count == qCoin) {
+					// and the interval is clear when it reaches
+					// the count of the coin added
 					clearInterval(decrement);
 				}
 			}, 20);
