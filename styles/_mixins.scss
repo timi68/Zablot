@@ -121,13 +121,12 @@
 		height: calc(100vh - 150px);
 		overflow: auto;
 		position: fixed;
-		top: 85px;
-		left: 50%;
+		top: 81px;
+		right: 10px;
 		height: calc(100vh - 100px);
 		opacity: 0;
 		box-shadow: $shadow;
 		transition: $transition;
-		transform: translateX(-50%);
 		border-radius: 10px;
 		background: map-get($color, "lightergrey");
 
@@ -156,7 +155,7 @@
 
 			.title {
 				font-weight: 500;
-				font-size: map-get($fonts, "medium");
+				font-size: map-get($fonts, "small");
 				color: map-get($map: $color, $key: "brown");
 			}
 

@@ -135,7 +135,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 			let scrollHeight = e.target.scrollHeight;
 			let scrollTop = e.target.scrollTop;
 
-			if (scrollHeight - scrollTop < 250)
+			if (scrollHeight - scrollTop < 300)
 				alertMessage.removeClass("show").html(0);
 		});
 		alertMessage.on("click", function () {
@@ -153,10 +153,12 @@ export function ChatRoom({j, user, from, e, socket}) {
 		addOptions.on("click", AddOptions);
 		textControl.on("keyup", Question);
 		mediaLi1.on("click", function () {
-			document.getElementById(fileId + "image").click();
+			document.getElementById(fileId + "image").click(),
+				media.removeClass("active");
 		});
 		mediaLi2.on("click", function () {
-			document.getElementById(fileId + "video").click();
+			document.getElementById(fileId + "video").click(),
+				media.removeClass("active");
 		});
 		mediaLi3.on("click", function () {
 			CreatePoll.toggleClass("active"), media.removeClass("active");
@@ -313,8 +315,11 @@ export function ChatRoom({j, user, from, e, socket}) {
 				image.setAttribute("alt", "previewer");
 				//preview.appendChild(image); // preview commented out, I am using the canvas instead
 				image.onload = function () {
-					// have to wait till it's loaded
-					// var resized = resizeMe(image); // send it to canvas
+					const hrs = new Date().getHours();
+					const mins =
+						new Date().getMinutes().toString().length > 1
+							? new Date().getMinutes()
+							: "0" + new Date().getMinutes();
 					const message = j("<div>", {
 						class: "outgoing-media outgoing-message",
 					});
@@ -324,8 +329,14 @@ export function ChatRoom({j, user, from, e, socket}) {
 					const image_wrapper = j("<div>", {
 						class: "media-wrapper outgoing-picture",
 					}).append(image);
+					const time = j("<span>", {class: "time media"}).html(
+						`<small> ${hrs + ":" + mins} </small>`
+					);
+					const loader = j("<div>", {class: "media_loader"});
+					const spinner = j("<span>", {class: "loader_spinner"});
 
-					message_wrapper.append(image_wrapper);
+					loader.append(spinner);
+					message_wrapper.append(image_wrapper, time, loader);
 					roomBody.append(message.append(message_wrapper)).animate(
 						{
 							scrollTop: roomBody.prop("scrollHeight"),
@@ -333,14 +344,32 @@ export function ChatRoom({j, user, from, e, socket}) {
 						"slow"
 					);
 
+					function Progress(ProgressEvent) {
+						let percentageLoaded = Math.floor(
+							(ProgressEvent.loaded / ProgressEvent.total) * 100
+						);
+						spinner.css({
+							background: `conic-gradient(
+								transparent ${percentageLoaded * 3.6}deg,
+								grey ${percentageLoaded * 3.6}deg
+							)`,
+						});
+						console.log(percentageLoaded);
+						if (percentageLoaded === 100) loader.detach();
+					}
+
 					(async () => {
 						const form = new FormData();
 						form.append("image", file);
 
 						try {
+							let config = {
+								onUploadProgress: Progress,
+							};
 							const uploadImage = await axios.post(
 								"/api/media/upload",
-								form
+								form,
+								config
 							);
 
 							let data = {
@@ -1248,6 +1277,7 @@ export function ChatRoom({j, user, from, e, socket}) {
 	function Status(data) {
 		if (data._id === to) {
 			Online.html(data.online ? "online" : "offline");
+			roomHeader.find(".user_active_signal").toggleClass("offline");
 		}
 	}
 

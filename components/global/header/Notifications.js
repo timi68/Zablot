@@ -2,16 +2,19 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
 import {Fragment, useEffect, useContext, useState, useRef} from "react";
-import {SocketContext} from "../../../lib/socket";
+import {AppContext, ModalContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
-import GroupNotification from "../../../lib/GroupNotifications";
+import GroupNotification from "../../../utils/GroupNotifications";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import {CSSTransition} from "react-transition-group";
 import {Badge, IconButton} from "@material-ui/core";
 
 function Notifications() {
-	const {socket, props, user, modalSignal} = useContext(SocketContext);
+	const {
+		state: {socket, user},
+	} = useContext(AppContext);
+	const {modalSignal} = useContext(ModalContext);
 	const [openModal, setOpenModal] = useState(false);
 	const [notifications, setNotifications] = useState(
 		user?.Notifications.sort(() => -1) || []

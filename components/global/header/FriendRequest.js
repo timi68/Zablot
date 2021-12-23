@@ -4,17 +4,20 @@
 import {Fragment, useEffect, useContext, useState, useRef} from "react";
 import {motion} from "framer-motion";
 import {CSSTransition} from "react-transition-group";
-import {SocketContext} from "../../../lib/socket";
+import {AppContext, ModalContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
-import time from "../../../lib/calcuate-time";
+import time from "../../../utils/calcuate-time";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {IconButton, Badge} from "@mui/material";
 import j from "jquery";
 
 function FriendRequests() {
-	const {socket, props, user, modalSignal} = useContext(SocketContext);
+	const {
+		state: {socket, user, session},
+	} = useContext(AppContext);
+	const {modalSignal} = useContext(ModalContext);
 	const [request, setRequest] = useState(
-		user?.FriendRequests.sort(() => -1) || []
+		user?.FriendRequests.reverse() || []
 	);
 	const [date, setDate] = useState(new Date());
 	const [openModal, setOpenModal] = useState(false);

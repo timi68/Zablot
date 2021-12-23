@@ -8,15 +8,18 @@ import React, {
 	useContext,
 	useCallback,
 } from "react";
-import {SocketContext} from "../../../lib/socket";
-import {ChatRoom} from "../ChatRoom";
+import {AppContext, ModalContext} from "../../../lib/context";
+import {ChatRoom} from "../../../utils/ChatRoom";
 import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";
 import {CSSTransition} from "react-transition-group";
 
 function SearchBar() {
-	const {socket, props, user, modalSignal} = useContext(SocketContext);
+	const {
+		state: {socket, user, session},
+	} = useContext(AppContext);
+	const {modalSignal} = useContext(ModalContext);
 	const [matched, setMatched] = useState(null);
 	const [skipper, setSkipper] = useState(null);
 	const [open, setOpen] = useState(false);
@@ -54,7 +57,7 @@ function SearchBar() {
 	const Search = () => {
 		const searchText = j(searchbar.current).val();
 		if (searchText != "") {
-			const data = {searchText, id: props?.user.id};
+			const data = {searchText, id: session.id};
 
 			// @ts-ignore
 			j.ajax({
@@ -70,7 +73,7 @@ function SearchBar() {
 							(/** @type {{ Id: any; }} */ user) => user.Id
 						);
 						matched = matched.filter((user) => {
-							if (user._id != props.user.id) {
+							if (user._id != session.id) {
 								if (pending.includes(user._id)) {
 									user.sent = true;
 								}
@@ -98,7 +101,7 @@ function SearchBar() {
 		const friend_request = {
 			FullName: user.FullName,
 			UserName: user.UserName,
-			From: props?.user.id,
+			From: session.id,
 			To: id,
 			Image: defaultImage,
 		};
@@ -126,7 +129,7 @@ function SearchBar() {
 	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
 	 */
 	function processFriend(user, e) {
-		ChatRoom({j, user, from: props?.user.id, e, socket});
+		ChatRoom({j, user, from: session.id, e, socket});
 	}
 
 	/**
@@ -134,7 +137,7 @@ function SearchBar() {
 	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
 	 */
 	function processCancel(to, e) {
-		const data = {from: props.user.id, to};
+		const data = {from: session.id, to};
 		socket.emit("CANCELREQUEST", data, (err) => {
 			if (!err) {
 				setMatched((/** @type {any[]} */ state) => {

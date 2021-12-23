@@ -14,7 +14,7 @@ $borderColor: #d7cdcd;
 	background: map-get($map: $color, $key: "lightergrey");
 	height: calc(100vh - 80px);
 	border-top: thin solid white;
-	width: 300px;
+	width: 350px;
 	max-width: 100vw;
 	transition: $transition;
 
@@ -137,6 +137,10 @@ $borderColor: #d7cdcd;
 			border-radius: 50%;
 			position: relative;
 
+			.list_image {
+				border-radius: 50%;
+			}
+
 			.badge {
 				background-color: #44b700;
 				color: #44b700;
@@ -175,9 +179,6 @@ $borderColor: #d7cdcd;
 		}
 
 		.unseenmessages.badge {
-			position: absolute;
-			top: 0;
-			right: 0;
 			height: 17px;
 			width: 20px;
 			display: flex;
@@ -202,7 +203,7 @@ $borderColor: #d7cdcd;
 		}
 
 		.chats_listbox {
-			width: 300px;
+			width: 350px;
 			max-width: 100vw;
 			background: map-get($map: $color, $key: "lightergrey");
 			height: 100%;
@@ -266,72 +267,6 @@ $borderColor: #d7cdcd;
 		}
 		.chats-list {
 			list-style: none;
-
-			.chat {
-				display: flex;
-				flex-wrap: nowrap;
-				margin-bottom: 7px;
-
-				.user {
-					position: absolute;
-					left: 0;
-					top: -2px;
-				}
-				.image {
-					width: 40px;
-					height: 40px;
-					border: thin solid map-get($map: $color, $key: "grey");
-					border-radius: 50%;
-				}
-
-				.username {
-					width: 80%;
-					line-height: 13px;
-					font-weight: 600;
-					padding: 5px;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					font-size: map-get($fonts, "small");
-					color: map-get($color, "brown");
-
-					.name {
-						overflow: hidden;
-						white-space: nowrap;
-						text-overflow: ellipsis;
-					}
-
-					.last-message {
-						color: map-get($color, "skyblue");
-						font-size: map-get($fonts, "smaller");
-					}
-				}
-				.status.not-seen-message {
-					width: 20%;
-					position: relative;
-
-					.active {
-						width: 5px;
-						height: 5px;
-						background: map-get($color, "skyblue");
-						border-radius: 50%;
-						position: absolute;
-						top: 6px;
-						right: 15px;
-					}
-					.not-seen {
-						width: 15px;
-						height: 15px;
-						font-size: map-get($map: $fonts, $key: "smaller");
-						position: absolute;
-						bottom: 6px;
-						right: 10px;
-						border-radius: 50%;
-						display: grid;
-						place-items: center;
-						background: map-get($map: $color, $key: "lightgrey");
-					}
-				}
-			}
 		}
 	}
 }

@@ -1,28 +1,29 @@
-/* eslint-disable @next/next/link-passhref */
-/* eslint-disable @next/next/no-img-element */
-
-import Link from "next/link";
 import Image from "next/image";
 import {useRef, useContext, useEffect, useState, useCallback} from "react";
-import {SocketContext} from "../../../lib/socket";
+import {AppContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
-import {ChatRoom} from "../ChatRoom";
+import {ChatRoom} from "../../../utils/ChatRoom";
 import {motion} from "framer-motion";
 import {Tab, Tabs, CircularProgress} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import {Button, CardActionArea} from "@material-ui/core";
+import * as Interface from "../../../lib/interfaces";
 
 function ChatBoard() {
-	const {socket, props, user} = useContext(SocketContext);
-	const [friends, setFriends] = useState(user?.Friends || []);
+	const {
+		state: {socket, session, user},
+	} = useContext(AppContext);
+	const [friends, setFriends] = useState<Interface.Friends[]>(
+		user?.Friends || []
+	);
 	const [loading, setLoading] = useState(true);
 	const [tabToOpen, setTabToOpen] = useState(0);
 	const chatBoard = useRef(null);
 
 	const NewFriend = useCallback(
-		(data) => {
+		(data: Interface.Friends) => {
 			console.log("NewFriends emitted", data);
 			setFriends([data, ...friends]);
 		},
@@ -43,8 +44,9 @@ function ChatBoard() {
 				if (user.Id === data.from) {
 					user.UnseenMessages = id.includes(dataId)
 						? 0
-						: parseInt(user.UnseenMessages) + 1;
+						: Number(user.UnseenMessages) + 1;
 					user.Last_Message = data.message;
+					user.LastPersonToSendMessage = data.from;
 					oldState.unshift(user);
 				}
 				return;
@@ -59,7 +61,8 @@ function ChatBoard() {
 			const oldState = state.filter((user) => user.Id !== data.to);
 			state.map((user) => {
 				if (user.Id === data.to) {
-					user.Last_Message = "You: " + data.message;
+					user.Last_Message = data.message;
+					user.LastPersonToSendMessage = data.from;
 					oldState.unshift(user);
 				}
 			});
@@ -120,35 +123,30 @@ function ChatBoard() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [socket]);
 
-	function openRoom(data, e) {
-		var html =
-			parseInt(
-				j(e.target).parents(".user").find(".unseenmessages span").html()
-			) > 0;
-		if (html) {
-			const friendId = props?.user.id;
-			setFriends((state) => {
-				state = state.map((u) => {
-					if (u.Id === data.Id) u.UnseenMessages = 0;
-					return u;
-				});
-				return state;
-			});
-			socket.emit(
-				"CLEANSEEN",
-				{_id: friendId, Id: data._id},
-				(err, done) => {
-					console.log(err || done);
-					if (err) {
-						alert("Internal server error: restarting window now");
-						location.reload();
-					}
-				}
-			);
-		}
+	function openRoom(
+		user: Interface.Friends,
+		e: React.MouseEvent<HTMLElement, MouseEvent>
+	): void {
+		const friendId = session.id;
 
-		ChatRoom({j, user: data, from: props?.user.id, e, socket});
+		setFriends((state) => {
+			state = state.map((u) => {
+				if (u.Id === user.Id) u.UnseenMessages = 0;
+				return u;
+			});
+			return state;
+		});
+		socket.emit("CLEANSEEN", {_id: friendId, Id: user._id}, (err, done) => {
+			console.log(err || done);
+			if (err) {
+				alert("Internal server error: restarting window now");
+				location.reload();
+			}
+		});
+
+		ChatRoom({j, user, from: session.id, e, socket});
 		openChatBoard();
+		return;
 	}
 
 	const openChatBoard = () => {
@@ -185,14 +183,14 @@ function ChatBoard() {
 					) : (
 						<>
 							<Friends
+								friendId={session.id}
 								friends={friends}
 								openRoom={openRoom}
-								user={user}
 							/>
 							<Private
 								friends={friends}
 								openRoom={openRoom}
-								user={user}
+								friendId={session.id}
 							/>
 						</>
 					)}
@@ -229,19 +227,26 @@ function Navbar(props) {
 			className="tab_list"
 		>
 			<Tab
-				icon={<PeopleAltOutlinedIcon size="medium" />}
+				icon={<PeopleAltOutlinedIcon fontSize="medium" />}
 				{...a11yProps(0)}
 			/>
-			<Tab icon={<SecurityIcon size="medium" />} {...a11yProps(1)} />
+			<Tab icon={<SecurityIcon fontSize="medium" />} {...a11yProps(1)} />
 		</Tabs>
 	);
 }
 
+interface chats {
+	friendId: String;
+	user: Interface.Friends;
+	open(
+		user: Interface.Friends,
+		e: React.MouseEvent<HTMLElement, MouseEvent>
+	): void;
+}
 /**
- * @param {{user: object, open: Function}} param0
- * @returns {JSX.Element}
+ *
  */
-function Chats({user, open}) {
+function Chats({friendId, user, open}: chats): JSX.Element {
 	return (
 		<CardActionArea
 			className="chats_listItem list_item chat"
@@ -261,7 +266,12 @@ function Chats({user, open}) {
 			<div className="text" role="listitem">
 				<div className="user_name primary_text">{user.Name}</div>
 				<div className="last_message secondary_text">
-					{user.Last_Message}
+					{user?.LastPersonToSendMessage === friendId && "You: "}
+					{user.Last_Message === "Image" ? (
+						<i className="ion-ios-image" style={{fontSize: 17}}></i>
+					) : (
+						user.Last_Message
+					)}
 				</div>
 			</div>
 			{!!user.UnseenMessages && (
@@ -278,13 +288,21 @@ function Chats({user, open}) {
  * @param {{friends: Object[]}} props
  * @returns
  */
-function Private(props) {
-	const {friends, openRoom} = props;
+interface props {
+	friends: Interface.Friends[];
+	openRoom(
+		user: Interface.Friends,
+		e: React.MouseEvent<HTMLElement, MouseEvent>
+	): void;
+	friendId: string;
+}
+function Private(props: props) {
+	const {friends, openRoom, friendId} = props;
 	const [opened, setOpened] = useState(false);
 	const checkPin = () => setOpened(true);
 
 	const PrivateFriends = friends?.filter(
-		(friend) => friend.isPrivate === true
+		(friend) => friend.IsPrivate === true
 	);
 
 	return (
@@ -298,6 +316,7 @@ function Private(props) {
 								return (
 									<Chats
 										key={key}
+										friendId={friendId}
 										open={openRoom}
 										user={user}
 									/>
@@ -344,15 +363,22 @@ function Private(props) {
  * @param {{friends: Object[]}} props
  * @returns
  */
-function Friends(props) {
-	const {friends, openRoom} = props;
-	const NotPrivateFriends = friends?.filter((friend) => !friend.isPrivate);
+function Friends(props: props) {
+	const {friendId, friends, openRoom} = props;
+	const NotPrivateFriends = friends?.filter((friend) => !friend.IsPrivate);
 	return (
 		<div className="friends_chats chats_listbox" role="listbox">
 			<ul className="chats-list list" role="list">
 				{NotPrivateFriends?.map((user) => {
 					var key = uuid();
-					return <Chats key={key} open={openRoom} user={user} />;
+					return (
+						<Chats
+							key={key}
+							friendId={friendId}
+							open={openRoom}
+							user={user}
+						/>
+					);
 				})}
 			</ul>
 		</div>

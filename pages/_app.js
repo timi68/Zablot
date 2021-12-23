@@ -3,10 +3,9 @@ import NProgress from "nprogress";
 import Router from "next/router";
 import "nprogress/nprogress.css";
 import "../styles/main.scss";
+import {SnackbarProvider} from "notistack";
 import "../styles/chatboard.scss";
-import Head from "next/head";
-import {Fragment} from "react";
-import "../public/dist/css/icons.css";
+import AppContextProvider from "../lib/context/appContext";
 
 function MyApp({Component, pageProps}) {
 	NProgress.configure({
@@ -21,9 +20,11 @@ function MyApp({Component, pageProps}) {
 	Router.events.on("routeChangeError", () => NProgress.done());
 
 	return (
-		<Fragment>
-			<Component {...pageProps} />
-		</Fragment>
+		<AppContextProvider>
+			<SnackbarProvider maxSnack={3} dense>
+				<Component {...pageProps} />
+			</SnackbarProvider>
+		</AppContextProvider>
 	);
 }
 

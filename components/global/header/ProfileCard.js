@@ -4,18 +4,19 @@ import {motion} from "framer-motion";
 import {IconButton} from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import {SocketContext} from "../../../lib/socket";
+import {ModalContext, AppContext} from "../../../lib/context";
 import j from "jquery";
 import {CSSTransition} from "react-transition-group";
 
 function ProfileCard() {
-	const {user, modalSignal} = useContext(SocketContext);
+	const {user} = useContext(AppContext);
+	const {modalSignal} = useContext(ModalContext);
 	const [expand, setExpand] = useState(false);
 
-	const handleClick = () => {
+	const handleClick = useCallback(() => {
 		if (!expand) return;
 		setExpand(false);
-	};
+	}, [expand]);
 
 	useEffect(() => {
 		const modal = modalSignal.current;
@@ -23,7 +24,7 @@ function ProfileCard() {
 		return () => {
 			j(modal).off("click", handleClick);
 		};
-	}, [expand]);
+	}, [expand, handleClick, modalSignal]);
 
 	const handleOpen = () => {
 		if (!expand) {
@@ -45,9 +46,9 @@ function ProfileCard() {
 				}}
 			>
 				{expand ? (
-					<ArrowDropUpIcon size="large" />
+					<ArrowDropUpIcon fontSize="large" />
 				) : (
-					<ArrowDropDownIcon size="large" />
+					<ArrowDropDownIcon fontSize="large" />
 				)}
 			</IconButton>
 			<CSSTransition timeout={200} in={expand} unmountOnExit>

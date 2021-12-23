@@ -73,7 +73,6 @@ function ControlSocketActions(socket) {
 							UserName: data.UserName,
 							Image: data.Image,
 							Date: new Date(),
-							Accepted: false,
 						},
 					},
 				}
@@ -413,6 +412,9 @@ function ControlSocketActions(socket) {
 					{
 						$set: {
 							"friends.$.Last_Message": data.message,
+							"friends.$.LastPersonToSendMessage": new ObjectId(
+								data.from
+							),
 						},
 					}
 				).exec();

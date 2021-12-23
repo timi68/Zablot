@@ -13,6 +13,7 @@ const FriendsSchema = Schema(
 				Id: Schema.Types.ObjectId,
 				Name: String,
 				Image: String,
+				LastPersonToSendMessage: Schema.Types.ObjectId,
 				UnseenMessages: Number,
 				Last_Message: String,
 				IsPrivate: Boolean,

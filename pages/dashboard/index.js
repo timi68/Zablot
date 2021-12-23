@@ -5,10 +5,12 @@
 // @ts-check
 
 import Head from "next/head";
-import {useEffect, useState, useRef} from "react";
-import AfterRender from "../../components/dashboard/after";
+import {useEffect, useState, useRef, Fragment} from "react";
+import AppLayout from "../../src/AppLayout";
 import {useSocket, SocketContext} from "../../lib/socket";
 import j from "jquery";
+import DashboardComponent from "../../components/dashboard";
+import {CircularProgress, Container} from "@mui/material";
 
 function Dashboard(props) {
 	const [user, setUser] = useState();
@@ -90,18 +92,28 @@ function Dashboard(props) {
 				<title>Dashboard</title>
 			</Head>
 			{IsLoading ? (
-				<h1>Is Loading</h1>
+				<Container
+					sx={{
+						display: "grid",
+						placeItems: "center",
+						height: "100vh",
+					}}
+				>
+					<CircularProgress />
+				</Container>
 			) : error ? (
 				<h1>There is an error</h1>
 			) : (
-				<>
-					<AfterRender />
+				<Fragment>
+					<AppLayout>
+						<DashboardComponent />
+					</AppLayout>
 					<div
 						className="modal_open_signal"
 						ref={modalSignal}
 						onClick={removeAllShowModal}
 					></div>
-				</>
+				</Fragment>
 			)}
 			{/* <Footer /> */}
 		</SocketContext.Provider>
