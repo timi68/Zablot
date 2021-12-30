@@ -1,15 +1,25 @@
 import {Socket} from "socket.io-client";
 
+export enum ActionType {
+	LOGGEDIN = "LOGGEDIN",
+	SESSION = "SESSION",
+	CLIENTSOCKET = "CLIENTSOCKET",
+	REFRESH = "REFRESH",
+	FETCHED = "FETCHED",
+	ACTIVEFRIENDS = "ACTIVEFRIENDS",
+}
+
 export interface stateInterface {
-	LoggedIn?: boolean;
+	loggedIn?: boolean;
 	socket?: null | Socket;
 	user?: null | User;
 	mode?: string;
-	session: Session;
+	session?: Session;
+	activeFriends?: string[];
 }
 
 export interface actionInterface {
-	type: String;
+	type: ActionType;
 	payload: object;
 }
 
@@ -49,6 +59,7 @@ export type Requests = [
 ];
 
 export type User = {
+	_id: string;
 	FullName: string;
 	UserName: string;
 	Email: string;
@@ -71,3 +82,33 @@ export type Session = {
 	id: string;
 	socket_id: string;
 };
+
+export interface Handle {
+	setQuestions?(newQuestions: Question, questionId?: number): void;
+	updateQuestions?(questionid: number, questiondetails: Question): void;
+	setOpen?(questions?: Question[]): void;
+	setQuestionToEdit?(questionid: number, questiondetails?: Question): void;
+}
+
+export type Option = {
+	text: string;
+	isNew?: boolean;
+	checked: boolean;
+};
+
+export interface Question {
+	question: string;
+	options: Option[];
+}
+
+export interface CreatedQuestionInterface {
+	edit: {current: Handle};
+	ref: React.ForwardedRef<any>;
+	upload: {current: Handle};
+}
+
+export interface State {
+	questions: Question[];
+	update?: number;
+	removing?: boolean;
+}

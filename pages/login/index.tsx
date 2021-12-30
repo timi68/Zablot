@@ -1,11 +1,17 @@
-/* eslint-disable @next/next/no-css-tags */
-/* eslint-disable react/no-unescaped-entities */
-// @ts-check
-import {Fragment, useEffect, useRef, useState, useContext} from "react";
+import {useState, useContext} from "react";
 import {useRouter} from "next/router";
-import Head from "next/head";
-import Link from "next/link";
-import j from "jquery";
+import axios from "axios";
+import Layout from "../../src/AppLayout";
+import {Box} from "@mui/system";
+import {useForm} from "react-hook-form";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import {useSnackbar} from "notistack";
+import Slide from "@mui/material/Slide";
+import {AppContext} from "../../lib/context";
+import {ActionType} from "../../lib/interfaces";
+import cookie from "js-cookie";
+import webtoken from "jsonwebtoken";
 import {
 	Button,
 	FormControl,
@@ -17,21 +23,13 @@ import {
 	CircularProgress,
 	Typography,
 } from "@mui/material";
-import {MessagesContext} from "../../lib/messages-context";
-import axios from "axios";
-import Layout from "../../src/layout";
-import {Box} from "@mui/system";
-import {useForm} from "react-hook-form";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import {useSnackbar} from "notistack";
-import Slide from "@mui/material/Slide";
 
-function Login({message}) {
+function Login({secret}) {
 	const router = useRouter();
 	const [show, setShow] = useState<boolean>(false);
 	const [requestLoading, setRequestLoading] = useState(false);
 	const [loggedIn, setLoggedIn] = useState<boolean>(false);
+	const {dispatch} = useContext(AppContext);
 	const {
 		register,
 		handleSubmit,
@@ -52,30 +50,45 @@ function Login({message}) {
 	}
 
 	const submitForm = async (data: FormInterface): Promise<void> => {
+		if (requestLoading) return;
 		try {
 			if (!requestLoading && !loggedIn) {
 				setRequestLoading(true);
 				const sendFormData = await axios.post("/api/users/login", data);
 				setRequestLoading(false);
 
-				enqueueSnackbar(
-					sendFormData.data?.success ||
-						sendFormData.data?.not_success,
-					{
-						anchorOrigin: {
-							vertical: "top",
-							horizontal: "center",
-						},
-						variant: sendFormData.data?.success
-							? "success"
-							: "error",
-						TransitionComponent: Slide,
-						autoHideDuration: 2000,
-					}
-				);
+				enqueueSnackbar(sendFormData.data?.message, {
+					anchorOrigin: {
+						vertical: "top",
+						horizontal: "center",
+					},
+					variant: sendFormData.data?.success ? "success" : "error",
+					TransitionComponent: Slide,
+					autoHideDuration: 3000,
+				});
 
 				if (Boolean(sendFormData.data?.success)) {
 					setLoggedIn(true);
+					let user = sendFormData.data.user;
+					user.Notifications = user.Notifications[0].notifications;
+					user.Friends = user.Friends[0].friends;
+					user.FriendRequests = user.FriendRequests[0].requests;
+					user.Settings = user.Settings[0].settings;
+
+					var userCookie = {user: user._id};
+					console.log(secret, "from secret");
+					const token = webtoken.sign(userCookie, secret, {
+						expiresIn: "30d",
+					});
+
+					console.log(token);
+
+					cookie.set("user", JSON.stringify(token));
+					dispatch({
+						type: ActionType.LOGGEDIN,
+						payload: {user, loggedIn: true},
+					});
+
 					router.replace("/dashboard");
 					return;
 				}
@@ -89,7 +102,12 @@ function Login({message}) {
 	};
 
 	return (
-		<Layout title="Login Page" text="Sign Up" href="/register">
+		<Layout
+			title="Login Page"
+			text="Sign Up"
+			href="/register"
+			loggedIn={false}
+		>
 			<Box
 				component="form"
 				onSubmit={handleSubmit(submitForm)}
@@ -105,6 +123,8 @@ function Login({message}) {
 					variant="h6"
 					textAlign="center"
 					m={3}
+					fontWeight="bold"
+					color="primary"
 				>
 					Login
 				</Typography>
@@ -179,10 +199,6 @@ function Login({message}) {
 					sx={{
 						m: 2,
 						width: 200,
-						// bgcolor: "#525252",
-						// "&:hover": {
-						// 	bgcolor: "#767675",
-						// },
 					}}
 				>
 					{requestLoading || loggedIn ? (
@@ -203,12 +219,11 @@ function Login({message}) {
 	);
 }
 
-export async function getServerSideProps({req, res}) {
-	const flash = req?.session?.flash;
-
+export async function getStaticProps() {
+	console.log(process.env.SALT);
 	return {
 		props: {
-			message: flash?.Error || null,
+			secret: process.env.SALT,
 		},
 	};
 }

@@ -14,7 +14,7 @@ function Notifications() {
 	const {
 		state: {socket, user},
 	} = useContext(AppContext);
-	const {modalSignal} = useContext(ModalContext);
+	const modalSignal = useContext(ModalContext);
 	const [openModal, setOpenModal] = useState(false);
 	const [notifications, setNotifications] = useState(
 		user?.Notifications.sort(() => -1) || []
@@ -29,13 +29,13 @@ function Notifications() {
 
 	const handleOpen = () => {
 		if (!openModal)
-			j(modalSignal.current).trigger("click").addClass("show");
-		else j(modalSignal.current).removeClass("show");
+			j(modalSignal?.current).trigger("click").addClass("show");
+		else j(modalSignal?.current).removeClass("show");
 	};
 
 	useEffect(() => {
-		const modal = modalSignal.current;
-		j(modalSignal.current).on("click", handleClick);
+		const modal = modalSignal?.current;
+		j(modalSignal?.current).on("click", handleClick);
 		return () => {
 			j(modal).off("click", handleClick);
 		};

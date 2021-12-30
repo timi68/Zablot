@@ -9,8 +9,10 @@ import j from "jquery";
 import {CSSTransition} from "react-transition-group";
 
 function ProfileCard() {
-	const {user} = useContext(AppContext);
-	const {modalSignal} = useContext(ModalContext);
+	const {
+		state: {user},
+	} = useContext(AppContext);
+	const modalSignal = useContext(ModalContext);
 	const [expand, setExpand] = useState(false);
 
 	const handleClick = useCallback(() => {
@@ -19,8 +21,8 @@ function ProfileCard() {
 	}, [expand]);
 
 	useEffect(() => {
-		const modal = modalSignal.current;
-		j(modalSignal.current).on("click", handleClick);
+		const modal = modalSignal?.current;
+		j(modalSignal?.current).on("click", handleClick);
 		return () => {
 			j(modal).off("click", handleClick);
 		};
@@ -28,10 +30,10 @@ function ProfileCard() {
 
 	const handleOpen = () => {
 		if (!expand) {
-			j(modalSignal.current).trigger("click");
-			j(modalSignal.current).addClass("show");
+			j(modalSignal?.current).trigger("click");
+			j(modalSignal?.current).addClass("show");
 		} else {
-			j(modalSignal.current).removeClass("show");
+			j(modalSignal?.current).removeClass("show");
 		}
 	};
 

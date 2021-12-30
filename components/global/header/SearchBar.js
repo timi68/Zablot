@@ -19,7 +19,8 @@ function SearchBar() {
 	const {
 		state: {socket, user, session},
 	} = useContext(AppContext);
-	const {modalSignal} = useContext(ModalContext);
+
+	const modalSignal = useContext(ModalContext);
 	const [matched, setMatched] = useState(null);
 	const [skipper, setSkipper] = useState(null);
 	const [open, setOpen] = useState(false);
@@ -30,6 +31,7 @@ function SearchBar() {
 	const searchIcon = useRef(null);
 	const container = useRef(null);
 
+	console.log("This is modal", modalSignal);
 	const SearchBox = function () {
 		if (open) return;
 
@@ -187,12 +189,12 @@ function SearchBar() {
 	);
 
 	useEffect(() => {
-		const modal = modalSignal.current;
-		j(modalSignal.current).on("click", Closemodal);
+		const modal = modalSignal?.current;
+		j(modalSignal?.current).on("click", Closemodal);
 		return () => {
 			j(modal).off("click", Closemodal);
 		};
-	}, [open]);
+	}, [open, modalSignal]);
 
 	useEffect(() => {
 		console.log("Mounting");

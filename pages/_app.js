@@ -5,6 +5,8 @@ import "nprogress/nprogress.css";
 import "../styles/main.scss";
 import {SnackbarProvider} from "notistack";
 import "../styles/chatboard.scss";
+import "../styles/createQuiz.scss";
+import "../public/fonts/index.css";
 import AppContextProvider from "../lib/context/appContext";
 
 function MyApp({Component, pageProps}) {

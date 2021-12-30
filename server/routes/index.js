@@ -80,9 +80,11 @@ router.post("/user/details", (req, res) => {
 	const {id} = req.body;
 	if (!id) return res.status(404).json({Response: "Not allowed"});
 
-	FetchUserDetails(id, (user) => {
+	FetchUserDetails(id, ({user, error}) => {
 		user
 			? res.status(200).json(user)
+			: error
+			? res.status(500).json({Error: "Internal Server Error"})
 			: res.status(500).json({Error: "Not_found"});
 	});
 

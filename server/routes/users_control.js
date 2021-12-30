@@ -14,6 +14,8 @@ const uuid = require("uuid");
 const {ObjectId} = require("mongodb");
 const async = require("async");
 const {v4: uuidv4} = uuid;
+const {promisify} = require("util");
+var CryptoJS = require("crypto-js");
 
 const addUsers = async (body) => {
 	try {
@@ -22,6 +24,7 @@ const addUsers = async (body) => {
 
 		const salt = await bcrypt.genSalt(10);
 		const hash = await bcrypt.hash(body.Password, salt);
+
 		const _id = new mongoose.Types.ObjectId();
 
 		const user = new Users({
@@ -78,7 +81,6 @@ const addUsers = async (body) => {
 					},
 				},
 			});
-			console.log(err ?? doc);
 		});
 
 		const friendRequest = new FriendRequests({
@@ -99,23 +101,36 @@ const addUsers = async (body) => {
 
 const checkUser = async (req, data) => {
 	try {
-		const user = await Users.findOne({Email: data.Email});
+		const user = await Users.findOne(
+			{
+				Email: data.Email,
+			},
+			{
+				All_Logins: 0,
+				Online: 0,
+				Last_Seen: 0,
+				Coins: 0,
+				Account_Creation_Date: 0,
+				DateOfBirth: 0,
+			}
+		)
+			.populate("FriendRequests")
+			.populate("Notifications")
+			.populate("Settings")
+			.populate("Friends");
 
-		if (!user?._id) return {not_success: "No record for this email found"};
-
+		if (!user?._id)
+			return {success: false, message: "No record for this email found"};
 		const match = await bcrypt.compare(data.Password, user.Password);
-		var response;
-		match
-			? ((req.session.user = {
-					id: user._id,
-			  }),
-			  (response = {success: "successfully logged in"}))
-			: (response = {not_success: "Password Incorrect"});
+		if (!match) return {success: false, message: "Incorrect Password"};
 
-		return response;
+		req.session.user = user._id;
+		delete user.Password;
+
+		return {success: true, message: `Welcome Back ${user.FullName}`, user};
 	} catch (err) {
 		console.log(err);
-		return {error: err};
+		return {error: err.message};
 	}
 };
 
@@ -190,35 +205,25 @@ const Search = async (SearchText, CB) => {
 };
 
 const FetchUserDetails = async (id, cb) => {
-	Users.findByIdAndUpdate(id, {
-		$push: {
-			All_Logins: {
-				Date: new Date(),
-				Device: "",
-			},
-		},
-	})
-		.populate("FriendRequests")
-		.populate("Notifications")
-		.populate("Settings")
-		.populate("Friends")
-		.exec((err, user) => {
-			user = {
-				FullName: user.FullName,
-				UserName: user.UserName,
-				Email: user.Email,
-				Gender: user.Gender,
-				Image: user.Image,
-				NewUser: user.NewUser,
-				Notifications: user.Notifications[0].notifications,
-				Friends: user.Friends[0].friends,
-				FriendRequests: user.FriendRequests[0].requests,
-				Settings: user.Settings[0].settings,
-				PendingRequests: user.PendingRequests,
-			};
+	try {
+		const user = await Users.findById(new ObjectId(id), {
+			_id: 0,
+			All_Logins: 0,
+			Online: 0,
+			Last_Seen: 0,
+			Coins: 0,
+			Account_Creation_Date: 0,
+			DateOfBirth: 0,
+		})
+			.populate("FriendRequests")
+			.populate("Notifications")
+			.populate("Settings")
+			.populate("Friends");
 
-			return cb(user || null);
-		});
+		return cb({user});
+	} catch (error) {
+		return cb({error});
+	}
 };
 
 const fetchMessages = async (id, cb) => {

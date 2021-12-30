@@ -1,14 +1,15 @@
-/* eslint-disable @next/next/no-css-tags */
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable react/no-unknown-property */
-// @ts-nocheck
-import Head from "next/head";
 import {Fragment, useRef, useState, useEffect} from "react";
 import {useRouter} from "next/router";
-import Link from "next/link";
-import j from "jquery";
-// import {MessagesContext} from "../../lib/messages-context";
-import Layout from "../../src/layout";
+import Layout from "../../src/AppLayout";
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import DatePicker from "@mui/lab/DatePicker";
+import {Box} from "@mui/system";
+import {useForm, useFormState} from "react-hook-form";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import axios from "axios";
+import {useSnackbar} from "notistack";
 import {
 	Button,
 	FormControl,
@@ -25,18 +26,11 @@ import {
 	Typography,
 	CircularProgress,
 } from "@mui/material";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DatePicker from "@mui/lab/DatePicker";
-import {Box} from "@mui/system";
-import {useForm, useFormState} from "react-hook-form";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import axios from "axios";
-import {useSnackbar} from "notistack";
+import {parseISO} from "date-fns";
 
 function Register() {
 	const [date, setDate] = useState(null);
+	// const [dateError, setDateError] = useState(null);
 	const router = useRouter();
 	const [requestLoading, setRequestLoading] = useState(false);
 	const [registered, setRegistered] = useState<boolean>(false);
@@ -46,6 +40,7 @@ function Register() {
 		register,
 		handleSubmit,
 		setValue,
+		clearErrors,
 		formState: {errors},
 	} = useForm();
 
@@ -56,6 +51,24 @@ function Register() {
 	const handleMouseDownPassword = (event) => {
 		event.preventDefault();
 	};
+
+	// useEffect(() => {
+	// 	if (date) {
+	// 		setValue("DateOfBirth", date.toLocaleDateString());
+	// 	}
+	// 	let DateOfBirth = new Date(date || "");
+	// 	console.log(DateOfBirth);
+
+	// 	let reg = new RegExp(
+	// 		/[\w+]{2}\/[\w]{1,2}\/(?=[\w+]{4})(?!0)(?!\s*$)/
+	// 	).test(DateOfBirth.toLocaleDateString());
+
+	// 	if (reg) {
+	// 		let year = DateOfBirth.getFullYear() < new Date().getFullYear();
+
+	// 	}
+	// 	console.log(errors?.DateOfBirth);
+	// }, [requestLoading, date]);
 
 	interface FormInterface {
 		fullName: string;
@@ -108,7 +121,12 @@ function Register() {
 	}
 
 	return (
-		<Layout text="Sign In" title="Zablot | Register Page" href="/login">
+		<Layout
+			text="Sign In"
+			title="Zablot | Register Page"
+			href="/login"
+			loggedIn={false}
+		>
 			<Box
 				component="form"
 				onSubmit={handleSubmit(submitForm)}
@@ -118,23 +136,25 @@ function Register() {
 					width: 600,
 					mx: "auto",
 				}}
-				autoComplete="off"
+				autoComplete="new-form"
 			>
 				<Typography
 					component="h6"
 					variant="h5"
 					textAlign="center"
 					m={3}
+					fontWeight={"bold"}
+					color="primary"
 				>
-					Sign Up
+					SIGN UP
 				</Typography>
 				<TextField
 					fullWidth
-					label="FULL NAME *"
+					label="Fullname"
 					type="text"
 					margin="dense"
 					variant="filled"
-					autoComplete="off"
+					autoComplete="new-password"
 					helperText={
 						errors?.fullName?.type === "required"
 							? "Please Enter Your Full Name"
@@ -147,10 +167,10 @@ function Register() {
 				/>
 				<TextField
 					fullWidth
-					label="USER NAME *"
+					label="Username"
 					type="text"
 					margin="dense"
-					autoComplete="off"
+					autoComplete="new-password"
 					variant="filled"
 					helperText={
 						errors?.UserName?.type === "required"
@@ -164,10 +184,10 @@ function Register() {
 				/>
 				<TextField
 					fullWidth
-					label="EMAIL *"
+					label="Email"
 					margin="dense"
 					variant="filled"
-					autoComplete="off"
+					autoComplete="new-password"
 					helperText={
 						errors?.Email?.type === "required"
 							? "Please Enter Your Email"
@@ -198,44 +218,61 @@ function Register() {
 					<MenuItem value="Female">Female</MenuItem>
 					<MenuItem value="Others">Others</MenuItem>
 				</TextField>
-				<LocalizationProvider dateAdapter={AdapterDateFns}>
+				{/* <LocalizationProvider dateAdapter={AdapterDateFns}>
 					<DatePicker
-						label="Date Of Birth"
+						label="Date of birth"
 						value={date}
-						onChange={(newValue) => {
-							let DateOfBirth = new Date(
-								newValue
-							).toLocaleDateString();
-							let reg = new RegExp(
-								/[\w+]{2}\/[\w]{1,2}\/(?=[\w+]{4})(?!0)(?!\s*$)/
-							).test(DateOfBirth);
-							setValue("DateOfBirth", reg ? DateOfBirth : "");
+						name="DateOfBirth"
+						onChange={(newValue: string) => {
 							setDate(newValue);
 						}}
 						renderInput={(params) => {
-							if (!params.error)
-								params.error =
-									Boolean(errors.DateOfBirth) || params.error;
-
+							console.log("params error", params.error);
+							params.error = Boolean(errors.DateOfBirth);
+							console.log(
+								"after params error",
+								Boolean(errors.DateOfBirth),
+								errors.DateOfBirth,
+								params.error
+							);
 							return (
 								<TextField
 									variant="filled"
 									margin="dense"
-									{...register("DateOfBirth", {
-										required: true,
-									})}
+
 									sx={{width: "49%"}}
 									helperText={
-										(Boolean(errors.DateOfBirth) ||
-											params.error) &&
-										"The date is invalid"
+										params.error && "The date is invalid"
 									}
 									{...params}
 								/>
 							);
 						}}
 					/>
-				</LocalizationProvider>
+				</LocalizationProvider> */}
+				<TextField
+					variant="filled"
+					label="Date of birth"
+					margin="dense"
+					error={errors.DateOfBirth}
+					{...register("DateOfBirth", {
+						required: true,
+						pattern: /^\d{2}\/\d{2}\/\d{4}$/,
+						validate: (newValue) => {
+							let DateOfBirth = new Date(newValue);
+							return (
+								DateOfBirth.getFullYear() <
+								new Date().getFullYear()
+							);
+						},
+					})}
+					sx={{width: "49%"}}
+					helperText={
+						errors.DateOfBirth
+							? "The date is invalid"
+							: "Example 12/12/2021"
+					}
+				/>
 				<FormControl
 					fullWidth
 					sx={{display: "block", my: 2}}
@@ -243,12 +280,12 @@ function Register() {
 					error={errors?.Password ? true : false}
 				>
 					<InputLabel htmlFor="filled-adornment-password">
-						PASSWORD *
+						Password
 					</InputLabel>
 					<FilledInput
 						fullWidth
 						id="filled-adornment-password"
-						autoComplete="off"
+						autoComplete="new-password"
 						type={show ? "text" : "password"}
 						{...register("Password", {
 							required: true,

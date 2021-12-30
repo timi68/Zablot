@@ -25,7 +25,6 @@ client
 	.prepare()
 	.then(() => {
 		const app = express();
-
 		app.use(express.urlencoded({extended: true}));
 		app.use(express.json());
 		app.use(cors());
@@ -55,11 +54,13 @@ client
 		app.use((req, res, next) => {
 			next();
 		});
+
 		app.use("/api", router);
 
 		app.get("/logout", async (req, res) => {
+			req.session = null;
 			req.logout();
-			res.redirect("/login");
+			res.send("Done");
 		});
 
 		app.get("*", (req, res) => {

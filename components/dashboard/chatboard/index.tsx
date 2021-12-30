@@ -13,12 +13,13 @@ import * as Interface from "../../../lib/interfaces";
 
 function ChatBoard() {
 	const {
-		state: {socket, session, user},
+		state: {socket, session, user, activeFriends},
+		dispatch,
 	} = useContext(AppContext);
 	const [friends, setFriends] = useState<Interface.Friends[]>(
 		user?.Friends || []
 	);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(!Boolean(activeFriends));
 	const [tabToOpen, setTabToOpen] = useState(0);
 	const chatBoard = useRef(null);
 
@@ -86,6 +87,30 @@ function ChatBoard() {
 		console.log(data);
 	}, []);
 
+	const handleActiveFriends = (actives) => {
+		setFriends((state) => {
+			state = state.map((user) => {
+				const _id = user.Id.slice(19, 24);
+				const active = actives.includes(_id);
+
+				if (active) user.active = true;
+				else user.active = false;
+
+				return user;
+			});
+
+			return state;
+		});
+
+		dispatch({
+			type: Interface.ActionType.ACTIVEFRIENDS,
+			payload: {activeFriends: actives},
+		});
+		setTimeout(() => {
+			setLoading(false);
+		}, 1000);
+	};
+
 	useEffect(() => {
 		if (socket) {
 			socket.on("NEWFRIEND", NewFriend);
@@ -94,24 +119,12 @@ function ChatBoard() {
 			socket.on("STATUS", Status);
 			socket.on("ANSWERED", ANSWERED);
 		}
-		socket.emit("ACTIVEUSERS", (actives) => {
-			setFriends((state) => {
-				state = state.map((user) => {
-					const _id = user.Id.slice(19, 24);
-					const active = actives.includes(_id);
 
-					if (active) user.active = true;
-					else user.active = false;
-
-					return user;
-				});
-
-				return state;
-			});
-			setTimeout(() => {
-				setLoading(false);
-			}, 1000);
-		});
+		if (!activeFriends) {
+			socket.emit("ACTIVEUSERS", handleActiveFriends);
+		} else {
+			handleActiveFriends(activeFriends);
+		}
 
 		return () => {
 			socket.off("NEWFRIEND", NewFriend);

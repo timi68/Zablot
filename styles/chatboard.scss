@@ -14,7 +14,7 @@ $borderColor: #d7cdcd;
 	background: map-get($map: $color, $key: "lightergrey");
 	height: calc(100vh - 80px);
 	border-top: thin solid white;
-	width: 350px;
+	min-width: 350px;
 	max-width: 100vw;
 	transition: $transition;
 

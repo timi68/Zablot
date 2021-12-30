@@ -15,7 +15,7 @@ function FriendRequests() {
 	const {
 		state: {socket, user, session},
 	} = useContext(AppContext);
-	const {modalSignal} = useContext(ModalContext);
+	const modalSignal = useContext(ModalContext);
 	const [request, setRequest] = useState(
 		user?.FriendRequests.reverse() || []
 	);
@@ -126,11 +126,13 @@ function FriendRequests() {
 	}, [socket]);
 
 	useEffect(() => {
-		const modal = modalSignal.current;
-		j(modalSignal.current).on("click", closemodal);
-		return () => {
-			j(modal).off("click", closemodal);
-		};
+		if (modalSignal) {
+			const modal = modalSignal.current;
+			j(modalSignal.current).on("click", closemodal);
+			return () => {
+				j(modal).off("click", closemodal);
+			};
+		}
 	}, [openModal]);
 
 	const closemodal = () => {

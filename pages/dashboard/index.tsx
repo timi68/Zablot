@@ -1,30 +1,47 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @next/next/no-css-tags */
-import React, {useEffect, useRef, useContext, useState} from "react";
-import Layout from "../../src/AppLayout";
-import {AppContext} from "../../lib/context";
-import NoSession from "../../components/nosession";
-import EditQuestion from "../../components/createQuiz/editQuestion";
-import CreateQuestion from "../../components/createQuiz/createQuestion";
-import UploadQuestions from "../../components/createQuiz/uploadQuestions";
-import CreatedQuestions from "../../components/createQuiz/createdQuestions";
-import {Container, CircularProgress} from "@mui/material";
+import {useEffect, useState, useContext, useCallback} from "react";
+import AppLayout from "../../src/AppLayout";
+import {AppContext} from "../../lib/context/appContext";
+import {ActionType} from "../../lib/interfaces";
+import DashboardComponent from "../../components/dashboard";
 import axios from "axios";
+import NoSession from "../../components/nosession";
+import {CircularProgress, Container} from "@mui/material";
 import {useSnackbar} from "notistack";
-import * as Interfaces from "../../lib/interfaces";
 
-function QuizCreator(props: {user: string | number}) {
+function Dashboard(props) {
 	const {
-		state: {loggedIn, user, socket},
+		state: {user, socket, loggedIn},
 		dispatch,
 	} = useContext(AppContext);
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-	const uploadQuestionsRef = useRef<HTMLDivElement & Interfaces.Handle>(null);
-	const editingQuestionRef = useRef<HTMLDivElement & Interfaces.Handle>(null);
-	const createdQuestionsRef = useRef<HTMLDivElement & Interfaces.Handle>(
-		null
+	const [error, setError] = useState(null);
+
+	const handleJoined = useCallback(
+		(id) => {
+			console.log(id);
+			const SOCKET_ID = id;
+			const session = {
+				USERID: user?._id,
+				SOCKET_ID,
+			};
+
+			dispatch({
+				type: ActionType.SESSION,
+				payload: {
+					session: {
+						id: user?._id,
+						socket_id: id,
+					},
+				},
+			});
+
+			socket?.emit("ADD_JOINED_REQUEST", session, (err, done) => {
+				console.log(err || done);
+			});
+		},
+		[socket]
 	);
-	// const [upload, setUpload] = useState<boolean>(false);
 
 	useEffect(() => {
 		if (!user || !socket || !loggedIn) {
@@ -44,8 +61,10 @@ function QuizCreator(props: {user: string | number}) {
 						user.FriendRequests = user.FriendRequests[0].requests;
 						user.Settings = user.Settings[0].settings;
 
+						console.log("this is from room", user);
+
 						dispatch({
-							type: Interfaces.ActionType.FETCHED,
+							type: ActionType.FETCHED,
 							payload: {
 								user,
 								loggedIn: true,
@@ -65,23 +84,27 @@ function QuizCreator(props: {user: string | number}) {
 			});
 			return;
 		}
-	}, []);
 
-	if (loggedIn && user && socket) {
+		if (socket) {
+			socket?.on("userid", handleJoined);
+			socket?.on("disconnect", () => {
+				console.log("disconnected");
+			});
+			socket?.on("INCOMINGMESSAGE", (data) => {
+				console.log(data);
+			});
+		}
+
+		return () => {
+			socket?.off();
+		};
+	}, [socket]);
+
+	if (socket && user && loggedIn) {
 		return (
-			<Layout title="Zablot | Create Quiz" loggedIn={loggedIn}>
-				<UploadQuestions ref={uploadQuestionsRef} />
-				<CreateQuestion setQuestion={createdQuestionsRef} />
-				<CreatedQuestions
-					ref={createdQuestionsRef}
-					edit={editingQuestionRef}
-					upload={uploadQuestionsRef}
-				/>
-				<EditQuestion
-					ref={editingQuestionRef}
-					setQuestion={createdQuestionsRef}
-				/>
-			</Layout>
+			<AppLayout loggedIn={true} title="dashboard">
+				<DashboardComponent />
+			</AppLayout>
 		);
 	} else if (props?.user) {
 		return (
@@ -104,6 +127,8 @@ function QuizCreator(props: {user: string | number}) {
 
 export async function getServerSideProps({req, res}) {
 	const user = req.session.user;
+
+	console.log("this is user", user);
 	if (!user) {
 		return {
 			redirect: {
@@ -119,4 +144,4 @@ export async function getServerSideProps({req, res}) {
 	};
 }
 
-export default QuizCreator;
+export default Dashboard;
