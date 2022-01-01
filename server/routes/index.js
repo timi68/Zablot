@@ -16,6 +16,7 @@ const {
 	FetchUsers,
 	FetchUserDetails,
 	fetchMessages,
+	UploadQuiz,
 } = require("./users_control");
 const ensureIsAuthenticated = require("../config/auth");
 const path = require("path");
@@ -159,6 +160,14 @@ router.post("/media/upload", (req, res) => {
 			}
 		);
 	});
+});
+
+router.post("/quiz/upload", async (req, res) => {
+	const questionDetails = req.body;
+
+	const upload = await UploadQuiz(questionDetails);
+	console.log("after uploading quiz", upload);
+	res.status(200).json(upload);
 });
 
 module.exports = {router, emitter};

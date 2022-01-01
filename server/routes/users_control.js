@@ -6,6 +6,7 @@ const {
 	FriendRequests,
 	Notifications,
 	Uploads,
+	Quiz,
 	Messages,
 } = require("../models/index");
 const bcrypt = require("bcryptjs");
@@ -235,6 +236,17 @@ const fetchMessages = async (id, cb) => {
 	}
 };
 
+const UploadQuiz = async (details, cb) => {
+	try {
+		const uploadQuiz = new Quiz({_id: ObjectId(), ...details});
+		await uploadQuiz.save();
+		return {id: uploadQuiz._id};
+	} catch (error) {
+		console.log(error);
+		return {error: error.message};
+	}
+};
+
 module.exports = {
 	addUsers,
 	FetchUserDetails,
@@ -242,4 +254,5 @@ module.exports = {
 	Search,
 	FetchUsers,
 	fetchMessages,
+	UploadQuiz,
 };

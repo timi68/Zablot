@@ -19,19 +19,6 @@ import {useSnackbar} from "notistack";
 import * as Interfaces from "../../../lib/interfaces";
 import Cookie from "js-cookie";
 
-interface Handle {
-	setQuestions?(newQuestions: Interfaces.Question, questionId?: number): void;
-	updateQuestions?(
-		questionid: number,
-		questiondetails: Interfaces.Question
-	): void;
-	setOpen?(): void;
-	setQuestionToEdit?(
-		questionid: number,
-		questiondetails?: Interfaces.Question
-	): void;
-}
-
 const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuestionInterface> =
 	forwardRef(
 		(
@@ -123,10 +110,7 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
 							return newQuestions;
 						});
 
-						showSnackbar(
-							"Interfaces.Question saved successfully",
-							"success"
-						);
+						showSnackbar("Question saved successfully", "success");
 					},
 				}),
 				[state, showSnackbar]
@@ -333,7 +317,7 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
 									</AnimatePresence>
 									{!Boolean(state.questions?.length) && (
 										<div className="no-question-created">
-											No Interfaces.Question Created
+											No Question Created
 										</div>
 									)}
 								</ul>

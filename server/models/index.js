@@ -121,8 +121,6 @@ const UsersSchema = Schema(
 	}
 );
 
-UsersSchema.index({"$**": "text"});
-
 const ActivitiesSchema = Schema(
 	{
 		UserId: {
@@ -227,6 +225,22 @@ const UploadsSchema = Schema(
 	}
 );
 
+const QuizSchema = Schema(
+	{
+		_id: Schema.Types.ObjectId,
+		name: {type: String, required: true},
+		quizName: String,
+		closeTime: Date,
+		openTime: Date,
+		Purpose: String,
+		Password: String,
+		Questions: Array,
+	},
+	{
+		collection: "Quiz",
+	}
+);
+
 const Users = mongoose.model.Users || mongoose.model("Users", UsersSchema);
 const Activities =
 	mongoose.model.Activities || mongoose.model("Activities", ActivitiesSchema);
@@ -244,6 +258,7 @@ const FriendRequests =
 	mongoose.model("FriendRequests", FriendRequestsSchema);
 const Uploads =
 	mongoose.model.Uploads || mongoose.model("Uploads", UploadsSchema);
+const Quiz = mongoose.model.Quiz || mongoose.model("Quiz", QuizSchema);
 
 module.exports = {
 	Users,
@@ -254,4 +269,5 @@ module.exports = {
 	Notifications,
 	FriendRequests,
 	Uploads,
+	Quiz,
 };

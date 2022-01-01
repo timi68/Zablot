@@ -445,3 +445,15 @@
 		}
 	}
 }
+
+.loader {
+	height: 100%;
+	display: grid;
+	place-items: center;
+	.loader-wrapper {
+		width: 100%;
+		gap: 20px;
+		display: grid;
+		place-items: center;
+	}
+}
