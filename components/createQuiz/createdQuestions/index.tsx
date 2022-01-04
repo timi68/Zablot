@@ -195,7 +195,7 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
 									ref={questionListRef}
 								>
 									<AnimatePresence>
-										{state.questions.map(
+										{state.questions?.map(
 											(
 												question: Interfaces.Question,
 												questionIndex: number
@@ -325,11 +325,12 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
 									<div className="button-wrap">
 										<Button
 											className="create-btn btn"
-											onClick={() =>
+											onClick={() => {
 												upload.current.setOpen(
 													state.questions
-												)
-											}
+												);
+												setState({questions: []});
+											}}
 										>
 											Upload
 										</Button>
@@ -347,7 +348,7 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
 						</div>
 					</div>
 					<Fab
-						aria-label="Created Interfaces.Question toggler"
+						aria-label="Created-Question toggler"
 						color="secondary"
 						title="See Created Questions"
 						className="question-toggler"

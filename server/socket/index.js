@@ -68,10 +68,7 @@ function ControlSocketActions(socket) {
 				{
 					$push: {
 						requests: {
-							From: data.From,
-							Name: data.FullName,
-							UserName: data.UserName,
-							Image: data.Image,
+							...data.Info,
 							Date: new Date(),
 						},
 					},

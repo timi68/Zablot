@@ -64,7 +64,10 @@ export type User = {
 	UserName: string;
 	Email: string;
 	Gender: string;
-	Image: object;
+	Image: {
+		profile: string;
+		cover: string;
+	};
 	NewUser: string;
 	Notifications: Notifications;
 	Friends: Friends[];

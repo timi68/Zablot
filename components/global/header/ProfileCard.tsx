@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 import React, {useEffect, useContext, useState, useCallback} from "react";
 import {motion} from "framer-motion";
@@ -15,10 +16,11 @@ function ProfileCard() {
 	const modalSignal = useContext(ModalContext);
 	const [expand, setExpand] = useState(false);
 
-	const handleClick = useCallback(() => {
+	const handleClick = () => {
 		if (!expand) return;
 		setExpand(false);
-	}, [expand]);
+		j(modalSignal.current).removeClass("show");
+	};
 
 	useEffect(() => {
 		const modal = modalSignal?.current;
@@ -30,8 +32,7 @@ function ProfileCard() {
 
 	const handleOpen = () => {
 		if (!expand) {
-			j(modalSignal?.current).trigger("click");
-			j(modalSignal?.current).addClass("show");
+			j(modalSignal?.current).trigger("click").addClass("show");
 		} else {
 			j(modalSignal?.current).removeClass("show");
 		}
@@ -48,9 +49,9 @@ function ProfileCard() {
 				}}
 			>
 				{expand ? (
-					<ArrowDropUpIcon fontSize="large" />
+					<ArrowDropUpIcon fontSize="medium" />
 				) : (
-					<ArrowDropDownIcon fontSize="large" />
+					<ArrowDropDownIcon fontSize="medium" />
 				)}
 			</IconButton>
 			<CSSTransition timeout={200} in={expand} unmountOnExit>

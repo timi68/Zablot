@@ -444,6 +444,56 @@
 			gap: 0.5em;
 		}
 	}
+
+	.details-wrapper {
+		display: flex;
+		flex-wrap: nowrap;
+		gap: 10px;
+		flex-direction: row-reverse;
+	}
+
+	.main-content {
+		display: flex;
+		flex-direction: column;
+		max-width: 500px;
+		margin: auto;
+		align-items: center;
+		padding: 30px;
+		overflow: hidden;
+		background: white;
+
+		.title {
+			font-weight: 300;
+			color: map-get($map: $color, $key: "grey");
+		}
+		.header .title {
+			margin-block: 10px;
+		}
+
+		.card {
+			background: #fff;
+			padding: 10px;
+			border-radius: 5px;
+			box-shadow: $shadow;
+			min-width: 100%;
+
+			&:not(:last-child) {
+				margin-bottom: 10px;
+			}
+
+			.text {
+				font-size: map-get($map: $fonts, $key: "smaller");
+			}
+		}
+	}
+
+	.pdf-format {
+		transform: scale(0.5) translate(-50%, -50%);
+		border-radius: 10px;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+	}
 }
 
 .loader {

@@ -11,6 +11,7 @@ import {ReactNode, useRef, Fragment} from "react";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import {Box} from "@mui/system";
+import Sidebar from "../../components/global/sidebar/Sidebar";
 import {
 	AppBar,
 	Toolbar,
@@ -23,7 +24,6 @@ import {
 	createTheme,
 	Container,
 } from "@mui/material";
-import Sidebar from "../../components/global/sidebar/Sidebar";
 
 interface props {
 	children: ReactNode;
@@ -74,7 +74,11 @@ export default function AppLayout({
 											className="float-left"
 											sx={{flexGrow: 1}}
 										>
-											<Stack direction="row" spacing={2}>
+											<Stack
+												direction="row"
+												spacing={2}
+												alignItems="center"
+											>
 												<Typography
 													component="h2"
 													variant="h5"

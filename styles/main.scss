@@ -84,25 +84,37 @@ body {
 		z-index: 10;
 		color: black;
 
+		@include media_499 {
+			padding-inline: 0;
+		}
+
 		.flex-row {
 			display: flex;
 			flex-direction: row;
+			align-items: center;
 			justify-content: space-between;
 		}
 
-		.logo-wrapper {
-			font-weight: 500;
+		.logo {
+			font-weight: 600;
 			font-family: calibri, Tahoma;
-			font-size: 18px;
+			font-size: 1.3em;
+
+			@include media_499 {
+				font-size: map-get($map: $fonts, $key: "medium");
+			}
 		}
 		.coin-wrapper {
 			font-weight: 500;
-			// padding-inline: 10px;
 			height: 35px;
 			border-radius: 50px;
 			font-weight: 600;
 			box-shadow: 0px 0px 10px -5px map-get($color, "brown");
 			background: map-get($map: $color, $key: "white");
+
+			@include media_499 {
+				height: 30px;
+			}
 		}
 
 		.search-container {
@@ -113,33 +125,46 @@ body {
 				z-index: 10000;
 			}
 
-			.search-form {
-				position: relative;
-				border: none;
-				background: white;
-				width: 300px;
-				min-height: 30px;
-				overflow: hidden;
-				display: flex;
-				z-index: 100;
-				justify-content: flex-start;
-				align-items: center;
-				outline: none;
-				border-radius: 50px;
-				box-shadow: $shadow;
-				transition: $transition;
-
-				@include media_549 {
-					width: 30px;
+			.search-text-box {
+				.search-form {
+					position: relative;
+					border: none;
+					background: white;
+					width: 300px;
+					min-height: 30px;
 					display: flex;
+					justify-content: flex-start;
+					align-items: center;
+					max-width: 90vw;
+					overflow: hidden;
+					overflow: -moz-hidden-unscrollable;
+					border-radius: 50px;
+					box-shadow: $shadow;
+					transition: $transition;
+
+					@include media_749 {
+						width: 35px;
+						height: 35px;
+						display: flex;
+					}
+
+					@include media_499 {
+						height: 30px;
+						width: 30px;
+					}
 				}
 			}
 
 			.search-icon {
 				height: 100%;
-				padding: 8px;
+				padding: 9px;
 				display: grid;
 				place-items: center;
+
+				@include media_749 {
+					padding: 0;
+					width: 100%;
+				}
 
 				&.ready {
 					background: map-get($map: $color, $key: "grey");
@@ -151,10 +176,10 @@ body {
 
 			.form-control {
 				height: 100%;
-				width: 270px;
+				flex-grow: 1;
 				padding-block: 5px;
 
-				@include media_549 {
+				@include media_749 {
 					display: none;
 				}
 
@@ -178,32 +203,40 @@ body {
 				display: block;
 			}
 
-			&.focused .search-form {
-				display: flex;
-				@include media_399() {
-					position: fixed;
-					top: 10px;
-					width: 180px;
-				}
-				@include media_549 {
-					width: 200px;
+			&.focused .search-text-box {
+				position: fixed;
+				top: 10px;
+				left: calc((400px - 300px) / 2);
+				z-index: 100;
 
-					.form-control {
-						width: 170px;
-					}
+				@include media_649 {
+					// margin-inline: 10px;
+					left: calc((100vw - 300px) / 2);
+				}
+
+				@include media_399 {
+					left: 50%;
+					transform: translateX(-50%);
+				}
+				.search-form {
+					width: 300px;
+				}
+				.search-icon {
+					width: initial;
+					padding: 9px;
 				}
 			}
 			.search-results {
-				height: calc(100vh - 60px);
-				width: 600px;
-				position: absolute;
-				top: -10px;
-				box-shadow: $shadow;
+				height: 100vh;
+				width: 400px;
+				position: fixed;
+				top: 0px;
+				left: 0px;
 				opacity: 0;
 				background: map-get($map: $color, $key: "lightergrey");
-				border-radius: 10px;
 				overflow: hidden;
 				transition: opacity 200ms;
+				box-shadow: $shadow;
 
 				&.search-results-enter {
 					opacity: 0;
@@ -221,72 +254,20 @@ body {
 					opacity: 1;
 				}
 				@include media_649() {
-					top: 81px;
-					height: calc(100vh - 81px);
 					width: 100vw;
 					max-width: 100vw;
-					position: fixed;
-					border-radius: 0;
-					left: 0;
-				}
-
-				@include media_399 {
-					height: 100vh;
-					top: 0;
 				}
 
 				&::-webkit-scrollbar {
 					display: none;
 					width: 0px;
 				}
-				.close-btn {
-					position: relative;
-					background: transparent;
-					width: 100%;
-					height: 50px;
-				}
-				.close-btn .close {
-					padding: 5px 15px;
-					position: absolute;
-					cursor: pointer;
-					right: 15px;
-					top: 50%;
-					transform: translateY(-50%);
-					text-align: center;
-					border-radius: 5px;
-					box-shadow: $shadow;
-					background: map-get($color, "white");
-					font-size: map-get($fonts, "smaller");
-					font-weight: 600;
 
-					// @include media_399() {
-					// 	right: 0;
-					// }
-				}
-
-				@include media_649() {
-					.close-btn {
-						width: 50px;
-						height: initial;
-						position: absolute;
-						right: 0;
-						top: 7px;
-
-						.close {
-							transform: none;
-						}
-					}
-				}
-
-				@include media_399 {
-					.close-btn {
-						top: 14px;
-					}
-				}
-				.listed-matched {
+				.search-matched-wrapper {
 					overflow: hidden scroll;
 					height: calc(100vh - 50px);
 					position: relative;
+					margin-top: 4em;
 
 					@include media_649() {
 						height: calc(100vh);
@@ -300,24 +281,29 @@ body {
 					.header {
 						font-weight: 600;
 						position: sticky;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
 						position: -webkit-sticky;
 						backdrop-filter: blur(5px);
+						padding: 10px;
 						background: map-get($map: $color, $key: "lowgrey");
 						top: 0;
 						font-size: map-get($map: $fonts, $key: "small");
-					}
 
-					.title {
-						font-size: map-get($map: $fonts, $key: "small");
-						font-weight: 600;
-						padding: 10px;
-
-						@include media_649() {
-							background: map-get($map: $color, $key: "lowgrey");
+						.title {
+							font-size: map-get($map: $fonts, $key: "smaller");
+							font-weight: 300;
 						}
-
-						@include media_399() {
-							padding-top: 50px;
+						.close-btn {
+							padding: 5px 15px;
+							cursor: pointer;
+							text-align: center;
+							border-radius: 50px;
+							box-shadow: $shadow;
+							background: map-get($color, "white");
+							font-size: map-get($fonts, "smaller");
+							// font-weight: 600;
 						}
 					}
 				}
@@ -325,16 +311,8 @@ body {
 				@include users();
 				.users {
 					.user {
-						@include media_399() {
-							.add {
-								width: 50px;
-								border-radius: 5px;
-							}
-						}
-						@include media_549() {
-							.add {
-								width: 60px;
-							}
+						.btn {
+							font-size: 10px;
 						}
 					}
 				}
@@ -352,6 +330,11 @@ body {
 				background-color: white;
 				box-shadow: 0px 0px 10px -5px map-get($color, "brown");
 				padding: 0;
+
+				@include media_499 {
+					width: 30px;
+					height: 30px;
+				}
 			}
 
 			.MuiBadge-badge {
@@ -397,18 +380,6 @@ body {
 							background: map-get($color, "red");
 							color: map-get($color, "brown");
 						}
-						@include media_399() {
-							.accept,
-							.reject {
-								width: 50px;
-							}
-						}
-						@include media_549() {
-							.accept,
-							.reject {
-								width: 60px;
-							}
-						}
 					}
 				}
 
@@ -432,7 +403,7 @@ body {
 					font-weight: 600;
 					font-size: map-get($fonts, "smaller");
 					background: map-get($color, "white");
-					margin: 15px 0px;
+					margin: 5px 0px;
 				}
 			}
 
@@ -529,25 +500,31 @@ body {
 
 				.notifications-list {
 					list-style: none;
-					padding: 10px 20px;
-					visibility: visible;
-					font-weight: 600;
 
 					.notification {
-						background: map-get($color, "white");
-						padding: 5px;
+						padding: 5px 15px;
+						position: relative;
 						margin-bottom: 10px;
-						box-shadow: $shadow;
 						display: flex;
+
+						&::after {
+							position: absolute;
+							content: "";
+							bottom: 0;
+							left: 50px;
+							right: 10px;
+							height: 1px;
+							background: map-get($color, $key: "lowgrey");
+						}
 					}
 
 					.text {
 						line-height: 13px;
-						font-weight: 600;
-						font-size: map-get($fonts, "smaller");
+						font-weight: 300;
+						font-size: 0.7em;
 
 						b {
-							color: map-get($color, "skyblue");
+							color: map-get($color, "green");
 						}
 					}
 

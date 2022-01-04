@@ -28,6 +28,11 @@
 		@content;
 	}
 }
+@mixin media_749 {
+	@media (max-width: 749px) {
+		@content;
+	}
+}
 @mixin media_549 {
 	@media (max-width: 549px) {
 		@content;
@@ -49,17 +54,29 @@
 		@content;
 	}
 }
+
 @mixin users() {
 	.users {
 		list-style: none;
+		padding: 10px;
 
 		.user {
 			display: flex;
 			padding: 5px 10px;
+			position: relative;
 			justify-content: space-between;
 			align-items: center;
 			margin-bottom: 10px;
-			border-bottom: thin solid map-get($map: $color, $key: "lowgrey");
+
+			&::after {
+				position: absolute;
+				content: "";
+				bottom: 0;
+				left: 50px;
+				right: 10px;
+				height: 1px;
+				background: map-get($color, $key: "lowgrey");
+			}
 
 			.image {
 				height: 35px;
@@ -75,15 +92,16 @@
 			}
 			.btn {
 				height: 30px;
-				border-radius: 5px;
-				width: 80px;
+				border-radius: 50px;
+				padding: 5px 10px;
 				display: grid;
 				place-items: center;
-				text-transform: uppercase;
+				min-width: 50px;
+				text-transform: capitalize;
 				font-size: map-get($fonts, "smaller");
-				font-weight: 600;
+				font-weight: 300;
+				box-shadow: $shadow;
 				background: #fff;
-				color: map-get($color, "skyblue");
 			}
 		}
 
@@ -94,19 +112,18 @@
 
 			.user-name {
 				margin-left: 5px;
-				font-weight: 600;
+				font-weight: 300;
 				line-height: 15px;
-				color: map-get($map: $color, $key: "brown");
-				font-size: map-get($fonts, "small");
+				font-size: map-get($fonts, "smaller");
 				text-align: left;
 				transition: $transition;
 
-				@include media_399() {
-					font-size: map-get($fonts, "smaller");
+				.name {
+					text-transform: capitalize;
 				}
 
 				.username {
-					color: map-get($color, "blue");
+					color: map-get($color, "green");
 					font-size: map-get($fonts, "smaller");
 				}
 			}
@@ -116,7 +133,7 @@
 
 @mixin Box($classname) {
 	.#{$classname}-box {
-		width: 600px;
+		width: 400px;
 		max-width: 100vw;
 		height: calc(100vh - 150px);
 		overflow: auto;
@@ -130,10 +147,14 @@
 		border-radius: 10px;
 		background: map-get($color, "lightergrey");
 
-		@include media_649() {
-			height: calc(100vh - 81px);
+		@media (max-width: 600px) {
+			top: 65px;
+		}
+
+		@include media_549() {
+			height: calc(100vh - 65px);
 			width: 100vw;
-			top: 81px;
+			right: 0;
 			border-radius: 0;
 			box-shadow: none;
 		}
@@ -154,14 +175,14 @@
 			padding: 10px 20px;
 
 			.title {
-				font-weight: 500;
+				font-weight: 300;
 				font-size: map-get($fonts, "small");
-				color: map-get($map: $color, $key: "brown");
+				// color: map-get($map: $color, $key: "brown");
 			}
 
 			.close-modal {
 				padding: 5px 15px;
-				border-radius: 5px;
+				border-radius: 50px;
 				box-shadow: $shadow;
 				background: map-get($color, "white");
 				font-size: map-get($fonts, "smaller");

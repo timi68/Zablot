@@ -25,7 +25,7 @@ function FriendRequests() {
 	const Reject = (id, rm) => {
 		let data = {
 			GID: id,
-			CID: props?.user.id,
+			CID: user.id,
 			CN: user?.FullName,
 			CI: user?.Image.profile,
 		};
@@ -56,7 +56,7 @@ function FriendRequests() {
 			GID: data.From,
 			GN: data.Name,
 			GI: data.Image,
-			CID: props?.user.id,
+			CID: user.id,
 			CN: user?.FullName,
 			CI: user?.Image.profile,
 		};
@@ -157,7 +157,7 @@ function FriendRequests() {
 						handleOpen();
 					}}
 				>
-					<PersonAddIcon size="medium" />
+					<PersonAddIcon fontSize="small" />
 				</IconButton>
 			</Badge>
 			<CSSTransition

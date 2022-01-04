@@ -14,6 +14,7 @@ import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";
 import {CSSTransition} from "react-transition-group";
+import * as Interfaces from "../../../lib/interfaces";
 
 function SearchBar() {
 	const {
@@ -21,17 +22,18 @@ function SearchBar() {
 	} = useContext(AppContext);
 
 	const modalSignal = useContext(ModalContext);
-	const [matched, setMatched] = useState(null);
+	const [matched, setMatched] = useState<Interfaces.Matched[]>([]);
 	const [skipper, setSkipper] = useState(null);
-	const [open, setOpen] = useState(false);
-	const [pending, setPending] = useState(user?.PendingRequests || []);
+	const [open, setOpen] = useState<boolean>(false);
+	const [pending, setPending] = useState<string[]>(
+		user?.PendingRequests || []
+	);
 	const [friends, setFriends] = useState(user?.Friends || []);
 	const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
 	const searchbar = useRef(null);
 	const searchIcon = useRef(null);
 	const container = useRef(null);
 
-	console.log("This is modal", modalSignal);
 	const SearchBox = function () {
 		if (open) return;
 
@@ -52,12 +54,13 @@ function SearchBar() {
 
 	const ReadyForSearch = (/** @type {any} */ e) => {
 		if (!j(e.target).val())
-			return j(searchIcon.current).removeClass("ready");
-		return j(searchIcon.current).addClass("ready");
+			return searchIcon.current.classList.remove("ready");
+		return searchIcon.current.classList.add("ready");
 	};
 
-	const Search = () => {
-		const searchText = j(searchbar.current).val();
+	const Search = (e) => {
+		e.preventDefault();
+		const searchText: string = j(searchbar.current).val();
 		if (searchText != "") {
 			const data = {searchText, id: session.id};
 
@@ -69,96 +72,68 @@ function SearchBar() {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				success: (matched) => {
+				success: (matched: Interfaces.Matched[]) => {
 					if (matched?.length) {
-						const friendsId = friends.map(
-							(/** @type {{ Id: any; }} */ user) => user.Id
-						);
+						console.log(matched);
+						const friendsId = friends.map((user) => user.Id);
 						matched = matched.filter((user) => {
 							if (user._id != session.id) {
-								if (pending.includes(user._id)) {
+								if (pending.includes(user._id))
 									user.sent = true;
-								}
-								if (friendsId.includes(user._id)) {
+								else if (friendsId.includes(user._id))
 									user.friends = true;
-								}
 								return user;
 							}
 						});
 						setMatched(matched);
-					}
+					} else setMatched(() => []);
 				},
-				error: (i, j, x) => {
-					console.log(j, x);
-				},
+				error: (i, j, x) => console.log(j, x),
 			});
 		}
 	};
 
-	/**
-	 * @param {String} id
-	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
-	 */
-	function processAdd(id, e) {
+	function processAdd(id: string) {
 		const friend_request = {
-			FullName: user.FullName,
-			UserName: user.UserName,
-			From: session.id,
+			Info: {
+				Name: user.FullName,
+				UserName: user.UserName,
+				From: session.id,
+				Image: defaultImage,
+			},
 			To: id,
-			Image: defaultImage,
 		};
 
-		socket.emit(
-			"FRIEND_REQUEST",
-			friend_request,
-			(/** @type {any} */ res) => {
-				setPending([id, ...pending]);
-				setMatched((/** @type {any[]} */ state) => {
-					state = state.map(
-						(/** @type {{ _id: any; sent: boolean; }} */ user) => {
-							if (user._id === id) user.sent = true;
-							return user;
-						}
-					);
-					return state;
+		socket.emit("FRIEND_REQUEST", friend_request, (res) => {
+			setPending([id, ...pending]);
+			setMatched((state) => {
+				state = state.map((user) => {
+					if (user._id === id) user.sent = true;
+					return user;
 				});
-			}
-		);
+				return state;
+			});
+		});
 	}
 
-	/**
-	 * @param {Object} user
-	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
-	 */
-	function processFriend(user, e) {
+	function processFriend(user: Interfaces.Friends, e: Event) {
 		ChatRoom({j, user, from: session.id, e, socket});
 	}
 
-	/**
-	 * @param {String} to
-	 * @param {React.MouseEvent<HTMLButtonElement, MouseEvent>} e
-	 */
-	function processCancel(to, e) {
+	function processCancel(to: string) {
 		const data = {from: session.id, to};
-		socket.emit("CANCELREQUEST", data, (err) => {
+		socket.emit("CANCELREQUEST", data, (err: string) => {
 			if (!err) {
-				setMatched((/** @type {any[]} */ state) => {
-					state = state.map((user) => {
-						if (user._id === to) {
-							user.sent = false;
-						}
+				setMatched((state) => {
+					return (state = state.map((user) => {
+						if (user._id === to) user.sent = false;
 						return user;
-					});
-
-					return state;
+					}));
 				});
-				setPending((/** @type {any[]} */ state) => {
-					state = state.filter((id) => id !== to);
-					return state;
+				setPending((state) => {
+					return (state = state.filter((id) => id !== to));
 				});
-			} else {
-				console.log(err);
-			}
+			} else console.log(err);
 		});
 	}
 
@@ -191,31 +166,26 @@ function SearchBar() {
 	useEffect(() => {
 		const modal = modalSignal?.current;
 		j(modalSignal?.current).on("click", Closemodal);
-		return () => {
-			j(modal).off("click", Closemodal);
-		};
+		return () => j(modal).off("click", Closemodal);
 	}, [open, modalSignal]);
 
 	useEffect(() => {
-		console.log("Mounting");
-		if (socket) {
-			socket.on("NEWFRIEND", NewFriend);
-		}
-
+		if (socket) socket.on("NEWFRIEND", NewFriend);
 		return () => {
 			socket.off("NEWFRIEND", NewFriend);
 		};
-	}, [socket, matched]);
+	}, [socket]);
 
 	console.log("mounting from searchbar");
 	return (
 		<div className="search-container" ref={container}>
 			<div className="search-text-box" id="search" onClick={SearchBox}>
-				<form action="#" className="search-form">
+				<form action="#" className="search-form" onSubmit={Search}>
 					<div
 						className="search-icon"
 						ref={searchIcon}
 						onClick={Search}
+						role="search"
 					>
 						<svg
 							height="20px"
@@ -230,9 +200,10 @@ function SearchBar() {
 					<div className="form-control">
 						<input
 							type="search"
+							role="searchbox"
 							aria-autocomplete="none"
 							ref={searchbar}
-							onChange={(e) => ReadyForSearch(e)}
+							onChange={ReadyForSearch}
 							className="text-control"
 							id="text-control"
 							placeholder="Search a friend.."
@@ -248,8 +219,11 @@ function SearchBar() {
 				classNames="search-results"
 			>
 				<div className="search-results fetched matched">
-					<div className="listed-matched">
+					<div className="search-matched-wrapper">
 						<div className="header">
+							<div className="title">
+								<div className="text">Matched Results</div>
+							</div>
 							<div className="close-btn modal">
 								<div className="close" onClick={Closemodal}>
 									<span>Close</span>
@@ -257,9 +231,6 @@ function SearchBar() {
 							</div>
 						</div>
 						<ul className="matched users">
-							<div className="title">
-								<div className="text">Matched Results</div>
-							</div>
 							{matched?.length
 								? matched.map(
 										(
@@ -314,37 +285,37 @@ function MatchedUser(props) {
 						<span>{user.FullName}</span>
 					</div>
 					<div className="username">
-						<span>{user.UserName}</span>
+						<span>@{user.UserName}</span>
 					</div>
 				</div>
 			</div>
 			<div className="friend-reject-accept-btn btn-wrapper">
 				{user.friends ? (
 					<button
-						className="add btn"
+						className="message-btn btn"
 						onClick={(e) => {
 							processFriend(user, e);
 						}}
 					>
-						message
+						<span>message</span>
 					</button>
 				) : user.sent ? (
 					<button
-						className="add btn"
+						className="cancel-btn btn"
 						onClick={(e) => {
 							processCancel(user._id, e);
 						}}
 					>
-						Cancel request
+						<span>Cancel request</span>
 					</button>
 				) : (
 					<button
-						className="add btn"
+						className="add-btn btn"
 						onClick={(e) => {
 							processAdd(user._id, e);
 						}}
 					>
-						Add friend
+						<span>Add friend</span>
 					</button>
 				)}
 			</div>

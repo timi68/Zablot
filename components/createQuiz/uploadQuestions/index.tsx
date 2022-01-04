@@ -4,6 +4,7 @@ import React, {
 	forwardRef,
 	useCallback,
 	Fragment,
+	useRef,
 	useContext,
 } from "react";
 import {useSnackbar} from "notistack";
@@ -17,6 +18,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {AppContext} from "../../../lib/context";
 import {CircularProgress} from "@mui/material";
+import {jsPDF} from "jspdf";
+import Cookie from "js-cookie";
 import {
 	TextField,
 	FormControl,
@@ -50,6 +53,67 @@ const variant = {
 	},
 };
 
+const Styles = {
+	mainContent: {
+		width: "210px",
+		margin: "auto",
+		padding: "10px 10px 0px 10px",
+		overflow: " hidden",
+		background: "#fff",
+		fontSize: "11px",
+		height: "295px",
+	},
+	title: {
+		fontWeight: 300,
+		fontSize: "5px",
+		color: "grey",
+	},
+	headerTitle: {
+		marginBottom: "5px",
+		fontSize: "10px",
+		textAlign: "center",
+		color: "grey",
+	},
+	card: {
+		background: "whitesmoke",
+		boxShadow: "0px 2px 7px rgb(182,182,182)",
+		padding: "5px",
+		borderRadius: "2px",
+		width: "100%",
+		marginBottom: "5px",
+	},
+	text: {
+		fontSize: "4px",
+	},
+};
+
+interface Content {
+	questions: Interfaces.Question[];
+	setOpen(action: boolean): void;
+}
+
+interface Form<T> {
+	Duration?: T;
+	QuizName?: T;
+	CloseTime?: T;
+	OpenTime?: T;
+	Purpose?: T;
+	Password?: T;
+	QuizType?: T;
+}
+
+interface quizDetailsInterface {
+	name: string;
+	quizName: string;
+	questionsLength: number;
+	closeTime?: string | null;
+	openTime?: string | null;
+	type: string;
+	password?: string;
+	quizId: string;
+	duration: number;
+	purpose?: string;
+}
 const UploadQuestions = forwardRef((props, ref) => {
 	const [questions, setQuestions] = useState<Interfaces.Question[]>([]);
 	const [open, setOpen] = useState<boolean>(false);
@@ -97,32 +161,6 @@ const UploadQuestions = forwardRef((props, ref) => {
 });
 UploadQuestions.displayName = "Upload Questions";
 
-interface Content {
-	questions: Interfaces.Question[];
-	setOpen(action: boolean): void;
-}
-
-interface Form<T> {
-	Duration?: T;
-	QuizName?: T;
-	CloseTime?: T;
-	OpenTime?: T;
-	Purpose?: T;
-	Password?: T;
-	QuizType?: T;
-}
-
-interface quizDetailsInterface {
-	name: string;
-	quizName: string;
-	questionsLength: number;
-	closeTime?: Date;
-	openTime?: Date;
-	type: string;
-	password?: string;
-	quizId: string;
-	duration: number;
-}
 function Content({questions, setOpen}) {
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
 	const [formData, setFormData] = useState<Form<string>>({
@@ -139,6 +177,7 @@ function Content({questions, setOpen}) {
 			user: {FullName},
 		},
 	} = useContext(AppContext);
+	const Doc = useRef<HTMLDivElement>(null);
 	const [errors, setErrors] = useState<Form<boolean>>(null);
 	const [show, setShow] = useState<boolean>(false);
 	const [IsUploading, setIsUploading] = useState<boolean>(false);
@@ -217,12 +256,19 @@ function Content({questions, setOpen}) {
 
 				setQuizUploadedDetails({
 					name: FullName,
-					quizId: response.data._id,
+					quizName: formData.QuizName,
+					quizId: response.data.id,
 					questionsLength: questions.length,
 					duration: formData.Duration as unknown as number,
+					openTime:
+						new Date(formData.OpenTime).toLocaleString() ?? null,
+					closeTime:
+						new Date(formData.CloseTime).toLocaleString() ?? null,
 					type: formData.QuizType,
 					password: formData.Password,
+					purpose: formData.Purpose,
 				});
+				Cookie.remove("Questions");
 			} catch (error) {
 				showSnackbar(error.message, "error");
 			}
@@ -240,43 +286,176 @@ function Content({questions, setOpen}) {
 		console.log(formData);
 	};
 
+	const Print = () => {
+		const pdf = new jsPDF();
+		//@ts-ignore
+
+		pdf.html(Doc.current, {
+			callback: (doc) => {
+				alert("about to download");
+				doc.save(formData.QuizName + "@" + new Date().toLocaleString());
+			},
+			x: 0,
+			y: 0,
+		});
+	};
+
 	if (quizUploadedDetails) {
 		return (
-			<div className="container">
-				<div className="title">Quiz Details</div>
-				<div className="main">
-					<div className="uploader-name">
-						<div className="title">Uploader Name</div>
-						<div className="text">{quizUploadedDetails.name}</div>
-					</div>
-					<div className="quiz-id">
-						<div className="title">Quiz id</div>
-						<div className="text">{quizUploadedDetails.quizId}</div>
-					</div>
-					<div className="quiz_name">
-						<div className="title">Quiz Name</div>
-						<div className="text">
-							{quizUploadedDetails.quizName}
+			<div className="details-container">
+				<div className="details-wrapper">
+					<div
+						className="hidden-details pdf-format"
+						ref={Doc}
+						// @ts-ignore
+						style={Styles.mainContent}
+					>
+						<div className="header">
+							<div
+								className="title"
+								//@ts-ignore
+								style={Styles.headerTitle}
+							>
+								Quiz Details
+							</div>
+						</div>
+						<div className="uploader-name card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Uploader name
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails.name}
+							</div>
+						</div>
+						<div className="quiz-id card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Quiz id
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails.quizId}
+							</div>
+						</div>
+						<div className="quiz_name card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Quiz name
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails.quizName}
+							</div>
+						</div>
+						<div
+							className="questions-length card"
+							style={Styles.card}
+						>
+							<div className="title" style={Styles.title}>
+								Questions length
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails.questionsLength} Questions
+								to attempt
+							</div>
+						</div>
+						<div className="open-time card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Open time
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails?.openTime ?? "Opened"}
+							</div>
+						</div>
+						<div className="close-time card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Close time
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails?.closeTime ??
+									"always opened"}
+							</div>
+						</div>
+						<div className="password card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Password
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails?.password ??
+									"always opened"}
+							</div>
+						</div>
+						<div className="purpose card" style={Styles.card}>
+							<div className="title" style={Styles.title}>
+								Purpose
+							</div>
+							<div className="text" style={Styles.text}>
+								{quizUploadedDetails?.purpose}
+							</div>
 						</div>
 					</div>
-					<div className="open-time">
-						<div className="title">Open time</div>
-						<div className="text">
-							{quizUploadedDetails?.openTime ?? "Opened"}
+					<div className="main-content wrapper">
+						<div className="header">
+							<div className="title">Quiz Details</div>
+						</div>
+						<div className="uploader-name card">
+							<div className="title">Uploader name</div>
+							<div className="text">
+								{quizUploadedDetails.name}
+							</div>
+						</div>
+						<div className="quiz-id card">
+							<div className="title">Quiz id</div>
+							<div className="text">
+								{quizUploadedDetails.quizId}
+							</div>
+						</div>
+						<div className="quiz_name card">
+							<div className="title">Quiz name</div>
+							<div className="text">
+								{quizUploadedDetails.quizName}
+							</div>
+						</div>
+						<div className="questions-length card">
+							<div className="title">Questions length</div>
+							<div className="text">
+								{quizUploadedDetails.questionsLength} Questions
+								to attempt
+							</div>
+						</div>
+						<div className="open-time card">
+							<div className="title">Open time</div>
+							<div className="text">
+								{quizUploadedDetails?.openTime ?? "Opened"}
+							</div>
+						</div>
+						<div className="close-time card">
+							<div className="title">Close time</div>
+							<div className="text">
+								{quizUploadedDetails?.closeTime ??
+									"always opened"}
+							</div>
+						</div>
+						<div className="password card">
+							<div className="title">Password</div>
+							<div className="text">
+								{quizUploadedDetails?.password ??
+									"always opened"}
+							</div>
 						</div>
 					</div>
-					<div className="close-time">
-						<div className="title">Close time</div>
-						<div className="text">
-							{quizUploadedDetails?.closeTime ?? "always opened"}
-						</div>
-					</div>
-					<div className="password">
-						<div className="title">Password</div>
-						<div className="text">
-							{quizUploadedDetails?.password ?? "always opened"}
-						</div>
-					</div>
+				</div>
+				<div className="button-wrap">
+					<motion.button
+						className="btn finish"
+						whileHover={{scale: 1.1}}
+						onClick={Print}
+					>
+						Print Details
+					</motion.button>
+					<motion.button
+						className="btn close"
+						whileHover={{scale: 1.1}}
+						onClick={() => setOpen(false)}
+					>
+						Close
+					</motion.button>
 				</div>
 			</div>
 		);

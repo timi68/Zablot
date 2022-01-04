@@ -61,14 +61,13 @@ function Notifications() {
 		<div className="notifications-wrapper">
 			<Badge color="default" badgeContent={0} showZero>
 				<IconButton
-					size="small"
 					className="open"
 					onClick={() => {
 						setOpenModal(!openModal);
 						handleOpen();
 					}}
 				>
-					<NotificationsActiveIcon size="small" />
+					<NotificationsActiveIcon fontSize="small" />
 				</IconButton>
 			</Badge>
 			<CSSTransition
