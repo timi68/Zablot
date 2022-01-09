@@ -48,15 +48,15 @@ export type Friends = {
 
 export type Settings = [];
 
-export type Requests = [
-	{
-		From: string;
-		Name: string;
-		UserName: string;
-		Image: string;
-		Date: string;
-	}
-];
+export type Requests = {
+	From: string;
+	Name: string;
+	UserName: string;
+	Image: string;
+	Date: Date;
+	Accepted?: boolean;
+	Rejected?: boolean;
+};
 
 export type User = {
 	_id: string;
@@ -71,7 +71,7 @@ export type User = {
 	NewUser: string;
 	Notifications: Notifications;
 	Friends: Friends[];
-	FriendRequests: Requests;
+	FriendRequests: Requests[];
 	Settings: Settings;
 	PendingRequests: string[];
 };
@@ -115,3 +115,12 @@ export interface State {
 	update?: number;
 	removing?: boolean;
 }
+
+export type Matched = {
+	_id: string;
+	FullName: string;
+	UserName: string;
+	sent?: boolean;
+	rejected?: boolean;
+	friends?: boolean;
+};

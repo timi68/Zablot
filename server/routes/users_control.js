@@ -164,7 +164,6 @@ const FetchUsers = async () => {
 const Search = async (SearchText, CB) => {
 	try {
 		const TextArray = SearchText.trim().split(" ");
-		var matched = [];
 
 		function getMatched(n, cb) {
 			Users.find(
@@ -179,7 +178,7 @@ const Search = async (SearchText, CB) => {
 				.limit(20)
 				.exec(function (err, users) {
 					if (err) return cb("Error getting user");
-					matched = [...matched, ...users];
+
 					cb(null, users);
 				});
 		}
@@ -187,13 +186,36 @@ const Search = async (SearchText, CB) => {
 		async.times(
 			TextArray.length,
 			(n, next) => {
-				getMatched(n, (err, result) => {
-					next(err, result);
+				getMatched(n, (err, matched) => {
+					next(err, matched);
 				});
 			},
-			(err, result) => {
+			(err, matched) => {
 				if (!err) {
-					return CB({matched});
+					let compiledMatched = [];
+					let sortedMatched = [];
+
+					var x = 0;
+					while (x < matched.length) {
+						compiledMatched = [...compiledMatched, ...matched[x]];
+						x++;
+					}
+
+					var y = 0;
+					while (y < compiledMatched.length) {
+						let check = sortedMatched.findIndex((b) => {
+							var compiled_id = compiledMatched[y]._id.toString();
+							var sorted_id = b._id.toString();
+
+							return sorted_id == compiled_id;
+						});
+
+						if (check === -1)
+							sortedMatched.push(compiledMatched[y]);
+						y++;
+					}
+
+					return CB({matched: sortedMatched});
 				}
 				return CB({Error: err});
 			}
@@ -208,7 +230,6 @@ const Search = async (SearchText, CB) => {
 const FetchUserDetails = async (id, cb) => {
 	try {
 		const user = await Users.findById(new ObjectId(id), {
-			_id: 0,
 			All_Logins: 0,
 			Online: 0,
 			Last_Seen: 0,

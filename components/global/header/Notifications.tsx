@@ -9,6 +9,7 @@ import GroupNotification from "../../../utils/GroupNotifications";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import {CSSTransition} from "react-transition-group";
 import {Badge, IconButton} from "@material-ui/core";
+import {useSnackbar} from "notistack";
 
 function Notifications() {
 	const {
@@ -19,7 +20,7 @@ function Notifications() {
 	const [notifications, setNotifications] = useState(
 		user?.Notifications.sort(() => -1) || []
 	);
-	const [notseen, setNotseen] = useState(0);
+	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
 
 	const handleClick = () => {
 		if (!openModal) return;
@@ -42,9 +43,20 @@ function Notifications() {
 	}, [openModal]);
 
 	useEffect(() => {
-		const UpdateNotification = (data) => {
+		const UpdateNotification = (data: {
+			Description: string;
+			Name: string;
+			title: string;
+		}) => {
 			console.log(data);
 			setNotifications([data, ...notifications]);
+			enqueueSnackbar(data.title, {
+				variant: "info",
+				anchorOrigin: {
+					vertical: "bottom",
+					horizontal: "left",
+				},
+			});
 		};
 
 		if (socket) {

@@ -15,14 +15,24 @@ import j from "jquery";
 import {v4 as uuid} from "uuid";
 import {CSSTransition} from "react-transition-group";
 import * as Interfaces from "../../../lib/interfaces";
+import SearchIcon from "@mui/icons-material/Search";
+import {CircularProgress} from "@mui/material";
 
+interface SearchInterface {
+	matched: Interfaces.Matched[];
+	message?: string;
+}
 function SearchBar() {
 	const {
 		state: {socket, user, session},
 	} = useContext(AppContext);
 
 	const modalSignal = useContext(ModalContext);
-	const [matched, setMatched] = useState<Interfaces.Matched[]>([]);
+	const [searchData, setSearchData] = useState<SearchInterface>({
+		matched: [],
+		message: "Waiting to search",
+	});
+	const [loading, setLoading] = useState<boolean>(false);
 	const [skipper, setSkipper] = useState(null);
 	const [open, setOpen] = useState<boolean>(false);
 	const [pending, setPending] = useState<string[]>(
@@ -62,7 +72,8 @@ function SearchBar() {
 		e.preventDefault();
 		const searchText: string = j(searchbar.current).val();
 		if (searchText != "") {
-			const data = {searchText, id: session.id};
+			setLoading(true);
+			const data = {searchText, id: user._id};
 
 			// @ts-ignore
 			j.ajax({
@@ -73,20 +84,32 @@ function SearchBar() {
 					"Content-Type": "application/json",
 				},
 				success: (matched: Interfaces.Matched[]) => {
+					console.log(pending, "this available pending");
+					console.log(matched);
 					if (matched?.length) {
-						console.log(matched);
-						const friendsId = friends.map((user) => user.Id);
-						matched = matched.filter((user) => {
-							if (user._id != session.id) {
-								if (pending.includes(user._id))
-									user.sent = true;
-								else if (friendsId.includes(user._id))
-									user.friends = true;
-								return user;
+						const friendsId = friends.map(({_id}) => _id);
+						matched = matched.filter((matchedUser) => {
+							if (user._id != matchedUser._id) {
+								if (pending.includes(matchedUser._id))
+									matchedUser.sent = true;
+								else if (friendsId.includes(matchedUser._id))
+									matchedUser.friends = true;
+								return matchedUser;
 							}
 						});
-						setMatched(matched);
-					} else setMatched(() => []);
+						if (matched?.length) setSearchData({matched});
+						else
+							setSearchData(() => ({
+								matched,
+								message: "No user matched your search",
+							}));
+						setLoading(false);
+					} else
+						setSearchData(() => ({
+							matched: [],
+							message: "No user matched your search",
+						}));
+					setLoading(false);
 				},
 				error: (i, j, x) => console.log(j, x),
 			});
@@ -94,41 +117,51 @@ function SearchBar() {
 	};
 
 	function processAdd(id: string) {
-		const friend_request = {
+		const newRequest = {
 			Info: {
 				Name: user.FullName,
 				UserName: user.UserName,
-				From: session.id,
+				From: user._id,
 				Image: defaultImage,
 			},
 			To: id,
 		};
 
-		socket.emit("FRIEND_REQUEST", friend_request, (res) => {
+		socket.emit("FRIEND_REQUEST", newRequest, (res) => {
 			setPending([id, ...pending]);
-			setMatched((state) => {
-				state = state.map((user) => {
+			setSearchData((state) => {
+				let newMatched = state.matched.map((user) => {
 					if (user._id === id) user.sent = true;
 					return user;
 				});
-				return state;
+				return {matched: newMatched};
 			});
 		});
+
+		console.log(pending);
 	}
 
-	function processFriend(user: Interfaces.Friends, e: Event) {
-		ChatRoom({j, user, from: session.id, e, socket});
+	function processFriend(
+		user: Interfaces.Matched,
+		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+	) {
+		ChatRoom({j, user, from: user._id, e, socket});
 	}
 
+	// Function that runs when user cancelled the request
+	// he/she had sent and delivered or on delivery
 	function processCancel(to: string) {
-		const data = {from: session.id, to};
+		const data = {from: user._id, to};
+		console.log(data);
 		socket.emit("CANCELREQUEST", data, (err: string) => {
+			console.log("Response from socket", err);
 			if (!err) {
-				setMatched((state) => {
-					return (state = state.map((user) => {
-						if (user._id === to) user.sent = false;
+				setSearchData((state) => {
+					let matched = state.matched.map((user) => {
+						if (user._id === to) delete user.sent;
 						return user;
-					}));
+					});
+					return {matched};
 				});
 				setPending((state) => {
 					return (state = state.filter((id) => id !== to));
@@ -137,6 +170,9 @@ function SearchBar() {
 		});
 	}
 
+	// This is a callback function listening to NewFriend
+	// coming from socket, when called it will update the
+	// array of friends
 	const NewFriend = useCallback(
 		(data) => {
 			console.log(data);
@@ -145,22 +181,48 @@ function SearchBar() {
 				setPending((state) => {
 					return (state = state.filter((user) => user !== data.Id));
 				});
-				if (matched.length > 0) {
+				if (searchData.matched.length > 0) {
 					console.log(data, "IsComing");
-					setMatched((state) => {
-						const newstate = state.map((user) => {
+					setSearchData((state) => {
+						const newstate = state.matched.map((user) => {
 							if (user._id === data.Id) {
 								user.sent = false;
 								user.friends = true;
 							}
 							return user;
 						});
-						return newstate;
+						return {matched: newstate};
 					});
 				}
 			}
 		},
-		[matched]
+		[searchData]
+	);
+
+	// Getting the type of notification coming in,
+	// if it is request rejected type, list of sent request will
+	// be checked and the one rejected among them will be updated
+	// instantly, this only vital for request sent and rejected
+	// immediately
+	const Notification = useCallback(
+		(data) => {
+			console.log(data, searchData.matched);
+			if (searchData.matched?.length) {
+				console.log("Rejected friend request");
+				setSearchData((state) => {
+					let searchUpdate = state.matched.map((m) => {
+						console.log(m._id, data.Id);
+						if (m._id === data.Id)
+							(m.rejected = true),
+								(m.friends = false),
+								(m.sent = false);
+						return m;
+					});
+					return {matched: searchUpdate};
+				});
+			}
+		},
+		[searchData]
 	);
 
 	useEffect(() => {
@@ -170,9 +232,13 @@ function SearchBar() {
 	}, [open, modalSignal]);
 
 	useEffect(() => {
-		if (socket) socket.on("NEWFRIEND", NewFriend);
+		if (socket) {
+			socket.on("NEWFRIEND", NewFriend);
+			socket.on("Notifications", Notification);
+		}
 		return () => {
 			socket.off("NEWFRIEND", NewFriend);
+			socket.off("Notifications", Notification);
 		};
 	}, [socket]);
 
@@ -187,15 +253,7 @@ function SearchBar() {
 						onClick={Search}
 						role="search"
 					>
-						<svg
-							height="20px"
-							viewBox="0 0 24 24"
-							width="20px"
-							fill="#000000"
-						>
-							<path d="M0 0h24v24H0V0z" fill="none" />
-							<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-						</svg>
+						<SearchIcon fontSize="small" />
 					</div>
 					<div className="form-control">
 						<input
@@ -230,30 +288,36 @@ function SearchBar() {
 								</div>
 							</div>
 						</div>
-						<ul className="matched users">
-							{matched?.length
-								? matched.map(
-										(
-											/** @type {{ FullName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; UserName: boolean | React.ReactChild | React.ReactFragment | React.ReactPortal; friends: any; sent: any; _id: any; }} */ user
-										) => {
-											var key = uuid();
-											return (
-												<MatchedUser
-													key={key}
-													processFriend={
-														processFriend
-													}
-													processAdd={processAdd}
-													processCancel={
-														processCancel
-													}
-													user={user}
-												/>
-											);
-										}
-								  )
-								: ""}
-						</ul>
+						<div className="list-wrapper">
+							{!loading && Boolean(searchData.matched?.length) && (
+								<ul className="matched users">
+									{searchData.matched?.map((user) => {
+										var key = uuid();
+										return (
+											<MatchedUser
+												key={key}
+												processFriend={processFriend}
+												processAdd={processAdd}
+												processCancel={processCancel}
+												user={user}
+											/>
+										);
+									})}
+								</ul>
+							)}
+							{!loading && !Boolean(searchData.matched?.length) && (
+								<div className="search-message">
+									<h5 className="text">
+										{searchData?.message}
+									</h5>
+								</div>
+							)}
+							{loading && (
+								<div className="search-loader">
+									<CircularProgress />
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</CSSTransition>
@@ -261,12 +325,16 @@ function SearchBar() {
 	);
 }
 
-/**
- *
- * @param {{user: object, processFriend: Function, processCancel: Function, processAdd: Function}} props
- * @returns
- */
-function MatchedUser(props) {
+interface MatchedUserInterface {
+	user: Interfaces.Matched;
+	processFriend(
+		user: Interfaces.Matched,
+		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+	): void;
+	processCancel(to?: string): void;
+	processAdd(id?: String): void;
+}
+function MatchedUser(props: MatchedUserInterface) {
 	const {user, processFriend, processCancel, processAdd} = props;
 	return (
 		<li className="user">
@@ -290,7 +358,18 @@ function MatchedUser(props) {
 				</div>
 			</div>
 			<div className="friend-reject-accept-btn btn-wrapper">
-				{user.friends ? (
+				{user?.rejected && (
+					<button
+						className="message-btn btn"
+						disabled
+						aria-disabled="true"
+						aria-details="Displayed when friend request sent is rejected immediately"
+					>
+						<span>Request rejected</span>
+					</button>
+				)}
+
+				{user.friends && (
 					<button
 						className="message-btn btn"
 						onClick={(e) => {
@@ -299,20 +378,22 @@ function MatchedUser(props) {
 					>
 						<span>message</span>
 					</button>
-				) : user.sent ? (
+				)}
+				{user?.sent && (
 					<button
 						className="cancel-btn btn"
 						onClick={(e) => {
-							processCancel(user._id, e);
+							processCancel(user._id);
 						}}
 					>
 						<span>Cancel request</span>
 					</button>
-				) : (
+				)}
+				{!user?.sent && !user?.friends && !user?.rejected && (
 					<button
 						className="add-btn btn"
 						onClick={(e) => {
-							processAdd(user._id, e);
+							processAdd(user._id);
 						}}
 					>
 						<span>Add friend</span>

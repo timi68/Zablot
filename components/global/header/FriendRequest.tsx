@@ -10,104 +10,124 @@ import time from "../../../utils/calcuate-time";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {IconButton, Badge} from "@mui/material";
 import j from "jquery";
+import * as Interfaces from "../../../lib/interfaces";
 
+interface RequestDataInterface {
+	requests: Partial<Interfaces.Requests[]>;
+	date: Date;
+}
 function FriendRequests() {
 	const {
 		state: {socket, user, session},
 	} = useContext(AppContext);
 	const modalSignal = useContext(ModalContext);
-	const [request, setRequest] = useState(
-		user?.FriendRequests.reverse() || []
-	);
-	const [date, setDate] = useState(new Date());
+	const [requestsData, setRequestsData] = useState<RequestDataInterface>({
+		requests: user?.FriendRequests.reverse() || [],
+		date: new Date(),
+	});
 	const [openModal, setOpenModal] = useState(false);
 
-	const Reject = (id, rm) => {
+	const Reject = (id: string, rm: Event) => {
 		let data = {
 			GID: id,
-			CID: user.id,
+			CID: user._id,
 			CN: user?.FullName,
 			CI: user?.Image.profile,
 		};
-		socket.emit("REJECT_REQUEST", data, (err, done) => {
-			console.log(done ?? err);
-			j(rm.target)
-				.parents(".user")
-				.find(".btn-wrapper")
-				.remove()
-				.end()
-				.append("<pre> Request rejected </pre>");
+		socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
+			console.log(err ?? done);
+			setRequestsData((state) => {
+				return {
+					...state,
+					...{
+						requests: state.requests.filter((req) => {
+							if (req.From === id) {
+								req.Rejected = true;
+							}
+							return req;
+						}),
+					},
+				};
+			});
 
 			setTimeout(() => {
-				setDate(() => {
-					return new Date();
+				setRequestsData((state) => {
+					return {
+						requests: state.requests.filter(
+							(req) => req.From !== id
+						),
+						date: new Date(),
+					};
 				});
-				setRequest((state) => {
-					console.log(state);
-					return state.filter((req) => req.From !== id);
-				});
-			}, 1000);
+			}, 5000);
 		});
 	};
-	const Accept = (data, e) => {
+
+	const Accept = (data, e: Event) => {
 		console.log("user accepted request %s", data);
 
 		const data_to_emit = {
 			GID: data.From,
 			GN: data.Name,
 			GI: data.Image,
-			CID: user.id,
+			CID: user._id,
 			CN: user?.FullName,
 			CI: user?.Image.profile,
 		};
 
-		socket.emit("ACCEPT_REQUEST", data_to_emit, (err, done) => {
-			console.log(err ?? done);
-			j(e.target)
-				.parents(".user")
-				.find(".btn-wrapper")
-				.remove()
-				.end()
-				.append("<button class='btn open-chat'> Message </button>");
+		socket.emit(
+			"ACCEPT_REQUEST",
+			data_to_emit,
+			(err: string | object, done: string | boolean) => {
+				console.log(err ?? done);
 
-			setTimeout(() => {
-				setDate((state) => {
-					return new Date();
-				});
-				setRequest((state) => {
-					return state.filter((req) => {
-						if (req.From === data.From) {
-							req.Accepted = true;
-						}
-						return req;
+				setTimeout(() => {
+					setRequestsData((state) => {
+						return {
+							...state,
+							...{
+								requests: state.requests.filter((req) => {
+									if (req.From === data.From) {
+										req.Accepted = true;
+									}
+									return req;
+								}),
+							},
+						};
 					});
-				});
-			}, 6000);
-		});
+				}, 6000);
+			}
+		);
 	};
 
-	const FRIENDSHIPDEMAND = (data) => {
+	const FRIENDSHIPDEMAND = (data: Interfaces.Requests) => {
 		console.log(data);
-		const id = uuid();
-		const newRequest = {
+		const newRequest: Interfaces.Requests = {
 			From: data.From,
-			Name: data.FullName,
+			Name: data.Name,
 			UserName: data.UserName,
 			Image: data.Image,
 			Date: new Date(),
 		};
 
-		setDate(() => {
-			return new Date();
-		});
-		setRequest((state) => {
-			return [newRequest, ...state];
+		setRequestsData((state) => {
+			return {
+				requests: [newRequest, ...state.requests],
+				date: new Date(),
+			};
 		});
 	};
 
-	const REMOVEREQUEST = (data) => {
-		setRequest((state) => {
-			return (state = state.filter((user) => user.From !== data.from));
+	const REMOVEREQUEST = (data: {from: string}) => {
+		setRequestsData((state): RequestDataInterface => {
+			return {
+				...state,
+				...{
+					requests: state.requests.filter(
+						(user) => user.From !== data.from
+					),
+				},
+			};
 		});
 	};
 
@@ -177,22 +197,25 @@ function FriendRequests() {
 					</div>
 					<div className="requests-list">
 						<ul className="users">
-							{request?.length ? (
-								request.map((user) => {
-									var key = uuid();
-									var duration = time(date, user.Date);
+							{requestsData.requests?.map((user) => {
+								var key = uuid();
+								console.log(requestsData.date, user.Date);
+								var duration = time(
+									requestsData.date,
+									user.Date
+								);
 
-									return (
-										<Requests
-											key={key}
-											accept={Accept}
-											reject={Reject}
-											user={user}
-											duration={duration}
-										/>
-									);
-								})
-							) : (
+								return (
+									<Requests
+										key={key}
+										accept={Accept}
+										reject={Reject}
+										user={user}
+										duration={duration}
+									/>
+								);
+							})}
+							{!Boolean(requestsData.requests?.length) && (
 								<div className="no_request">
 									<h4>There is no request available</h4>
 								</div>
@@ -206,6 +229,12 @@ function FriendRequests() {
 	);
 }
 
+interface RequestsInterface {
+	user: Interfaces.User;
+	accept(): void;
+	reject(): void;
+	duration: string;
+}
 function Requests(props) {
 	const {user, duration, accept: Accept, reject: Reject} = props;
 
@@ -232,9 +261,16 @@ function Requests(props) {
 					</div>
 				</div>
 			</div>
-			{user?.Accepted ? (
+			{user?.Accepted && (
 				<button className="btn open-chat"> Message </button>
-			) : (
+			)}
+			{user?.Rejected && (
+				<button className="btn rejected" disabled={true}>
+					{" "}
+					Rejected{" "}
+				</button>
+			)}
+			{!user?.Accepted && !user?.Rejected && (
 				<div className="friend-reject-accept-btn btn-wrapper">
 					<div className="accept btn">
 						<span

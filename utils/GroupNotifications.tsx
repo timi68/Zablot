@@ -1,5 +1,11 @@
-export default function GroupNotifications({cur, pre, i}) {
-	var date = new Date().getDay();
+interface GroupInterface {
+	cur: string;
+	pre: string;
+	i: number;
+}
+
+export default function GroupNotifications({cur, pre, i}: GroupInterface) {
+	var date: string = new Date().getDay() as unknown as string;
 	if (i === 0) {
 		if (cur === date) {
 			return (
@@ -45,6 +51,6 @@ export default function GroupNotifications({cur, pre, i}) {
 			);
 		}
 	} else {
-		return "";
+		return null;
 	}
 }

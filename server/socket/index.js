@@ -53,18 +53,14 @@ function ControlSocketActions(socket) {
 	socket.on("FRIEND_REQUEST", async (data, cb) => {
 		console.log("Friends Request is called from server");
 		try {
-			const extract_id = data.To;
-
-			const act = await Activities.find({UserId: extract_id});
-
-			Users.findByIdAndUpdate(data.From, {
+			await Users.findByIdAndUpdate(data.Info.From, {
 				$push: {
 					PendingRequests: data.To,
 				},
 			}).exec();
 
-			FriendRequests.findOneAndUpdate(
-				{_id: new ObjectId(extract_id)},
+			await FriendRequests.findOneAndUpdate(
+				{_id: new ObjectId(data.To)},
 				{
 					$push: {
 						requests: {
@@ -75,11 +71,15 @@ function ControlSocketActions(socket) {
 				}
 			).exec();
 
+			const act = await Activities.find({UserId: data.To});
 			if (act?.length) {
-				act.forEach((active, index) => {
-					socket.to(active.SocketId).emit("FRIENDSHIPDEMAND", data);
-					console.log("emitted 1");
-				});
+				let x = 0;
+				while (x < act.length) {
+					socket
+						.to(act[x].SocketId)
+						.emit("FRIENDSHIPDEMAND", data.Info);
+					x++;
+				}
 			}
 
 			return cb({response: "done"});
@@ -90,68 +90,72 @@ function ControlSocketActions(socket) {
 	});
 
 	socket.on("REJECT_REQUEST", async (data, cb) => {
-		Users.findByIdAndUpdate(data.GID, {
-			$pull: {PendingRequests: data.CID},
-		}).exec();
+		try {
+			await Users.findByIdAndUpdate(data.GID, {
+				$pull: {PendingRequests: data.CID},
+			}).exec();
 
-		FriendRequests.findByIdAndUpdate(
-			data.GID,
-			{
+			await FriendRequests.findByIdAndUpdate(data.GID, {
 				$pull: {
 					requests: {
 						From: data.GID,
 					},
 				},
-			},
-			(err, data) => {
-				ContinueReject();
+			}).exec();
+
+			async function ContinueReject() {
+				const message = {
+					title: "Friend request rejected",
+					Name: "Zablot",
+					Description: `<span class='assigned-name'> <b> ${data.CN} </b> </span> rejected your friendrequest `,
+					Date: new Date(),
+					Seen: false,
+					Image: data.CI,
+					Id: data.CID,
+				};
+
+				const active = await Activities.find({UserId: data.GID});
+				if (active)
+					await AddNotification(
+						data.GID,
+						message,
+						true,
+						active,
+						socket
+					);
+				else await AddNotification(data.GID, message, false);
+				return;
 			}
-		);
 
-		function ContinueReject() {
-			const message = {
-				title: "Friend request rejected",
-				Name: "Zablot",
-				Description: `<span class='assigned-name'> <b> ${data.CN} </b> </span> rejected your friendrequest `,
-				Date: new Date(),
-				Seen: false,
-				Image: data.CI,
-			};
-
-			Activities.find({UserId: data.GID}, async (err, active) => {
-				if (err) return cb("There is error");
-				console.log(active);
-				active != null
-					? await AddNotification(
-							data.GID,
-							message,
-							true,
-							active,
-							socket
-					  )
-					: await AddNotification(data.GID, message, false);
-			});
+			await ContinueReject();
+			cb(null, "done");
+		} catch (error) {
+			console.log(error);
+			return cb(error.message);
 		}
-
-		return cb(null, "done");
 	});
 
 	socket.on("CANCELREQUEST", async ({from, to}, cb) => {
 		try {
-			Users.findByIdAndUpdate(from, {
+			await Users.findByIdAndUpdate(from, {
 				$pull: {PendingRequests: to},
 			}).exec();
 
-			FriendRequests.findByIdAndUpdate(to, {
+			await FriendRequests.findByIdAndUpdate(to, {
 				$pull: {requests: {From: from}},
 			}).exec();
 
-			const active = await Activities.find({UserId: new ObjectId(to)});
+			const IsUserActive = await Activities.find({
+				UserId: new ObjectId(to),
+			});
 
-			if (active?.length > 0) {
-				active.forEach(({SocketId}) => {
-					socket.to(SocketId).emit("REMOVEREQUEST", {from, to});
-				});
+			if (IsUserActive?.length > 0) {
+				let x = 0;
+				do {
+					socket
+						.to(IsUserActive.SocketId)
+						.emit("REMOVEREQUEST", {from, to});
+				} while (x < IsUserActive.length);
 			}
 
 			cb(null);

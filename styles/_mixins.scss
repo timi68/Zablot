@@ -97,6 +97,7 @@
 				display: grid;
 				place-items: center;
 				min-width: 50px;
+				cursor: pointer;
 				text-transform: capitalize;
 				font-size: map-get($fonts, "smaller");
 				font-weight: 300;
@@ -169,6 +170,7 @@
 			flex-wrap: wrap;
 			position: sticky;
 			top: 0;
+			z-index: 10;
 			background: inherit;
 			box-shadow: 0 0 5px map-get($map: $color, $key: "grey");
 			justify-content: space-between;

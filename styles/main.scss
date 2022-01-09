@@ -220,6 +220,7 @@ body {
 				}
 				.search-form {
 					width: 300px;
+					height: 35px;
 				}
 				.search-icon {
 					width: initial;
@@ -259,8 +260,15 @@ body {
 				}
 
 				&::-webkit-scrollbar {
-					display: none;
-					width: 0px;
+					appearance: none;
+					width: 5px;
+					background: transparent;
+					border-radius: 10px;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					border-radius: 50px;
+					background: map-get($map: $color, $key: "brown");
 				}
 
 				.search-matched-wrapper {
@@ -308,14 +316,25 @@ body {
 					}
 				}
 
+				.list-wrapper {
+					display: grid;
+					place-items: center;
+					height: 90%;
+				}
 				@include users();
 				.users {
+					height: 100%;
+					width: 100%;
 					.user {
 						.btn {
 							font-size: 10px;
 						}
 					}
 				}
+			}
+			.search-loader {
+				display: grid;
+				place-items: center;
 			}
 		}
 
@@ -368,6 +387,18 @@ body {
 					&.requests-box-enter-done {
 						opacity: 1;
 						z-index: 100;
+					}
+
+					&::-webkit-scrollbar {
+						appearance: none;
+						width: 5px;
+						background: transparent;
+						border-radius: 10px;
+					}
+
+					&::-webkit-scrollbar-thumb {
+						border-radius: 50px;
+						background: map-get($map: $color, $key: "brown");
 					}
 				}
 				@include users();
@@ -477,6 +508,18 @@ body {
 					&.notifications-box-enter-done {
 						opacity: 1;
 						z-index: 100;
+					}
+
+					&::-webkit-scrollbar {
+						appearance: none;
+						width: 5px;
+						background: transparent;
+						border-radius: 10px;
+					}
+
+					&::-webkit-scrollbar-thumb {
+						border-radius: 50px;
+						background: map-get($map: $color, $key: "brown");
 					}
 				}
 

@@ -1,5 +1,5 @@
 export default function CalculateTime(d1, d) {
-	var date1 = d1;
+	var date1 = new Date(d1);
 	var date2 = new Date(d);
 	var date1Secs = date1.getSeconds();
 	var date1Mins = date1.getMinutes();
