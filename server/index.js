@@ -1,7 +1,7 @@
 const dotenv = require("dotenv").config(),
 	next = require("next"),
 	express = require("express"),
-	session = require("express-session"),
+	session = require("cookie-session"),
 	{finished} = require("stream");
 (flash = require("connect-flash")),
 	(passport = require("passport")),
@@ -31,12 +31,18 @@ client
 		app.use(compressor());
 		app.use("/uploads", express.static("uploads"));
 
-		// setting external assests
+		///-momery unleaked---------
+		app.set("trust proxy", 1);
+
 		app.use(
 			session({
-				secret: "nothing jare",
-				resave: false,
+				cookie: {
+					secure: true,
+					maxAge: 60000,
+				},
+				secret: "zablot#",
 				saveUninitialized: true,
+				resave: true,
 			})
 		);
 
@@ -68,7 +74,7 @@ client
 			return handle(req, res);
 		});
 
-		const server = app.listen(8000, () => {
+		const server = app.listen(process.env.PORT || 8000, () => {
 			console.log("Listening on http://localhost:8000");
 		});
 
