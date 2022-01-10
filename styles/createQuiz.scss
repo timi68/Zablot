@@ -1,4 +1,5 @@
 @import "./_variable.scss";
+@import "./mixins";
 
 @mixin scrollbar {
 	&::-webkit-scrollbar {
@@ -19,12 +20,16 @@
 		position: absolute;
 		bottom: 16px;
 		right: 16px;
-		background: map-get($map: $color, $key: "whiteblue");
+		background: map-get($map: $color, $key: "grey");
 		color: white;
-
+		transition: $transition;
+		@include media_399 {
+			width: 40px;
+			height: 40px;
+		}
 		&:hover {
 			background: darken(
-				$color: map-get($map: $color, $key: "whiteblue"),
+				$color: map-get($map: $color, $key: "grey"),
 				$amount: 10
 			);
 		}
@@ -39,9 +44,14 @@
 	@include scrollbar();
 
 	.wrapper {
-		max-width: 800px;
+		width: 600px;
+		max-width: 85vw;
 		margin: auto;
 		height: auto;
+
+		@include media_399 {
+			max-width: 95vw;
+		}
 
 		.header {
 			font-weight: 600;
@@ -61,7 +71,7 @@
 
 	.question-box {
 		width: 600px;
-		max-width: 90%;
+		max-width: 100%;
 		background: map-get($map: $color, $key: "lowgrey");
 		padding: 10px;
 		box-shadow: $shadow;
@@ -77,7 +87,6 @@
 	.options-wrap {
 		width: 600px;
 		max-width: 100%;
-		margin-bottom: 2em;
 		.header {
 			display: flex;
 			padding: 0.3em 5px;
@@ -131,7 +140,7 @@
 
 				&:checked {
 					&::before {
-						background: map-get($map: $color, $key: "whiteblue");
+						background: map-get($map: $color, $key: "grey");
 						color: #fff;
 					}
 				}
@@ -154,7 +163,7 @@
 
 .created-questions-container {
 	position: absolute;
-	right: -100%;
+	right: -110%;
 	opacity: 0.9;
 	z-index: 10;
 	width: 600px;
@@ -206,7 +215,7 @@
 			border-radius: 5px;
 			color: #fff;
 			font-size: 10px;
-			background: map-get($map: $color, $key: "whiteblue");
+			background: map-get($map: $color, $key: "grey");
 		}
 	}
 	.question-list {
@@ -278,7 +287,7 @@
 
 			.fab {
 				border-radius: 50%;
-				background: map-get($map: $color, $key: "whiteblue");
+				background: map-get($map: $color, $key: "grey");
 
 				.fab-icon {
 					fill: #fff;
@@ -306,18 +315,18 @@
 	.btn {
 		width: 150px;
 		max-width: 49%;
-		padding: 10px;
+		padding: 5px 10px;
 		text-align: center;
 		font-weight: 300;
 		box-shadow: $shadow;
 		border-radius: 5px;
-		text-transform: uppercase;
+		text-transform: capitalize;
 		color: #fff;
-		background: map-get($map: $color, $key: "whiteblue");
+		background: map-get($map: $color, $key: "grey");
 
 		&:hover {
 			background: darken(
-				$color: map-get($map: $color, $key: "whiteblue"),
+				$color: map-get($map: $color, $key: "grey"),
 				$amount: 10
 			);
 		}
@@ -355,7 +364,7 @@
 			border-radius: 5px;
 			color: #fff;
 			font-size: 10px;
-			background: map-get($map: $color, $key: "whiteblue");
+			background: map-get($map: $color, $key: "grey");
 		}
 	}
 
@@ -384,7 +393,7 @@
 
 				&:checked {
 					&::before {
-						background: map-get($map: $color, $key: "whiteblue");
+						background: map-get($map: $color, $key: "grey");
 						color: #fff;
 					}
 				}

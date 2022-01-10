@@ -115,6 +115,8 @@ function Login({secret}) {
 					display: "block",
 					maxWidth: "90vw",
 					width: 600,
+					height: "100%",
+					overflow: "hidden scroll",
 					mx: "auto",
 				}}
 			>
@@ -131,7 +133,7 @@ function Login({secret}) {
 				<FormControl
 					variant="filled"
 					fullWidth
-					sx={{display: "block", m: 2, bgcolor: "secondary"}}
+					sx={{display: "block", my: 2, bgcolor: "secondary"}}
 					error={errors?.Email ? true : false}
 				>
 					<InputLabel htmlFor="standard-adornment-email">
@@ -157,7 +159,7 @@ function Login({secret}) {
 				</FormControl>
 				<FormControl
 					fullWidth
-					sx={{display: "block", m: 2}}
+					sx={{display: "block", my: 2}}
 					variant="filled"
 					error={errors?.Password ? true : false}
 				>
@@ -197,7 +199,7 @@ function Login({secret}) {
 					variant="contained"
 					size="medium"
 					sx={{
-						m: 2,
+						my: 2,
 						width: 200,
 					}}
 				>

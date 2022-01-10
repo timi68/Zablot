@@ -106,7 +106,7 @@ export default function AppLayout({
 												/>
 												<FriendRequests />
 												<Notifications />
-												<Badge
+												{/* <Badge
 													color="secondary"
 													badgeContent={0}
 													showZero
@@ -120,7 +120,7 @@ export default function AppLayout({
 													>
 														<ChatBubbleOutlineIcon fontSize="small" />
 													</IconButton>
-												</Badge>
+												</Badge> */}
 												<ProfileCard />
 											</Stack>
 										</Box>

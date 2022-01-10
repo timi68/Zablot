@@ -237,20 +237,25 @@ const CreateQuestion = (props: createInterfaceProps) => {
 																	"0px 0px 0px whitesmoke",
 															}}
 														>
-															<input
-																type="checkbox"
-																name="radio-input"
-																checked={
-																	option.checked
-																}
-																onChange={() =>
-																	HandleAnswerChecked(
-																		index
-																	)
-																}
-																className="answer checkbox"
-																id="answer"
-															/>
+															<Tooltip
+																title="Answer"
+																placement="left"
+															>
+																<input
+																	type="checkbox"
+																	name="radio-input"
+																	checked={
+																		option.checked
+																	}
+																	onChange={() =>
+																		HandleAnswerChecked(
+																			index
+																		)
+																	}
+																	className="answer checkbox"
+																	id="answer"
+																/>
+															</Tooltip>
 															<textarea
 																name="option-input"
 																id=""

@@ -208,6 +208,7 @@ function Register() {
 					defaultValue=""
 					margin="dense"
 					variant="filled"
+					className="breakpoint"
 					helperText={Boolean(errors.Gender) && "Select your gender"}
 					{...register("Gender", {
 						required: true,
@@ -254,6 +255,7 @@ function Register() {
 					variant="filled"
 					label="Date of birth"
 					margin="dense"
+					className="breakpoint"
 					error={errors.DateOfBirth}
 					{...register("DateOfBirth", {
 						required: true,

@@ -69,7 +69,7 @@ body {
 
 .wrapper {
 	height: 100vh;
-	overflow: auto;
+	overflow: hidden;
 	position: relative;
 	header {
 		background: map-get($map: $color, $key: "lightergrey");
@@ -588,13 +588,28 @@ body {
 		overflow: hidden;
 		height: calc(100vh - 75px);
 
+		&::-webkit-scrollbar {
+			width: 5px;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			border-radius: 50px;
+			background: grey;
+		}
+
+		@media screen and (max-width: 600px) {
+			height: calc(100vh - 60px);
+		}
+
 		@include media_1049() {
 			max-width: 100vw;
 		}
 
-		// @include media_549() {
-		// 	display: block;
-		// }
+		@include media_399 {
+			.breakpoint {
+				width: 100%;
+			}
+		}
 	}
 
 	.sidebar {
