@@ -48,6 +48,7 @@
 		"next-cli": "^1.0.0",
 		"next-connect": "^0.10.1",
 		"next-iron-session": "^4.2.0",
+		"nodemon": "^2.0.15",
 		"notistack": "^2.0.3",
 		"nprogress": "^0.2.0",
 		"passport": "^0.4.1",
