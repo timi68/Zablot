@@ -44,7 +44,7 @@
 	@include scrollbar();
 
 	.wrapper {
-		width: 600px;
+		width: fit-content;
 		max-width: 85vw;
 		margin: auto;
 		height: auto;
@@ -67,6 +67,9 @@
 
 	.question-form {
 		padding: 1em;
+		width: fit-content;
+		margin: auto;
+		max-width: 100%;
 	}
 
 	.question-box {
@@ -315,7 +318,7 @@
 	.btn {
 		width: 150px;
 		max-width: 49%;
-		padding: 5px 10px;
+		padding: 10px;
 		text-align: center;
 		font-weight: 300;
 		box-shadow: $shadow;
@@ -333,79 +336,95 @@
 	}
 }
 
-.edit-wrap {
-	position: absolute;
-	right: 610px;
-	width: 500px;
-	box-shadow: $shadow;
-	padding: 0;
-	max-width: 100vw;
-	z-index: 100;
-	background: map-get($map: $color, $key: "lightergrey");
-
-	@include scrollbar();
-	.header {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		justify-content: space-between;
-		position: sticky;
+.edit-question {
+	.backdrop {
+		position: fixed;
+		width: 100vw;
+		height: 100vh;
 		top: 0;
-		margin-bottom: 10px;
-		padding: 1em;
-		z-index: 100;
-		background: map-get($map: $color, $key: "lowgrey");
-		backdrop-filter: blur(3px);
-		.title {
-			font-weight: 600;
-		}
-		.close-btn {
-			padding: 5px 10px;
-			border-radius: 5px;
-			color: #fff;
-			font-size: 10px;
-			background: map-get($map: $color, $key: "grey");
-		}
+		left: 0;
+		z-index: 20;
+		background: rgba(0, 0, 0, 70%);
+		display: flex;
+		align-items: center;
 	}
+	.edit-wrap {
+		background: map-get($map: $color, $key: "lightergrey");
+		width: 800px;
+		max-width: 80%;
+		height: 90%;
+		padding: 0;
+		overflow: auto;
+		box-shadow: $shadow;
+		margin: auto;
 
-	.options-wrap {
+		@include media_749() {
+			right: initial;
+			left: 0;
+		}
+
 		.header {
-			padding: 0.3em 5px;
-			background: #fff;
-			z-index: initial;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			justify-content: space-between;
+			position: sticky;
+			top: 0;
+			margin-bottom: 10px;
+			padding: 1em;
+			z-index: 100;
+			background: map-get($map: $color, $key: "lowgrey");
+			backdrop-filter: blur(3px);
+			.title {
+				font-weight: 600;
+			}
+			.close-btn {
+				padding: 5px 10px;
+				border-radius: 5px;
+				color: #fff;
+				font-size: 10px;
+				background: map-get($map: $color, $key: "grey");
+			}
 		}
-	}
 
-	.question-box {
-		background: #fff;
-		max-width: 100%;
-	}
+		.options-wrap {
+			.header {
+				padding: 0.3em 5px;
+				background: #fff;
+				z-index: initial;
+			}
+		}
 
-	.options-wrap {
-		.text-box {
-			background: map-get($map: $color, $key: "white");
+		.question-box {
+			background: #fff;
+			max-width: 100%;
+		}
 
-			.answer.checkbox {
-				&::before {
-					color: map-get($map: $color, $key: "brown");
-					background: map-get($map: $color, $key: "lightergrey");
-				}
+		.options-wrap {
+			.text-box {
+				background: map-get($map: $color, $key: "white");
 
-				&:checked {
+				.answer.checkbox {
 					&::before {
-						background: map-get($map: $color, $key: "grey");
-						color: #fff;
+						color: map-get($map: $color, $key: "brown");
+						background: map-get($map: $color, $key: "lightergrey");
+					}
+
+					&:checked {
+						&::before {
+							background: map-get($map: $color, $key: "grey");
+							color: #fff;
+						}
 					}
 				}
-			}
 
-			.remove-btn:hover {
-				background: transparent;
+				.remove-btn:hover {
+					background: transparent;
+				}
 			}
 		}
 	}
 }
-
 .upload-question {
 	.backdrop {
 		position: fixed;
@@ -419,26 +438,41 @@
 		align-items: center;
 	}
 
+	.title {
+		font-size: 0.9em;
+		margin-block: 1em;
+	}
 	.wrapper {
 		background: map-get($map: $color, $key: "lightergrey");
 		width: 800px;
 		max-width: 80%;
 		height: 90%;
-		padding: 1em;
-		border-radius: 10px;
+		padding-inline: 1em;
+		overflow: auto;
 		box-shadow: $shadow;
 		margin: auto;
 	}
 
 	.form-wrapper {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: repeat(auto-fit, 49%);
 		gap: 0.2em;
+		position: relative;
+		height: 100%;
+		max-width: 100%;
+
+		@include media_499 {
+			display: flex;
+			flex-direction: column;
+		}
 	}
 
 	.button-wrap {
-		justify-content: space-between;
-		margin: 1em auto;
+		justify-content: flex-end;
+		gap: 20px;
+		width: 100%;
+		padding: 10px;
+		margin-top: 2em;
 	}
 
 	.additional-fields {
@@ -449,8 +483,13 @@
 		}
 		.time-wrapper {
 			display: grid;
-			grid-template-columns: repeat(2, 1fr);
+			grid-template-columns: repeat(auto-fill, minmax(200px, 49%));
 			gap: 0.5em;
+
+			@include media_499 {
+				display: flex;
+				flex-direction: column;
+			}
 		}
 	}
 

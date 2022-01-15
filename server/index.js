@@ -38,11 +38,11 @@ client
 			session({
 				cookie: {
 					secure: true,
-					maxAge: 60000,
+					maxAge: 24 * 30 * 60 * 60 * 1000,
 				},
 				secret: "zablot#",
 				saveUninitialized: true,
-				resave: true,
+				resave: false,
 			})
 		);
 

@@ -10,6 +10,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import {CSSTransition} from "react-transition-group";
 import {Badge, IconButton} from "@material-ui/core";
 import {useSnackbar} from "notistack";
+import * as Interfaces from "../../../lib/interfaces";
 
 function Notifications() {
 	const {
@@ -17,9 +18,9 @@ function Notifications() {
 	} = useContext(AppContext);
 	const modalSignal = useContext(ModalContext);
 	const [openModal, setOpenModal] = useState(false);
-	const [notifications, setNotifications] = useState(
-		user?.Notifications.sort(() => -1) || []
-	);
+	const [notifications, setNotifications] = useState<
+		Interfaces.Notifications[0][]
+	>(user?.Notifications.sort(() => -1) || []);
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
 
 	const handleClick = () => {
@@ -102,16 +103,10 @@ function Notifications() {
 							{notifications?.length ? (
 								<div className="notifications-list">
 									{notifications.map((data, i) => {
-										var current = new Date(
-											notifications[i].Date
-										).getDay();
+										var current = notifications[i].Date;
 										var previous =
 											i > 0
-												? new Date(
-														notifications[
-															i - 1
-														].Date
-												  ).getDay()
+												? notifications[i - 1].Date
 												: "";
 
 										var key = uuid();

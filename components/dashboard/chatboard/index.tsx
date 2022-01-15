@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {useRef, useContext, useEffect, useState, useCallback} from "react";
+import React from "react";
 import {AppContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
@@ -8,22 +8,52 @@ import {motion} from "framer-motion";
 import {Tab, Tabs, CircularProgress} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import {Button, CardActionArea} from "@material-ui/core";
 import * as Interface from "../../../lib/interfaces";
 
-function ChatBoard() {
+interface ChatBoardType {
+	chatRoom: {
+		current: {
+			OpenRoom(user: Interface.Friends, target: HTMLElement): void;
+		};
+	};
+}
+const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 	const {
 		state: {socket, session, user, activeFriends},
 		dispatch,
-	} = useContext(AppContext);
-	const [friends, setFriends] = useState<Interface.Friends[]>(
+	} = React.useContext(AppContext);
+	const [friends, setFriends] = React.useState<Interface.Friends[]>(
 		user?.Friends || []
 	);
-	const [loading, setLoading] = useState(!Boolean(activeFriends));
-	const [tabToOpen, setTabToOpen] = useState(0);
-	const chatBoard = useRef(null);
+	const [loading, setLoading] = React.useState(!Boolean(activeFriends));
+	const [tabToOpen, setTabToOpen] = React.useState(0);
+	const chatBoard = React.useRef(null);
 
-	const NewFriend = useCallback(
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			UpdateFriends(friend: Interface.Friends) {
+				console.log("Updating friends");
+				setFriends((friends) => [friend, ...friends]);
+			},
+			SetLastMessage(id: string, message: string, flow: string) {
+				setFriends((prevFriends) => {
+					const currentFriends = prevFriends.map((friend) => {
+						if (friend.Id === id) {
+							friend.Last_Message = message;
+							friend.LastPersonToSendMessage = flow;
+						}
+						return friend;
+					});
+					return currentFriends;
+				});
+			},
+		}),
+		[]
+	);
+	const NewFriend = React.useCallback(
 		(data: Interface.Friends) => {
 			console.log("NewFriends emitted", data);
 			setFriends([data, ...friends]);
@@ -31,23 +61,22 @@ function ChatBoard() {
 		[friends]
 	);
 
-	const IncomingMessage = useCallback((data) => {
+	const IncomingMessage = React.useCallback((data: Interface.MessageType) => {
 		console.log(" IncomingMessage emitted", data);
 		const id = [];
-		const dataId = data._id.slice(12, data._id.length);
 		j(".chats-form").each((i, e) => {
 			id.push(j(e).attr("id").slice(0, 12));
 		});
 
 		setFriends((state) => {
-			const oldState = state.filter((user) => user.Id !== data.from);
+			const oldState = state.filter((user) => user.Id !== data.coming);
 			state.map((user) => {
-				if (user.Id === data.from) {
-					user.UnseenMessages = id.includes(dataId)
+				if (user.Id === data.coming) {
+					user.UnseenMessages = id.includes(data._id)
 						? 0
 						: Number(user.UnseenMessages) + 1;
 					user.Last_Message = data.message;
-					user.LastPersonToSendMessage = data.from;
+					user.LastPersonToSendMessage = data.coming;
 					oldState.unshift(user);
 				}
 				return;
@@ -57,22 +86,7 @@ function ChatBoard() {
 		});
 	}, []);
 
-	const OutgoingMessage = useCallback((data) => {
-		setFriends((state) => {
-			const oldState = state.filter((user) => user.Id !== data.to);
-			state.map((user) => {
-				if (user.Id === data.to) {
-					user.Last_Message = data.message;
-					user.LastPersonToSendMessage = data.from;
-					oldState.unshift(user);
-				}
-			});
-
-			return oldState;
-		});
-	}, []);
-
-	const Status = useCallback((data) => {
+	const Status = React.useCallback((data) => {
 		setFriends((state) => {
 			const newState = state.map((user) => {
 				if (user.Id === data._id) user.active = data.online;
@@ -83,7 +97,7 @@ function ChatBoard() {
 		});
 	}, []);
 
-	const ANSWERED = useCallback((data) => {
+	const ANSWERED = React.useCallback((data) => {
 		console.log(data);
 	}, []);
 
@@ -111,11 +125,9 @@ function ChatBoard() {
 		}, 1000);
 	};
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (socket) {
-			socket.on("NEWFRIEND", NewFriend);
 			socket.on("INCOMINGMESSAGE", IncomingMessage);
-			socket.on("OUTGOINGMESSAGE", OutgoingMessage);
 			socket.on("STATUS", Status);
 			socket.on("ANSWERED", ANSWERED);
 		}
@@ -127,9 +139,7 @@ function ChatBoard() {
 		}
 
 		return () => {
-			socket.off("NEWFRIEND", NewFriend);
 			socket.off("INCOMINGMESSAGE", IncomingMessage);
-			socket.off("OUTGOINGMESSAGE", OutgoingMessage);
 			socket.off("STATUS", Status);
 			socket.off("ANSWERED", ANSWERED);
 		};
@@ -137,27 +147,32 @@ function ChatBoard() {
 	}, [socket]);
 
 	function openRoom(
-		user: Interface.Friends,
+		userRoom: Interface.Friends,
 		e: React.MouseEvent<HTMLElement, MouseEvent>
 	): void {
-		const friendId = session.id;
-
 		setFriends((state) => {
 			state = state.map((u) => {
-				if (u.Id === user.Id) u.UnseenMessages = 0;
+				if (u.Id === userRoom.Id) u.UnseenMessages = 0;
 				return u;
 			});
 			return state;
 		});
-		socket.emit("CLEANSEEN", {_id: friendId, Id: user._id}, (err, done) => {
-			console.log(err || done);
-			if (err) {
-				alert("Internal server error: restarting window now");
-				location.reload();
-			}
-		});
 
-		ChatRoom({j, user, from: session.id, e, socket});
+		socket.emit(
+			"CLEANSEEN",
+			{_id: user._id, Id: userRoom._id},
+			(err: string, done: string) => {
+				console.log(err || done);
+				if (err) {
+					alert("Internal server error: restarting window now");
+					location.reload();
+				}
+			}
+		);
+
+		let target = e.target as HTMLElement;
+		// ChatRoom({j, user, from: session.id, e, socket});
+		props.chatRoom.current.OpenRoom(userRoom, target);
 		openChatBoard();
 		return;
 	}
@@ -190,9 +205,14 @@ function ChatBoard() {
 					className="chats-body"
 				>
 					{loading ? (
-						<div className="loader">
-							<CircularProgress sx={{color: "grey"}} />
-						</div>
+						<>
+							<div className="loader">
+								<CircularProgress sx={{color: "grey"}} />
+							</div>
+							<div className="loader">
+								<CircularProgress sx={{color: "grey"}} />
+							</div>
+						</>
 					) : (
 						<>
 							<Friends
@@ -211,14 +231,12 @@ function ChatBoard() {
 			</div>
 		</div>
 	);
-}
+});
 
-/**
- *
- * @param {{setTabToOpen: Function, tabToOpen: number}} props
- * @returns {JSX.Element} returns a react component
- */
-function Navbar(props) {
+ChatBoard.displayName = "ChatBoard";
+
+type NavbarType = {tabToOpen: number; setTabToOpen(value: number): void};
+function Navbar(props: NavbarType) {
 	const {setTabToOpen, tabToOpen} = props;
 	function a11yProps(index) {
 		return {
@@ -281,7 +299,7 @@ function Chats({friendId, user, open}: chats): JSX.Element {
 				<div className="last_message secondary_text">
 					{user?.LastPersonToSendMessage === friendId && "You: "}
 					{user.Last_Message === "Image" ? (
-						<i className="ion-ios-image" style={{fontSize: 17}}></i>
+						<ImageOutlinedIcon fontSize="small" />
 					) : (
 						user.Last_Message
 					)}
@@ -311,7 +329,7 @@ interface props {
 }
 function Private(props: props) {
 	const {friends, openRoom, friendId} = props;
-	const [opened, setOpened] = useState(false);
+	const [opened, setOpened] = React.useState(false);
 	const checkPin = () => setOpened(true);
 
 	const PrivateFriends = friends?.filter(
@@ -337,9 +355,11 @@ function Private(props: props) {
 							})}
 						</ul>
 					)}
-					{!PrivateFriends?.length && (
-						<div className="add_new private_chats_member">
-							No Private Chats
+					{!friends?.length && (
+						<div className="no-friend-available">
+							<div className="text">
+								<span>No Private Chat</span>
+							</div>
 						</div>
 					)}
 				</>
@@ -393,6 +413,13 @@ function Friends(props: props) {
 						/>
 					);
 				})}
+				{!friends?.length && (
+					<div className="no-friend-available">
+						<div className="text">
+							<span>You dont have any friend</span>
+						</div>
+					</div>
+				)}
 			</ul>
 		</div>
 	);

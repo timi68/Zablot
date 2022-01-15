@@ -115,8 +115,9 @@ function Login({secret}) {
 					display: "block",
 					maxWidth: "90vw",
 					width: 600,
-					height: "100%",
-					overflow: "hidden scroll",
+					height: "auto",
+					maxHeight: "100%",
+					overflow: "auto",
 					mx: "auto",
 				}}
 			>

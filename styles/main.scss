@@ -1100,18 +1100,26 @@ body {
 			}
 		}
 
-		.chat-form-container {
+		.chat-rooms-container {
 			flex: 0.6;
-			// overflow: hidden;
+			overflow: auto;
 			position: absolute;
 			right: 0;
-			bottom: 10px;
-			flex-direction: row;
-			display: flex;
-			background: white;
-			border-radius: 10px;
-			flex-wrap: wrap;
-			// display: none;
+			bottom: 3px;
+			background: transparent;
+			z-index: 10000;
+			max-width: 100%;
+
+			.chat-rooms-wrapper {
+				flex-direction: row;
+				display: flex;
+				flex-wrap: nowrap;
+				gap: 15px;
+				overflow: auto;
+				padding-inline: 10px;
+				height: calc(100vh - 75px);
+				align-items: flex-end;
+			}
 
 			// @include media_1049() {
 			// 	right: 30px;
@@ -1137,14 +1145,11 @@ body {
 			// }
 
 			.chats-form {
-				height: 100%;
-				width: 300px;
-				margin: auto;
+				min-width: 300px;
 				border-radius: 10px;
 				background: map-get($color, "lightergrey");
-				margin-right: 15px;
 				box-shadow: 0px 2px 5px 0px lightgrey;
-				overflow: visible;
+				// overflow: visible;
 				position: relative;
 
 				&::-webkit-scrollbar {
@@ -1179,6 +1184,10 @@ body {
 					place-items: center;
 					border-radius: 50%;
 					cursor: pointer;
+
+					svg {
+						font-size: 10px;
+					}
 				}
 				@include media_649() {
 					max-width: 500px;
@@ -1246,7 +1255,7 @@ body {
 
 				.room-body {
 					width: 100%;
-					height: calc(100vh / 2.5);
+					height: calc(100vh / 2.25);
 					padding: 10px 1px 0px 10px;
 					display: flex;
 					overflow-y: scroll;
@@ -1340,9 +1349,11 @@ body {
 								content: "Your friend got your question";
 							}
 						}
-						&.adjust,
-						&.adjust-mg {
+						&.adjust {
 							margin-bottom: 3px;
+						}
+						&.adjust-mg {
+							margin-top: 5px;
 						}
 						.time-count {
 							padding: 5px;
@@ -1657,8 +1668,8 @@ body {
 								border: none;
 							}
 						}
-						.btn.send.activated .svg {
-							fill: map-get($map: $color, $key: "skyblue");
+						.btn.send.active .send-icon {
+							fill: map-get($map: $color, $key: "green");
 						}
 					}
 

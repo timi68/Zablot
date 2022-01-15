@@ -24,23 +24,20 @@ import {
 	createTheme,
 	Container,
 } from "@mui/material";
+import {Ref, Friends} from "../../lib/interfaces";
 
-interface props {
+interface PropsInterface {
 	children: ReactNode;
 	loggedIn: boolean;
 	href?: string;
 	text?: string;
 	title: string;
+	chatboardRef: Ref;
 }
 
-export default function AppLayout({
-	children,
-	loggedIn,
-	href,
-	text,
-	title,
-}: props) {
+export default function AppLayout(props: PropsInterface) {
 	console.log("mounting from after");
+	const {children, loggedIn, href, text, title, chatboardRef} = props;
 	const modalSignal = useRef<HTMLDivElement | null>(null);
 	const removeAllShowModal = () => {
 		console.log("clicked");
@@ -53,6 +50,9 @@ export default function AppLayout({
 			},
 		},
 	});
+
+	const SearchbarRef = useRef(null);
+
 	return (
 		<ModalContext.Provider value={modalSignal}>
 			<ThemeProvider theme={theme}>
@@ -88,7 +88,7 @@ export default function AppLayout({
 												>
 													Zablot
 												</Typography>
-												<SearchBar />
+												<SearchBar ref={SearchbarRef} />
 											</Stack>
 										</Box>
 										<Box>
@@ -104,7 +104,10 @@ export default function AppLayout({
 														<MonetizationOnIcon fontSize="small" />
 													}
 												/>
-												<FriendRequests />
+												<FriendRequests
+													SearchbarRef={SearchbarRef}
+													ChatboardRef={chatboardRef}
+												/>
 												<Notifications />
 												{/* <Badge
 													color="secondary"

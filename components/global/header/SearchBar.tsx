@@ -1,13 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 // @ts-check
-import React, {
-	useEffect,
-	useRef,
-	useState,
-	useContext,
-	useCallback,
-} from "react";
+import React from "react";
 import {AppContext, ModalContext} from "../../../lib/context";
 import {ChatRoom} from "../../../utils/ChatRoom";
 import {motion} from "framer-motion";
@@ -17,32 +11,69 @@ import {CSSTransition} from "react-transition-group";
 import * as Interfaces from "../../../lib/interfaces";
 import SearchIcon from "@mui/icons-material/Search";
 import {CircularProgress} from "@mui/material";
+import axios from "axios";
 
 interface SearchInterface {
 	matched: Interfaces.Matched[];
 	message?: string;
+	pending: string[];
 }
-function SearchBar() {
-	const {
-		state: {socket, user, session},
-	} = useContext(AppContext);
 
-	const modalSignal = useContext(ModalContext);
-	const [searchData, setSearchData] = useState<SearchInterface>({
+const SearchBar = React.forwardRef(function (
+	props: {ref: React.Ref<Interfaces.Ref>},
+	ref
+) {
+	const {
+		state: {socket, user},
+	} = React.useContext(AppContext);
+
+	const modalSignal = React.useContext(ModalContext);
+	const [searchData, setSearchData] = React.useState<SearchInterface>({
 		matched: [],
+		pending: user?.PendingRequests || [],
 		message: "Waiting to search",
 	});
-	const [loading, setLoading] = useState<boolean>(false);
-	const [skipper, setSkipper] = useState(null);
-	const [open, setOpen] = useState<boolean>(false);
-	const [pending, setPending] = useState<string[]>(
-		user?.PendingRequests || []
+	const [loading, setLoading] = React.useState<boolean>(false);
+	const [open, setOpen] = React.useState<boolean>(false);
+	const [friends, setFriends] = React.useState<Interfaces.Friends[]>(
+		user?.Friends || []
 	);
-	const [friends, setFriends] = useState(user?.Friends || []);
+	const searchbar = React.useRef<HTMLInputElement>(null);
+	const searchIcon = React.useRef<HTMLDivElement>(null);
+	const container = React.useRef<HTMLDivElement>(null);
 	const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
-	const searchbar = useRef(null);
-	const searchIcon = useRef(null);
-	const container = useRef(null);
+
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			UpdateFriends(friend: Interfaces.Friends) {
+				console.log(friend);
+
+				setFriends([friend, ...friends]);
+				setSearchData((state) => {
+					state = {
+						...state,
+						pending: state.pending.filter((id) => id !== friend.Id),
+					};
+					return state;
+				});
+
+				if (searchData.matched.length > 0) {
+					setSearchData((state) => {
+						const newstate = state.matched.map((user) => {
+							if (user._id === friend.Id) {
+								user.sent = false;
+								user.friends = true;
+							}
+							return user;
+						});
+						return {...state, matched: newstate};
+					});
+				}
+			},
+		}),
+		[friends, searchData]
+	);
 
 	const SearchBox = function () {
 		if (open) return;
@@ -58,61 +89,61 @@ function SearchBar() {
 		j(modalSignal.current).removeClass("show");
 		j(container.current).removeClass("focused");
 
-		j(".search-icon").off("click", Search).removeClass("ready");
-		j("#search").find("#text-control").val("");
+		j(searchIcon.current).off("click", Search).removeClass("ready");
+		j(searchbar.current).find("#text-control").val("");
 	};
 
-	const ReadyForSearch = (/** @type {any} */ e) => {
+	const ReadyForSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!j(e.target).val())
-			return searchIcon.current.classList.remove("ready");
+			return j(searchIcon.current).removeClass("ready");
 		return searchIcon.current.classList.add("ready");
 	};
 
-	const Search = (e) => {
+	const Search = async (e: any) => {
 		e.preventDefault();
-		const searchText: string = j(searchbar.current).val();
-		if (searchText != "") {
-			setLoading(true);
-			const data = {searchText, id: user._id};
+		try {
+			const searchText: string = j(searchbar.current).val();
+			if (searchText != "") {
+				setLoading(true);
+				const data = {searchText, id: user._id};
 
-			// @ts-ignore
-			j.ajax({
-				url: `/api/search`,
-				type: "POST",
-				data: JSON.stringify(data),
-				headers: {
-					"Content-Type": "application/json",
-				},
-				success: (matched: Interfaces.Matched[]) => {
-					console.log(pending, "this available pending");
-					console.log(matched);
-					if (matched?.length) {
-						const friendsId = friends.map(({_id}) => _id);
-						matched = matched.filter((matchedUser) => {
-							if (user._id != matchedUser._id) {
-								if (pending.includes(matchedUser._id))
-									matchedUser.sent = true;
-								else if (friendsId.includes(matchedUser._id))
-									matchedUser.friends = true;
-								return matchedUser;
-							}
-						});
-						if (matched?.length) setSearchData({matched});
-						else
-							setSearchData(() => ({
-								matched,
-								message: "No user matched your search",
-							}));
-						setLoading(false);
-					} else
-						setSearchData(() => ({
-							matched: [],
+				const response = await axios.post<Interfaces.Matched[]>(
+					"/api/search",
+					data
+				);
+
+				let matched = response.data;
+				if (matched?.length) {
+					const friendsId = friends.map(({Id}) => Id);
+					matched = matched.filter((matchedUser) => {
+						if (user._id != matchedUser._id) {
+							if (searchData.pending.includes(matchedUser._id))
+								matchedUser.sent = true;
+							else if (friendsId.includes(matchedUser._id))
+								matchedUser.friends = true;
+							return matchedUser;
+						}
+					});
+					if (matched?.length)
+						setSearchData({...searchData, matched});
+					else {
+						setSearchData({
+							...searchData,
+							matched,
 							message: "No user matched your search",
-						}));
+						});
+					}
 					setLoading(false);
-				},
-				error: (i, j, x) => console.log(j, x),
-			});
+				} else
+					setSearchData(() => ({
+						...searchData,
+						matched: [],
+						message: "No user matched your search",
+					}));
+				setLoading(false);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
@@ -128,17 +159,16 @@ function SearchBar() {
 		};
 
 		socket.emit("FRIEND_REQUEST", newRequest, (res) => {
-			setPending([id, ...pending]);
 			setSearchData((state) => {
 				let newMatched = state.matched.map((user) => {
 					if (user._id === id) user.sent = true;
 					return user;
 				});
-				return {matched: newMatched};
+				return {...searchData, matched: newMatched};
 			});
 		});
 
-		console.log(pending);
+		console.log(searchData.pending);
 	}
 
 	function processFriend(
@@ -161,86 +191,52 @@ function SearchBar() {
 						if (user._id === to) delete user.sent;
 						return user;
 					});
-					return {matched};
-				});
-				setPending((state) => {
-					return (state = state.filter((id) => id !== to));
+
+					let pending = state.pending.filter((id) => id !== to);
+					return {matched, pending};
 				});
 			} else console.log(err);
 		});
 	}
-
-	// This is a callback function listening to NewFriend
-	// coming from socket, when called it will update the
-	// array of friends
-	const NewFriend = useCallback(
-		(data) => {
-			console.log(data);
-			if (data?.IsComing) {
-				setFriends([data, ...friends]);
-				setPending((state) => {
-					return (state = state.filter((user) => user !== data.Id));
-				});
-				if (searchData.matched.length > 0) {
-					console.log(data, "IsComing");
-					setSearchData((state) => {
-						const newstate = state.matched.map((user) => {
-							if (user._id === data.Id) {
-								user.sent = false;
-								user.friends = true;
-							}
-							return user;
-						});
-						return {matched: newstate};
-					});
-				}
-			}
-		},
-		[searchData]
-	);
 
 	// Getting the type of notification coming in,
 	// if it is request rejected type, list of sent request will
 	// be checked and the one rejected among them will be updated
 	// instantly, this only vital for request sent and rejected
 	// immediately
-	const Notification = useCallback(
-		(data) => {
-			console.log(data, searchData.matched);
+	const Notification = React.useCallback(
+		(data: {Id: string}) => {
 			if (searchData.matched?.length) {
-				console.log("Rejected friend request");
 				setSearchData((state) => {
 					let searchUpdate = state.matched.map((m) => {
-						console.log(m._id, data.Id);
-						if (m._id === data.Id)
-							(m.rejected = true),
-								(m.friends = false),
-								(m.sent = false);
+						if (m._id === data.Id) {
+							delete m.sent, delete m.friends;
+							m.rejected = true;
+						}
 						return m;
 					});
-					return {matched: searchUpdate};
+					let pending = state.pending.filter((id) => id !== data.Id);
+					return {matched: searchUpdate, pending};
 				});
 			}
 		},
 		[searchData]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		const modal = modalSignal?.current;
 		j(modalSignal?.current).on("click", Closemodal);
 		return () => j(modal).off("click", Closemodal);
-	}, [open, modalSignal]);
+	}, [modalSignal]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (socket) {
-			socket.on("NEWFRIEND", NewFriend);
 			socket.on("Notifications", Notification);
 		}
 		return () => {
-			socket.off("NEWFRIEND", NewFriend);
 			socket.off("Notifications", Notification);
 		};
-	}, [socket]);
+	}, [socket, searchData]);
 
 	console.log("mounting from searchbar");
 	return (
@@ -323,7 +319,9 @@ function SearchBar() {
 			</CSSTransition>
 		</div>
 	);
-}
+});
+
+SearchBar.displayName = "SearchBar";
 
 interface MatchedUserInterface {
 	user: Interfaces.Matched;

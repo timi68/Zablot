@@ -7,6 +7,7 @@ export enum ActionType {
 	REFRESH = "REFRESH",
 	FETCHED = "FETCHED",
 	ACTIVEFRIENDS = "ACTIVEFRIENDS",
+	UPDATEFRIENDS = "UPDATEFRIENDS",
 }
 
 export interface stateInterface {
@@ -123,4 +124,59 @@ export type Matched = {
 	sent?: boolean;
 	rejected?: boolean;
 	friends?: boolean;
+};
+
+export type Ref = {current: {UpdateFriends(friend: Friends): void}};
+export type AppChatBoardType = {
+	UpdateFriends(friend: Friends): void;
+	SetLastMessage(id: string, message: string, flow: string): void;
+};
+
+export type MessageType = Partial<{
+	_id: string;
+	Format: "Form" | "plain" | "image";
+	message: string;
+	url: string;
+	going: string;
+	coming: string;
+	filename: string;
+	question: string;
+	options: {index: number; text: string; checked: boolean}[];
+	date: Date;
+	answered: {index: number; text: string; checked: boolean};
+	coin: number;
+	timer: number;
+}>;
+
+export type RoomType = {
+	user: Friends;
+	messages: MessageType[];
+	pollToggled?: boolean;
+	pollData?: {
+		question: string;
+		options: [
+			{
+				text: string;
+				checked: boolean;
+			}
+		];
+		challenge: boolean;
+		coin: number;
+		duration: number;
+	};
+	target: HTMLElement;
+};
+
+export type RoomProps = {
+	ref: React.RefObject<{getProps(): RoomType} | null>[];
+	roomData: RoomType;
+	setRooms: React.Dispatch<React.SetStateAction<RoomType[]>>;
+	roomsRef: React.RefObject<{getProps(): RoomType} | null>[];
+	index: number;
+	chatBoard: React.RefObject<AppChatBoardType>;
+};
+
+export type RoomBodyRefType = {
+	setMessages(message: MessageType, type: "out" | "in" | "loaded"): void;
+	getMessages(): MessageType[];
 };

@@ -28,6 +28,27 @@ interface createInterfaceProps {
 	setQuestion: {current: Handle};
 }
 
+const variant = {
+	hidden: {
+		y: "-100vh",
+		opacity: 0.6,
+	},
+	visible: {
+		y: 0,
+		opacity: 1,
+		transition: {
+			duration: 0.1,
+			type: "spring",
+			damping: 25,
+			stiffness: 500,
+		},
+	},
+	exit: {
+		y: "100vh",
+		opacity: 0.6,
+	},
+};
+
 // Component for editing question, will be always hidden
 // when not called and after finishing editing
 const EditQuestion = forwardRef((props: createInterfaceProps, ref) => {
@@ -51,6 +72,54 @@ const EditQuestion = forwardRef((props: createInterfaceProps, ref) => {
 		}),
 		[]
 	);
+
+	return (
+		<div className="edit-question">
+			<AnimatePresence exitBeforeEnter={true} initial={false}>
+				{open && (
+					<motion.div
+						initial={{opacity: 0.8}}
+						exit={{opacity: 0.8}}
+						animate={{opacity: 1}}
+						className="backdrop"
+					>
+						<motion.div
+							variants={variant}
+							initial="hidden"
+							animate="visible"
+							exit="exit"
+							className="edit-wrap form-container question-form wrapper"
+							id="question-form"
+							ref={scrollTop}
+							aria-describedby="question-form-label"
+						>
+							<Content
+								questionToEdit={questionToEdit}
+								setOpen={setOpen}
+								questionId={questionId}
+								setRef={setRef}
+							/>
+						</motion.div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</div>
+	);
+});
+EditQuestion.displayName = "Edit Question";
+
+interface ContentInterface {
+	questionToEdit: Question | null;
+	questionId: number;
+	setRef: createInterfaceProps["setQuestion"];
+	setOpen(action: boolean): void;
+}
+
+function Content(props: ContentInterface) {
+	const {questionToEdit: edit, questionId: id, setRef, setOpen} = props;
+
+	const [questionToEdit, setQuestionToEdit] = useState<Question | null>(edit);
+	const [questionId, setQuestionId] = useState<number>(id);
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
 	const [loaded, setLoaded] = useState(false);
 	const [toggled, setToggled] = useState(false);
@@ -170,186 +239,132 @@ const EditQuestion = forwardRef((props: createInterfaceProps, ref) => {
 			};
 		});
 	};
-
 	return (
-		<motion.div>
-			<AnimatePresence exitBeforeEnter={true} initial={false}>
-				{open && (
-					<motion.div
-						animate={{
-							top: 0,
-							opacity: 1,
-							transition: {
-								duration: 0.1,
-								type: "spring",
-								damping: 25,
-								stiffness: 500,
-							},
-						}}
-						initial={{top: "-90vh", opacity: 0.5}}
-						exit={{top: "100vh", opacity: 0.5}}
-						className="edit-wrap form-container question-form wrapper"
-						id="question-form"
-						ref={scrollTop}
-						aria-describedby="question-form-label"
-					>
-						<div className="header">
-							<div className="title">
-								Question {questionId + 1} Edit
-							</div>
-							<Button
-								className="close-btn"
-								onClick={() => setOpen(!open)}
-							>
-								Close
-							</Button>
-						</div>
-						<Box
-							className="question-form"
-							sx={{
-								display: "flex",
-								flexDirection: "column",
-								gap: 3,
-							}}
-						>
-							<div className="question-wrap">
-								<div className="title">
-									<div className="text">Question</div>
-								</div>
-								<textarea
-									className="question-box textfield"
-									id="question"
-									value={questionToEdit.question}
-									onChange={HandleQuestionTextChange}
-									placeholder="Enter your question.."
-								/>
-							</div>
-							<div className="options-wrap">
-								<div className="header">
-									<div className="title">Options</div>
-									{questionToEdit.options.length < 4 && (
-										<Tooltip
-											title="Add options"
-											placement="left"
-										>
-											<IconButton
-												className="add"
-												size="small"
-												onClick={AddOptions}
-												aria-label="add option button"
+		<React.Fragment>
+			<div className="header">
+				<div className="title">Question {questionId + 1} Edit</div>
+				<Button className="close-btn" onClick={() => setOpen(!open)}>
+					Close
+				</Button>
+			</div>
+			<Box
+				className="question-form"
+				sx={{
+					display: "flex",
+					flexDirection: "column",
+					gap: 3,
+				}}
+			>
+				<div className="question-wrap">
+					<div className="title">
+						<div className="text">Question</div>
+					</div>
+					<textarea
+						className="question-box textfield"
+						id="question"
+						value={questionToEdit.question}
+						onChange={HandleQuestionTextChange}
+						placeholder="Enter your question.."
+					/>
+				</div>
+				<div className="options-wrap">
+					<div className="header">
+						<div className="title">Options</div>
+						{questionToEdit.options.length < 4 && (
+							<Tooltip title="Add options" placement="left">
+								<IconButton
+									className="add"
+									size="small"
+									onClick={AddOptions}
+									aria-label="add option button"
+								>
+									<AddIcon fontSize="small" />
+								</IconButton>
+							</Tooltip>
+						)}
+					</div>
+					<div className="options-wrapper" role="listbox">
+						<ul className="option-list-container" role="list">
+							<AnimatePresence>
+								{questionToEdit.options.map(
+									(option: Option, index: number) => {
+										return (
+											<div
+												key={index}
+												className="option"
+												role="listitem"
 											>
-												<AddIcon fontSize="small" />
-											</IconButton>
-										</Tooltip>
-									)}
-								</div>
-								<div className="options-wrapper" role="listbox">
-									<ul
-										className="option-list-container"
-										role="list"
-									>
-										<AnimatePresence>
-											{questionToEdit.options.map(
-												(
-													option: Option,
-													index: number
-												) => {
-													return (
-														<div
-															key={index}
-															className="option"
-															role="listitem"
-														>
-															<motion.div
-																className="text-box"
-																animate={{
-																	height: 40,
-																	boxShadow:
-																		"0px 2px 7px rgb(182,182,182)",
-																}}
-																initial={{
-																	height: 0,
-																	boxShadow:
-																		"0px 0px 0px whitesmoke",
-																}}
-																exit={{
-																	height: 0,
-																	boxShadow:
-																		"0px 0px 0px whitesmoke",
-																}}
-															>
-																<input
-																	type="checkbox"
-																	name="radio-input"
-																	checked={
-																		option.checked
-																	}
-																	onChange={() =>
-																		HandleAnswerChecked(
-																			index
-																		)
-																	}
-																	className="answer checkbox"
-																	id="answer"
-																/>
-																<textarea
-																	name="option-input"
-																	id=""
-																	value={
-																		option.text
-																	}
-																	onChange={(
-																		e
-																	) =>
-																		HandleOptionTextChange(
-																			e,
-																			index
-																		)
-																	}
-																	placeholder="Enter option"
-																	className="text-control textarea"
-																></textarea>
-																<IconButton
-																	size="small"
-																	onClick={() =>
-																		RemoveOption(
-																			index
-																		)
-																	}
-																	className="remove-btn remove-option btn"
-																>
-																	<CancelIcon fontSize="small" />
-																</IconButton>
-															</motion.div>
-														</div>
-													);
-												}
-											)}
-										</AnimatePresence>
-									</ul>
-								</div>
-							</div>
-							<div className="button-wrap">
-								<Button
-									className="create-btn btn"
-									onClick={SubmitQuestion}
-								>
-									Update
-								</Button>
-								<Button
-									className="reset-btn btn"
-									onClick={SetDefaultState}
-								>
-									Reset
-								</Button>
-							</div>
-						</Box>
-					</motion.div>
-				)}
-			</AnimatePresence>
-		</motion.div>
+												<motion.div
+													className="text-box"
+													animate={{
+														height: 40,
+														boxShadow:
+															"0px 2px 7px rgb(182,182,182)",
+													}}
+													initial={{
+														height: 0,
+														boxShadow:
+															"0px 0px 0px whitesmoke",
+													}}
+													exit={{
+														height: 0,
+														boxShadow:
+															"0px 0px 0px whitesmoke",
+													}}
+												>
+													<input
+														type="checkbox"
+														name="radio-input"
+														checked={option.checked}
+														onChange={() =>
+															HandleAnswerChecked(
+																index
+															)
+														}
+														className="answer checkbox"
+														id="answer"
+													/>
+													<textarea
+														name="option-input"
+														id=""
+														value={option.text}
+														onChange={(e) =>
+															HandleOptionTextChange(
+																e,
+																index
+															)
+														}
+														placeholder="Enter option"
+														className="text-control textarea"
+													></textarea>
+													<IconButton
+														size="small"
+														onClick={() =>
+															RemoveOption(index)
+														}
+														className="remove-btn remove-option btn"
+													>
+														<CancelIcon fontSize="small" />
+													</IconButton>
+												</motion.div>
+											</div>
+										);
+									}
+								)}
+							</AnimatePresence>
+						</ul>
+					</div>
+				</div>
+				<div className="button-wrap">
+					<Button className="create-btn btn" onClick={SubmitQuestion}>
+						Update
+					</Button>
+					<Button className="reset-btn btn" onClick={SetDefaultState}>
+						Reset
+					</Button>
+				</div>
+			</Box>
+		</React.Fragment>
 	);
-});
-EditQuestion.displayName = "Edit Question";
-
+}
 export default EditQuestion;

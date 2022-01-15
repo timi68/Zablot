@@ -1,23 +1,37 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {useEffect, useState, useContext, useCallback} from "react";
+import React from "react";
 import AppLayout from "../../src/AppLayout";
 import {AppContext} from "../../lib/context/appContext";
-import {ActionType} from "../../lib/interfaces";
+import {ActionType, Friends} from "../../lib/interfaces";
 import DashboardComponent from "../../components/dashboard";
 import axios from "axios";
 import NoSession from "../../components/nosession";
 import {CircularProgress, Container} from "@mui/material";
 import {useSnackbar} from "notistack";
 
-function Dashboard(props) {
+const Dashboard = React.forwardRef(function (
+	props: {children?: React.ReactNode; user: string},
+	ref
+) {
 	const {
 		state: {user, socket, loggedIn},
 		dispatch,
-	} = useContext(AppContext);
+	} = React.useContext(AppContext);
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
-	const [error, setError] = useState(null);
+	const [error, setError] = React.useState(null);
+	const DashboardComponentRef = React.useRef(null);
 
-	const handleJoined = useCallback(
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			UpdateFriends(friend: Friends) {
+				DashboardComponentRef.current.UpdateFriends(friend);
+			},
+		}),
+		[]
+	);
+
+	const handleJoined = React.useCallback(
 		(id) => {
 			console.log(id);
 			const SOCKET_ID = id;
@@ -43,7 +57,7 @@ function Dashboard(props) {
 		[socket]
 	);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		if (!user || !socket || !loggedIn) {
 			if (props?.user) {
 				(async () => {
@@ -102,8 +116,12 @@ function Dashboard(props) {
 
 	if (socket && user && loggedIn) {
 		return (
-			<AppLayout loggedIn={true} title="dashboard">
-				<DashboardComponent />
+			<AppLayout
+				loggedIn={true}
+				title="dashboard"
+				chatboardRef={DashboardComponentRef}
+			>
+				<DashboardComponent ref={DashboardComponentRef} />
 			</AppLayout>
 		);
 	} else if (props?.user) {
@@ -123,7 +141,9 @@ function Dashboard(props) {
 	} else {
 		return <NoSession />;
 	}
-}
+});
+
+Dashboard.displayName = "Dashboard";
 
 export async function getServerSideProps({req, res}) {
 	const user = req.session.user;

@@ -1,17 +1,37 @@
-import React, {Fragment} from "react";
+import React from "react";
 import UploadScreen from "./uploadsection";
 import AppChatBoard from "./chatboard";
+import {Friends, AppChatBoardType} from "../../lib/interfaces";
+import ChatRoom from "./chatroom";
 
-export default function DashboardComponent() {
+const DashboardComponent = React.forwardRef(function (props, ref) {
+	const AppChatBoardRef = React.useRef<AppChatBoardType>(null);
+	const ChatRoomRef =
+		React.useRef<{OpenRoom(user: Friends, target: HTMLElement): void}>(
+			null
+		);
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			UpdateFriends(friend: Friends) {
+				AppChatBoardRef.current.UpdateFriends(friend);
+			},
+		}),
+		[]
+	);
 	return (
-		<Fragment>
+		<React.Fragment>
 			<section className="main-body wide center-content">
 				<div className="posts social-feeds informations view-screen">
 					<UploadScreen />
 				</div>
-				<div className="chat-form-container empty"></div>
+				<ChatRoom ref={ChatRoomRef} chatBoard={AppChatBoardRef} />
 			</section>
-			<AppChatBoard />
-		</Fragment>
+			<AppChatBoard ref={AppChatBoardRef} chatRoom={ChatRoomRef} />
+		</React.Fragment>
 	);
-}
+});
+
+DashboardComponent.displayName = "DashboardComponentWrapper";
+
+export default DashboardComponent;

@@ -1,7 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
-import {Fragment, useEffect, useContext, useState, useRef} from "react";
+import {
+	Fragment,
+	useEffect,
+	useContext,
+	useState,
+	useRef,
+	forwardRef,
+	useImperativeHandle,
+} from "react";
 import {motion} from "framer-motion";
 import {CSSTransition} from "react-transition-group";
 import {AppContext, ModalContext} from "../../../lib/context";
@@ -16,9 +24,17 @@ interface RequestDataInterface {
 	requests: Partial<Interfaces.Requests[]>;
 	date: Date;
 }
-function FriendRequests() {
+
+type PropsType = {
+	SearchbarRef: Interfaces.Ref;
+	ChatboardRef: Interfaces.Ref;
+	children?: React.ReactNode;
+};
+
+const FriendRequests = function (props: PropsType, ref) {
 	const {
 		state: {socket, user, session},
+		dispatch,
 	} = useContext(AppContext);
 	const modalSignal = useContext(ModalContext);
 	const [requestsData, setRequestsData] = useState<RequestDataInterface>({
@@ -27,12 +43,12 @@ function FriendRequests() {
 	});
 	const [openModal, setOpenModal] = useState(false);
 
-	const Reject = (id: string, rm: Event) => {
+	const Reject = (id: string) => {
 		let data = {
-			GID: id,
-			CID: user._id,
-			CN: user?.FullName,
-			CI: user?.Image.profile,
+			going_id: id,
+			coming_id: user._id,
+			coming_name: user?.FullName,
+			coming_image: user?.Image.profile,
 		};
 		socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
 			console.log(err ?? done);
@@ -63,23 +79,23 @@ function FriendRequests() {
 		});
 	};
 
-	const Accept = (data, e: Event) => {
+	const Accept = (data: Interfaces.Requests) => {
 		console.log("user accepted request %s", data);
 
 		const data_to_emit = {
-			GID: data.From,
-			GN: data.Name,
-			GI: data.Image,
-			CID: user._id,
-			CN: user?.FullName,
-			CI: user?.Image.profile,
+			going_id: data.From,
+			going_name: data.Name,
+			going_image: data.Image,
+			coming_id: user._id,
+			coming_name: user?.FullName,
+			coming_image: user?.Image.profile,
 		};
 
 		socket.emit(
 			"ACCEPT_REQUEST",
 			data_to_emit,
-			(err: string | object, done: string | boolean) => {
-				console.log(err ?? done);
+			(err: string | object, id: string) => {
+				console.log(err ?? id);
 
 				setTimeout(() => {
 					setRequestsData((state) => {
@@ -96,6 +112,21 @@ function FriendRequests() {
 						};
 					});
 				}, 6000);
+
+				const NewFriendDetails: Interfaces.Friends = {
+					_id: id,
+					Id: data.From,
+					Name: data.Name,
+					active: true,
+					Image: data.Image,
+					UnseenMessages: 1,
+					Last_Message: "You are now friends",
+					LastPersonToSendMessage: null,
+					IsPrivate: false,
+				};
+
+				props.SearchbarRef.current.UpdateFriends(NewFriendDetails);
+				props.ChatboardRef.current.UpdateFriends(NewFriendDetails);
 			}
 		);
 	};
@@ -227,15 +258,15 @@ function FriendRequests() {
 			</CSSTransition>
 		</div>
 	);
-}
+};
 
 interface RequestsInterface {
-	user: Interfaces.User;
-	accept(): void;
-	reject(): void;
+	user: Interfaces.Requests;
+	accept(user: Interfaces.Requests): void;
+	reject(id: string): void;
 	duration: string;
 }
-function Requests(props) {
+function Requests(props: RequestsInterface) {
 	const {user, duration, accept: Accept, reject: Reject} = props;
 
 	return (
@@ -276,7 +307,7 @@ function Requests(props) {
 						<span
 							className="accept-text"
 							onClick={(e) => {
-								Accept(user, e);
+								Accept(user);
 							}}
 						>
 							Accept
@@ -286,7 +317,7 @@ function Requests(props) {
 						<span
 							className="reject-text"
 							onClick={(e) => {
-								Reject(user.From, e);
+								Reject(user.From);
 							}}
 						>
 							Reject

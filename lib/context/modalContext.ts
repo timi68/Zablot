@@ -1,2 +1,7 @@
 import React from "react";
-export const ModalContext = React.createContext(null);
+
+type Context = {
+	current: HTMLElement;
+} | null;
+
+export const ModalContext = React.createContext<Context>(null);

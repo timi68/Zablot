@@ -1,13 +1,16 @@
 interface GroupInterface {
-	cur: string;
-	pre: string;
+	cur: Date;
+	pre: Date;
 	i: number;
 }
 
 export default function GroupNotifications({cur, pre, i}: GroupInterface) {
-	var date: string = new Date().getDay() as unknown as string;
+	var date: number = new Date().getDay();
+	var currentDate: number = new Date(cur).getDay();
+	var previousDate: number = new Date(pre).getDay();
+
 	if (i === 0) {
-		if (cur === date) {
+		if (currentDate === date) {
 			return (
 				<div className="date">
 					<div className="day-text">
@@ -15,7 +18,7 @@ export default function GroupNotifications({cur, pre, i}: GroupInterface) {
 					</div>
 				</div>
 			);
-		} else if (date === cur + 1) {
+		} else if (date === currentDate + 1) {
 			return (
 				<div className="date">
 					<div className="day-text">
@@ -27,13 +30,13 @@ export default function GroupNotifications({cur, pre, i}: GroupInterface) {
 			return (
 				<div className="date">
 					<div className="day-text">
-						<span>{new Date(cur).toLocaleDateString()}</span>
+						<span>{new Date(cur).toLocaleString()}</span>
 					</div>
 				</div>
 			);
 		}
-	} else if (cur !== pre) {
-		if (date === cur + 1) {
+	} else if (currentDate !== previousDate) {
+		if (date === currentDate + 1) {
 			return (
 				<div className="date">
 					<div className="day-text">

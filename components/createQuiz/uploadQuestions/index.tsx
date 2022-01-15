@@ -486,7 +486,7 @@ function Content({questions, setOpen}) {
 				>
 					<div className="form-wrapper">
 						<TextField
-							fullWidth
+							// fullWidth
 							error={errors?.QuizName}
 							label="Quiz name*"
 							margin="dense"
@@ -494,6 +494,8 @@ function Content({questions, setOpen}) {
 							onChange={handleChange}
 							name="QuizName"
 							variant="outlined"
+							className="text-control"
+							size="small"
 							autoComplete="new-quiz-name"
 							autoCapitalize="true"
 							helperText={
@@ -502,9 +504,11 @@ function Content({questions, setOpen}) {
 							}
 						/>
 						<TextField
-							fullWidth
+							// fullWidth
 							error={errors?.Purpose}
+							className="text-control"
 							label="Quiz purpose*"
+							size="small"
 							margin="dense"
 							name="Purpose"
 							value={formData?.Purpose ?? ""}
@@ -517,12 +521,14 @@ function Content({questions, setOpen}) {
 							}
 						/>
 						<TextField
-							fullWidth
+							// fullWidth
 							error={errors?.Duration}
 							label="Duration (measure in mins)*"
 							margin="dense"
+							size="small"
 							autoComplete="new-duration"
 							name="Duration"
+							className="text-control"
 							variant="outlined"
 							value={formData?.Duration ?? ""}
 							onChange={handleChange}
@@ -532,10 +538,11 @@ function Content({questions, setOpen}) {
 							}
 						/>
 						<TextField
-							className="text-field-type-select"
 							type="text"
 							name="QuizType"
 							select
+							className="text-control"
+							size="small"
 							margin="dense"
 							autoComplete="new-type"
 							onChange={handleChange}
@@ -550,6 +557,8 @@ function Content({questions, setOpen}) {
 								variant="outlined"
 								sx={{my: ".5em"}}
 								error={errors?.Password}
+								size="small"
+								className="text-control"
 							>
 								<InputLabel htmlFor="outlined-adornment-password">
 									Password
@@ -558,6 +567,7 @@ function Content({questions, setOpen}) {
 									id="outlined-adornment-password"
 									error={errors?.Password}
 									name="Password"
+									size="small"
 									autoComplete="new-password"
 									type={show ? "text" : "password"}
 									value={formData?.Password ?? ""}
@@ -608,6 +618,7 @@ function Content({questions, setOpen}) {
 												<TextField
 													name="OpenTime"
 													margin="dense"
+													size="small"
 													helperText={
 														errors?.OpenTime &&
 														"Invalid DateTime"
@@ -639,6 +650,7 @@ function Content({questions, setOpen}) {
 												<TextField
 													name="CloseTime"
 													margin="dense"
+													size="small"
 													helperText={
 														props?.error &&
 														"Invalid DateTime"
