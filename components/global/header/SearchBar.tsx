@@ -3,7 +3,6 @@
 // @ts-check
 import React from "react";
 import {AppContext, ModalContext} from "../../../lib/context";
-import {ChatRoom} from "../../../utils/ChatRoom";
 import {motion} from "framer-motion";
 import j from "jquery";
 import {v4 as uuid} from "uuid";
@@ -174,9 +173,7 @@ const SearchBar = React.forwardRef(function (
 	function processFriend(
 		user: Interfaces.Matched,
 		e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-	) {
-		ChatRoom({j, user, from: user._id, e, socket});
-	}
+	) {}
 
 	// Function that runs when user cancelled the request
 	// he/she had sent and delivered or on delivery
