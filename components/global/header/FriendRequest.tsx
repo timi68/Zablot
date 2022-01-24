@@ -14,16 +14,11 @@ import {motion} from "framer-motion";
 import {CSSTransition} from "react-transition-group";
 import {AppContext, ModalContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
-import time from "../../../utils/calcuate-time";
+import time from "../../../utils/CalculateTime";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import {IconButton, Badge} from "@mui/material";
 import j from "jquery";
 import * as Interfaces from "../../../lib/interfaces";
-
-interface RequestDataInterface {
-	requests: Partial<Interfaces.Requests[]>;
-	date: Date;
-}
 
 type PropsType = {
 	SearchbarRef: Interfaces.Ref;
@@ -37,11 +32,11 @@ const FriendRequests = function (props: PropsType, ref) {
 		dispatch,
 	} = useContext(AppContext);
 	const modalSignal = useContext(ModalContext);
-	const [requestsData, setRequestsData] = useState<RequestDataInterface>({
-		requests: user?.FriendRequests.reverse() || [],
-		date: new Date(),
-	});
+	const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>(
+		user?.FriendRequests.reverse() || []
+	);
 	const [openModal, setOpenModal] = useState(false);
+	const IconButtonRef = useRef<HTMLButtonElement>(null);
 
 	const Reject = (id: string) => {
 		let data = {
@@ -52,28 +47,18 @@ const FriendRequests = function (props: PropsType, ref) {
 		};
 		socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
 			console.log(err ?? done);
-			setRequestsData((state) => {
-				return {
-					...state,
-					...{
-						requests: state.requests.filter((req) => {
-							if (req.From === id) {
-								req.Rejected = true;
-							}
-							return req;
-						}),
-					},
-				};
+			setRequests((state) => {
+				return (state = state.filter((req) => {
+					if (req.From === id) {
+						req.Rejected = true;
+					}
+					return req;
+				}));
 			});
 
 			setTimeout(() => {
-				setRequestsData((state) => {
-					return {
-						requests: state.requests.filter(
-							(req) => req.From !== id
-						),
-						date: new Date(),
-					};
+				setRequests((state) => {
+					return (state = state.filter((req) => req.From !== id));
 				});
 			}, 5000);
 		});
@@ -98,18 +83,14 @@ const FriendRequests = function (props: PropsType, ref) {
 				console.log(err ?? id);
 
 				setTimeout(() => {
-					setRequestsData((state) => {
-						return {
-							...state,
-							...{
-								requests: state.requests.filter((req) => {
-									if (req.From === data.From) {
-										req.Accepted = true;
-									}
-									return req;
-								}),
-							},
-						};
+					setRequests((state) => {
+						state = state.filter((req) => {
+							if (req.From === data.From) {
+								req.Accepted = true;
+							}
+							return req;
+						});
+						return state;
 					});
 				}, 6000);
 
@@ -141,24 +122,14 @@ const FriendRequests = function (props: PropsType, ref) {
 			Date: new Date(),
 		};
 
-		setRequestsData((state) => {
-			return {
-				requests: [newRequest, ...state.requests],
-				date: new Date(),
-			};
+		setRequests((state) => {
+			return (state = [newRequest, ...state]);
 		});
 	};
 
 	const REMOVEREQUEST = (data: {from: string}) => {
-		setRequestsData((state): RequestDataInterface => {
-			return {
-				...state,
-				...{
-					requests: state.requests.filter(
-						(user) => user.From !== data.from
-					),
-				},
-			};
+		setRequests((state) => {
+			return (state = state.filter((user) => user.From !== data.from));
 		});
 	};
 
@@ -190,12 +161,15 @@ const FriendRequests = function (props: PropsType, ref) {
 		if (!openModal) return;
 		setOpenModal(false);
 		j(modalSignal.current).removeClass("show");
+		IconButtonRef.current.classList.remove("active");
 	};
 
 	const handleOpen = () => {
 		if (!openModal)
-			j(modalSignal.current).trigger("click").addClass("show");
-		else j(modalSignal.current).removeClass("show");
+			j(modalSignal?.current).trigger("click").addClass("show");
+		else j(modalSignal?.current).removeClass("show");
+
+		IconButtonRef.current.classList.toggle("active");
 	};
 
 	return (
@@ -203,6 +177,7 @@ const FriendRequests = function (props: PropsType, ref) {
 			<Badge color="secondary" badgeContent={0} showZero>
 				<IconButton
 					className="open"
+					ref={IconButtonRef}
 					onClick={() => {
 						setOpenModal(!openModal);
 						handleOpen();
@@ -228,17 +203,12 @@ const FriendRequests = function (props: PropsType, ref) {
 					</div>
 					<div className="requests-list">
 						<ul className="users">
-							{requestsData.requests?.map((user) => {
-								var key = uuid();
-								console.log(requestsData.date, user.Date);
-								var duration = time(
-									requestsData.date,
-									user.Date
-								);
+							{requests?.map((user, index) => {
+								var duration = time(user.Date);
 
 								return (
 									<Requests
-										key={key}
+										key={index}
 										accept={Accept}
 										reject={Reject}
 										user={user}
@@ -246,7 +216,7 @@ const FriendRequests = function (props: PropsType, ref) {
 									/>
 								);
 							})}
-							{!Boolean(requestsData.requests?.length) && (
+							{!Boolean(requests?.length) && (
 								<div className="no_request">
 									<h4>There is no request available</h4>
 								</div>

@@ -70,9 +70,10 @@ const Dashboard = React.forwardRef(function (
 						let user = await request.data;
 
 						user.Notifications =
-							user.Notifications[0].notifications;
+							user.Notifications[0].notifications.reverse();
 						user.Friends = user.Friends[0].friends;
-						user.FriendRequests = user.FriendRequests[0].requests;
+						user.FriendRequests =
+							user.FriendRequests[0].requests.reverse();
 						user.Settings = user.Settings[0].settings;
 
 						console.log("this is from room", user);

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
-import React, {useEffect, useContext, useState, useCallback} from "react";
+import React from "react";
 import {motion} from "framer-motion";
 import {IconButton} from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -12,17 +12,19 @@ import {CSSTransition} from "react-transition-group";
 function ProfileCard() {
 	const {
 		state: {user},
-	} = useContext(AppContext);
-	const modalSignal = useContext(ModalContext);
-	const [expand, setExpand] = useState(false);
+	} = React.useContext(AppContext);
+	const modalSignal = React.useContext(ModalContext);
+	const [expand, setExpand] = React.useState(false);
+	const IconButtonRef = React.useRef<HTMLButtonElement>(null);
 
 	const handleClick = () => {
 		if (!expand) return;
 		setExpand(false);
 		j(modalSignal.current).removeClass("show");
+		IconButtonRef.current.classList.remove("active");
 	};
 
-	useEffect(() => {
+	React.useEffect(() => {
 		const modal = modalSignal?.current;
 		j(modalSignal?.current).on("click", handleClick);
 		return () => {
@@ -30,12 +32,11 @@ function ProfileCard() {
 		};
 	}, [expand, handleClick, modalSignal]);
 
-	const handleOpen = () => {
-		if (!expand) {
-			j(modalSignal?.current).trigger("click").addClass("show");
-		} else {
-			j(modalSignal?.current).removeClass("show");
-		}
+	const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
+		if (!expand) j(modalSignal?.current).trigger("click").addClass("show");
+		else j(modalSignal?.current).removeClass("show");
+
+		IconButtonRef.current.classList.toggle("active");
 	};
 
 	return (
@@ -43,9 +44,10 @@ function ProfileCard() {
 			<IconButton
 				size="medium"
 				className="open"
-				onClick={() => {
+				ref={IconButtonRef}
+				onClick={(e) => {
 					setExpand(!expand);
-					handleOpen();
+					handleOpen(e);
 				}}
 			>
 				{expand ? (

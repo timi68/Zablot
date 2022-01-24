@@ -1,10 +1,9 @@
 import React from "react";
 import * as Interfaces from "../../../lib/interfaces";
-import GroupMessage from "./groupMessage";
+import GroupMessage from "./GroupMessage";
 
 function OutgoingMessage(props: {
 	message: Interfaces.MessageType;
-	prevGoingId: boolean;
 	nextGoingId: boolean;
 	hrs: number | string;
 	mins: number | string;
@@ -12,19 +11,12 @@ function OutgoingMessage(props: {
 	pre: Date | null;
 	i: number;
 }) {
-	const {prevGoingId, nextGoingId, message, hrs, mins, cur, pre, i} = props;
-	const className = `outgoing-message ${
-		prevGoingId
-			? nextGoingId
-				? "adjust"
-				: ""
-			: nextGoingId
-			? "adjust-mg"
-			: ""
+	const {nextGoingId, message, hrs, mins, cur, pre, i} = props;
+	const className = `outgoing-message${
+		nextGoingId || i === 0 ? " adjust-mg" : ""
 	} `;
 
 	const time = hrs + ":" + mins;
-	console.log({cur, pre});
 	const Group = GroupMessage({cur, pre, i});
 
 	return (

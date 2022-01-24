@@ -130,6 +130,8 @@ export type Ref = {current: {UpdateFriends(friend: Friends): void}};
 export type AppChatBoardType = {
 	UpdateFriends(friend: Friends): void;
 	SetLastMessage(id: string, message: string, flow: string): void;
+	toggle(): void;
+	getModalState(): boolean;
 };
 
 export type MessageType = Partial<{
@@ -141,29 +143,27 @@ export type MessageType = Partial<{
 	coming: string;
 	filename: string;
 	question: string;
-	options: {index: number; text: string; checked: boolean}[];
+	options: {
+		text: string;
+		checked: boolean;
+	}[];
 	date: Date;
-	answered: {index: number; text: string; checked: boolean};
+	answered: Partial<{text: string; checked: boolean}>;
 	coin: number;
 	timer: number;
+	challenge: boolean;
+	noAnswer: boolean;
+	file?: File;
+	upload?: boolean;
+	blobUrl?: string;
 }>;
 
 export type RoomType = {
 	user: Friends;
 	messages: MessageType[];
+	loaded: boolean;
 	pollToggled?: boolean;
-	pollData?: {
-		question: string;
-		options: [
-			{
-				text: string;
-				checked: boolean;
-			}
-		];
-		challenge: boolean;
-		coin: number;
-		duration: number;
-	};
+	pollData?: MessageType;
 	target: HTMLElement;
 };
 

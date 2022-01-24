@@ -9,28 +9,36 @@ import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import {IconButton} from "@mui/material";
 import * as Interfaces from "../../../lib/interfaces";
-import axios from "axios";
 import {AppContext} from "../../../lib/context";
-import RoomBody from "./roombody";
+import RoomBody from "./RoomBody";
 import Poll from "./Poll";
+import RoomHeader from "./RoomHeader";
 
 const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 	const {
 		state: {socket, user},
 	} = React.useContext(AppContext);
-
 	const SendRef = React.useRef<HTMLButtonElement>(null);
 	const MessageBoxRef = React.useRef<HTMLTextAreaElement>(null);
 	const RoomBodyRef = React.useRef<Interfaces.RoomBodyRefType>(null);
 	const MediaRef = React.useRef<HTMLDivElement>(null);
-	const PollRef = React.useRef<{toggle(): void}>(null);
+	const PollRef = React.useRef<{
+		toggle(hide?: boolean): void;
+		getPollData(): {
+			pollData: Interfaces.RoomType["pollData"];
+			pollToggled: boolean;
+		};
+	}>(null);
+	const ImageFileRef = React.useRef<HTMLInputElement>(null);
+	const VideoFileRef = React.useRef<HTMLButtonElement>(null);
 
 	React.useImperativeHandle(
 		ref,
 		() => ({
 			getProps() {
 				let messages = RoomBodyRef.current.getMessages();
-				return {...props.roomData, messages};
+				let pollData = PollRef.current.getPollData();
+				return {...props.roomData, messages, loaded: true, ...pollData};
 			},
 		}),
 		[]
@@ -97,17 +105,88 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 		});
 	};
 
+	/**
+	 * This function controls the media toggler
+	 *
+	 */
+	const handleToggle: (type: "poll" | "video" | "image") => void = (type) => {
+		MediaRef.current.classList.remove("active");
+		switch (type) {
+			case "poll":
+				PollRef.current.toggle();
+				break;
+			case "image":
+				ImageFileRef.current.click();
+			default:
+				break;
+		}
+	};
+
+	const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (
+			!(
+				window.File &&
+				window.FileReader &&
+				window.FileList &&
+				window.Blob
+			)
+		) {
+			alert("The File APIs are not fully supported in this browser.");
+			return false;
+		}
+
+		const file = e.target.files[0];
+		const imageFileType: string[] = [
+			"image/jpeg",
+			"image/jpg",
+			"image/svg",
+			"image/png",
+			"image/jfif",
+		];
+		const videoFileType: string[] = [
+			"video/mp4",
+			"video/avi",
+			"video/mv4",
+			"video/ogm",
+			"video/mpg",
+		];
+
+		if (imageFileType.includes(file?.type)) {
+			// read the files
+			var reader = new FileReader();
+			reader.readAsArrayBuffer(file);
+
+			reader.onload = function (event) {
+				// blob stuff
+				var blob = new Blob([event.target.result]); // create blob...
+				window.URL = window.URL || window.webkitURL;
+				var blobURL = window.URL.createObjectURL(blob); // and get it's URL
+
+				let newMessage: Interfaces.MessageType = {
+					message: "Image",
+					Format: "image",
+					date: new Date(),
+					coming: user._id,
+					going: props.roomData.user.Id,
+					_id: props.roomData.user._id,
+					blobUrl: blobURL,
+					filename: file.name,
+					file,
+					upload: true,
+				};
+
+				RoomBodyRef.current.setMessages(newMessage, "out");
+				props.chatBoard.current.SetLastMessage(
+					props.roomData.user.Id,
+					"Image",
+					user._id
+				);
+			};
+		}
+	};
+
 	return (
 		<div className="chats-form" id={props.roomData.user._id}>
-			<div
-				className="close-card"
-				data-role="close room"
-				onClick={UpdateRooms}
-			>
-				<IconButton size="small">
-					<CloseOutlinedIcon fontSize="small" className="icon" />
-				</IconButton>
-			</div>
 			<div
 				className="image-preview-wrapper application"
 				role="application"
@@ -117,43 +196,32 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 				role="application"
 			></div>
 			<div className="form-group chats-room">
-				<div className="room-header">
-					<div className="profile">
-						<div
-							className="avatar user_image list_item"
-							dangerouslySetInnerHTML={{
-								__html: String(
-									props.roomData.target.closest(".chat")
-										.children[0].innerHTML
-								),
-							}}
-						/>
-						<div className="name">
-							<span className="textname">james</span>
-							<div className="active-sign">
-								<div className="active-text">online</div>
-							</div>
-						</div>
-						<div className="options">
-							<div className="options-list">
-								<div className="option navigate"></div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<RoomHeader
+					socket={socket}
+					target={props.roomData.target}
+					_id={props.roomData.user.Id}
+					UpdateRooms={UpdateRooms}
+				/>
 				<RoomBody
 					ref={RoomBodyRef}
 					messages={props.roomData.messages}
 					user={props.roomData.user}
+					coming={user._id}
 					target={props.roomData.target}
 					socket={socket}
 					chatboard={props.chatBoard}
+					loaded={props.roomData.loaded}
 				/>
 				<div className="room-footer">
 					<div className="message-create-box input-box">
-						<div className="input-group">
+						<div className="input-group message-box">
 							<div className="icon media-icon">
-								<IconButton size="small">
+								<IconButton
+									size="small"
+									onClick={() =>
+										MediaRef.current.classList.add("active")
+									}
+								>
 									<AttachmentOutlinedIcon fontSize="small" />
 								</IconButton>
 							</div>
@@ -180,8 +248,13 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 							<div className="multimedia-list list">
 								<ul className="media-list">
 									<li className="media video toggle-video">
-										<IconButton className=" icon image-icon">
-											<ImageOutlinedIcon />
+										<IconButton
+											className=" icon image-icon"
+											onClick={() =>
+												handleToggle("image")
+											}
+										>
+											<ImageOutlinedIcon fontSize="small" />
 										</IconButton>
 										<label className="icon-label">
 											Image
@@ -190,14 +263,16 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 											className="file-control image-file"
 											type="file"
 											name="image-file"
-											id="40abf369-1e9image"
+											id="image-file"
+											ref={ImageFileRef}
 											accept="image/*"
+											onChange={handleFile}
 											hidden
 										/>
 									</li>
 									<li className="media image toggle-image">
 										<IconButton className="icon video-icon">
-											<VideoLibraryIcon />
+											<VideoLibraryIcon fontSize="small" />
 										</IconButton>
 										<label className="icon-label">
 											Video
@@ -215,11 +290,9 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 										<IconButton
 											className="icon"
 											id="poll-icon"
-											onClick={() =>
-												PollRef.current.toggle()
-											}
+											onClick={() => handleToggle("poll")}
 										>
-											<PollOutlinedIcon />
+											<PollOutlinedIcon fontSize="small" />
 										</IconButton>
 										<label className="icon-label">
 											Poll
@@ -228,14 +301,21 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 								</ul>
 							</div>
 						</div>
-						<Poll ref={PollRef} />
+						<Poll
+							ref={PollRef}
+							roomBody={RoomBodyRef}
+							going={props.roomData.user.Id}
+							_id={props.roomData.user.Id}
+							coming={user._id}
+							data={props.roomData.pollData}
+							toggled={props.roomData.pollToggled}
+						/>
 					</div>
 				</div>
 			</div>
 		</div>
 	);
 });
-
 Room.displayName = "Room";
 
 export default Room;

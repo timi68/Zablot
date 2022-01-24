@@ -137,7 +137,7 @@ router.post("/media/upload", (req, res) => {
 					() => {
 						var fileProp = {
 							filename: file.originalFilename,
-							url: "./images/" + file.originalFilename,
+							url: "/images/" + file.originalFilename,
 						};
 						return cb(null, fileProp);
 					}

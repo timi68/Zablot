@@ -1,16 +1,14 @@
 import Image from "next/image";
 import React from "react";
-import {AppContext} from "../../../lib/context";
-import {v4 as uuid} from "uuid";
-import j from "jquery";
-import {ChatRoom} from "../../../utils/ChatRoom";
+import {AppContext, ModalContext} from "../../../lib/context";
 import {motion} from "framer-motion";
-import {Tab, Tabs, CircularProgress} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
-import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import {Button, CardActionArea} from "@material-ui/core";
+import {CircularProgress} from "@mui/material";
 import * as Interface from "../../../lib/interfaces";
+import Friends from "./Friends";
+import PrivateFriends from "./PrivateFriends";
+import Navbar from "./Navbar";
+import j from "jquery";
 
 interface ChatBoardType {
 	chatRoom: {
@@ -24,35 +22,15 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 		state: {socket, session, user, activeFriends},
 		dispatch,
 	} = React.useContext(AppContext);
+	const modalSignal = React.useContext(ModalContext);
+	const [openModal, setOpenModal] = React.useState<boolean>(false);
 	const [friends, setFriends] = React.useState<Interface.Friends[]>(
 		user?.Friends || []
 	);
 	const [loading, setLoading] = React.useState(!Boolean(activeFriends));
 	const [tabToOpen, setTabToOpen] = React.useState(0);
-	const chatBoard = React.useRef(null);
+	const chatBoard = React.useRef<HTMLDivElement>(null);
 
-	React.useImperativeHandle(
-		ref,
-		() => ({
-			UpdateFriends(friend: Interface.Friends) {
-				console.log("Updating friends");
-				setFriends((friends) => [friend, ...friends]);
-			},
-			SetLastMessage(id: string, message: string, flow: string) {
-				setFriends((prevFriends) => {
-					const currentFriends = prevFriends.map((friend) => {
-						if (friend.Id === id) {
-							friend.Last_Message = message;
-							friend.LastPersonToSendMessage = flow;
-						}
-						return friend;
-					});
-					return currentFriends;
-				});
-			},
-		}),
-		[]
-	);
 	const NewFriend = React.useCallback(
 		(data: Interface.Friends) => {
 			console.log("NewFriends emitted", data);
@@ -61,32 +39,38 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 		[friends]
 	);
 
-	const IncomingMessage = React.useCallback((data: Interface.MessageType) => {
-		console.log(" IncomingMessage emitted", data);
-		const id = [];
-		j(".chats-form").each((i, e) => {
-			id.push(j(e).attr("id").slice(0, 12));
-		});
-
-		setFriends((state) => {
-			const oldState = state.filter((user) => user.Id !== data.coming);
-			state.map((user) => {
-				if (user.Id === data.coming) {
-					user.UnseenMessages = id.includes(data._id)
-						? 0
-						: Number(user.UnseenMessages) + 1;
-					user.Last_Message = data.message;
-					user.LastPersonToSendMessage = data.coming;
-					oldState.unshift(user);
-				}
-				return;
+	const _callback$IncomingMessage = React.useCallback(
+		(data: Interface.MessageType) => {
+			console.log(" IncomingMessage emitted", data);
+			const id = [];
+			j(".chats-form").each((i, e) => {
+				id.push(j(e).attr("id").slice(4, 12));
 			});
 
-			return oldState;
-		});
-	}, []);
+			setFriends((state) => {
+				const oldState = state.filter(
+					(user) => user.Id !== data.coming
+				);
+				state.map((user) => {
+					if (user.Id === data.coming) {
+						user.UnseenMessages = id.includes(data._id)
+							? 0
+							: Number(user.UnseenMessages) + 1;
+						user.Last_Message = data.message;
+						user.LastPersonToSendMessage = data.coming;
+						oldState.unshift(user);
+					}
+					return;
+				});
 
-	const Status = React.useCallback((data) => {
+				return oldState;
+			});
+		},
+		[]
+	);
+
+	const _callback$Status = React.useCallback((data) => {
+		console.log({data});
 		setFriends((state) => {
 			const newState = state.map((user) => {
 				if (user.Id === data._id) user.active = data.online;
@@ -95,10 +79,6 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 
 			return newState;
 		});
-	}, []);
-
-	const ANSWERED = React.useCallback((data) => {
-		console.log(data);
 	}, []);
 
 	const handleActiveFriends = (actives) => {
@@ -116,40 +96,45 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 			return state;
 		});
 
+		console.log({friends});
+		setLoading(false);
 		dispatch({
 			type: Interface.ActionType.ACTIVEFRIENDS,
 			payload: {activeFriends: actives},
 		});
-		setTimeout(() => {
-			setLoading(false);
-		}, 1000);
 	};
 
-	React.useEffect(() => {
-		if (socket) {
-			socket.on("INCOMINGMESSAGE", IncomingMessage);
-			socket.on("STATUS", Status);
-			socket.on("ANSWERED", ANSWERED);
-		}
+	const handleClick = React.useCallback(() => {
+		if (!openModal) return;
+		setOpenModal(false);
 
-		if (!activeFriends) {
-			socket.emit("ACTIVEUSERS", handleActiveFriends);
-		} else {
-			handleActiveFriends(activeFriends);
-		}
+		console.log("from chatboard");
 
-		return () => {
-			socket.off("INCOMINGMESSAGE", IncomingMessage);
-			socket.off("STATUS", Status);
-			socket.off("ANSWERED", ANSWERED);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket]);
+		modalSignal.current.classList.remove("show");
+		chatBoard.current.classList.remove("show");
+	}, [modalSignal, openModal]);
 
-	function openRoom(
+	const openChatBoard = React.useCallback(
+		(click?: boolean) => {
+			const innerWidth = window.innerWidth < 750;
+
+			if (!innerWidth) return;
+
+			if (!openModal)
+				j(modalSignal?.current).trigger("click").addClass("show");
+			else j(modalSignal?.current).removeClass("show");
+
+			if (click) j(modalSignal?.current).trigger("click");
+			else chatBoard.current.classList.toggle("show");
+		},
+		[modalSignal, openModal]
+	);
+
+	const openRoom = (
 		userRoom: Interface.Friends,
 		e: React.MouseEvent<HTMLElement, MouseEvent>
-	): void {
+	): void => {
+		openChatBoard(true);
 		setFriends((state) => {
 			state = state.map((u) => {
 				if (u.Id === userRoom.Id) u.UnseenMessages = 0;
@@ -171,22 +156,67 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 		);
 
 		let target = e.target as HTMLElement;
-		// ChatRoom({j, user, from: session.id, e, socket});
 		props.chatRoom.current.OpenRoom(userRoom, target);
-		openChatBoard();
 		return;
-	}
-
-	const openChatBoard = () => {
-		const bar = chatBoard.current;
-		if (!bar.classList.contains("show"))
-			document.querySelector(".show")?.classList.remove("show");
-		bar.classList.toggle("show");
 	};
 
+	React.useEffect(() => {
+		if (socket) {
+			socket.on("STATUS", _callback$Status);
+			socket.on("IncomingMessage", _callback$IncomingMessage);
+		}
+
+		if (!activeFriends) {
+			socket.emit("ACTIVEUSERS", handleActiveFriends);
+		} else {
+			handleActiveFriends(activeFriends);
+		}
+
+		return () => {
+			socket.off("STATUS", _callback$Status);
+			socket.off("IncomingMessage", _callback$IncomingMessage);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [socket]);
+
+	React.useEffect(() => {
+		const modal = modalSignal?.current;
+		j(modalSignal?.current).on("click", handleClick);
+		return () => {
+			j(modal).off("click", handleClick);
+		};
+	}, [handleClick, modalSignal, openModal]);
+
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			UpdateFriends(friend: Interface.Friends) {
+				console.log("Updating friends");
+				setFriends((friends) => [friend, ...friends]);
+			},
+			SetLastMessage(id: string, message: string, flow: string) {
+				setFriends((prevFriends) => {
+					const currentFriends = prevFriends.map((friend) => {
+						if (friend.Id === id) {
+							friend.Last_Message = message;
+							friend.LastPersonToSendMessage = flow;
+						}
+						return friend;
+					});
+					return currentFriends;
+				});
+			},
+			toggle() {
+				setOpenModal(!openModal);
+				openChatBoard();
+			},
+		}),
+		[openChatBoard, openModal]
+	);
+
+	console.log("mounting from chatboard");
 	return (
 		<div className="chats-container chat-board" ref={chatBoard}>
-			<div onClick={openChatBoard} className="open"></div>
 			<div className="chat-wrapper">
 				<div className="chats-header">
 					<div className="title">Chats</div>
@@ -220,7 +250,7 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 								friends={friends}
 								openRoom={openRoom}
 							/>
-							<Private
+							<PrivateFriends
 								friends={friends}
 								openRoom={openRoom}
 								friendId={session.id}
@@ -234,195 +264,5 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
 });
 
 ChatBoard.displayName = "ChatBoard";
-
-type NavbarType = {tabToOpen: number; setTabToOpen(value: number): void};
-function Navbar(props: NavbarType) {
-	const {setTabToOpen, tabToOpen} = props;
-	function a11yProps(index) {
-		return {
-			id: `tab${index}`,
-		};
-	}
-
-	function handleChange(event, value) {
-		console.log(value);
-		setTabToOpen(value);
-	}
-	return (
-		<Tabs
-			variant="fullWidth"
-			value={tabToOpen}
-			textColor="inherit"
-			onChange={handleChange}
-			aria-label="Chats tab"
-			className="tab_list"
-		>
-			<Tab
-				icon={<PeopleAltOutlinedIcon fontSize="medium" />}
-				{...a11yProps(0)}
-			/>
-			<Tab icon={<SecurityIcon fontSize="medium" />} {...a11yProps(1)} />
-		</Tabs>
-	);
-}
-
-interface chats {
-	friendId: String;
-	user: Interface.Friends;
-	open(
-		user: Interface.Friends,
-		e: React.MouseEvent<HTMLElement, MouseEvent>
-	): void;
-}
-/**
- *
- */
-function Chats({friendId, user, open}: chats): JSX.Element {
-	return (
-		<CardActionArea
-			className="chats_listItem list_item chat"
-			role="listitem"
-			onClick={(e) => open(user, e)}
-		>
-			<div className="avatar user_image list_item" role="listitem">
-				<Image
-					src={"/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
-					alt={user.Name}
-					layout="fill"
-					role="img"
-					className="image list_image"
-				/>
-				<div className="badge user_active_signal"></div>
-			</div>
-			<div className="text" role="listitem">
-				<div className="user_name primary_text">{user.Name}</div>
-				<div className="last_message secondary_text">
-					{user?.LastPersonToSendMessage === friendId && "You: "}
-					{user.Last_Message === "Image" ? (
-						<ImageOutlinedIcon fontSize="small" />
-					) : (
-						user.Last_Message
-					)}
-				</div>
-			</div>
-			{!!user.UnseenMessages && (
-				<div className="unseenmessages badge">
-					<span className="label count">{user.UnseenMessages}</span>
-				</div>
-			)}
-		</CardActionArea>
-	);
-}
-
-/**
- *
- * @param {{friends: Object[]}} props
- * @returns
- */
-interface props {
-	friends: Interface.Friends[];
-	openRoom(
-		user: Interface.Friends,
-		e: React.MouseEvent<HTMLElement, MouseEvent>
-	): void;
-	friendId: string;
-}
-function Private(props: props) {
-	const {friends, openRoom, friendId} = props;
-	const [opened, setOpened] = React.useState(false);
-	const checkPin = () => setOpened(true);
-
-	const PrivateFriends = friends?.filter(
-		(friend) => friend.IsPrivate === true
-	);
-
-	return (
-		<div className="private_chats chats_listbox">
-			{opened && (
-				<>
-					{!!PrivateFriends?.length && (
-						<ul className="chats-list list">
-							{PrivateFriends?.map((user) => {
-								var key = uuid();
-								return (
-									<Chats
-										key={key}
-										friendId={friendId}
-										open={openRoom}
-										user={user}
-									/>
-								);
-							})}
-						</ul>
-					)}
-					{!friends?.length && (
-						<div className="no-friend-available">
-							<div className="text">
-								<span>No Private Chat</span>
-							</div>
-						</div>
-					)}
-				</>
-			)}
-			{!PrivateFriends?.length && !opened && (
-				<div className="chat-security">
-					<div className="label">
-						<h4>Enter security key to open</h4>
-					</div>
-					<div className="lock">
-						<input
-							className="input unlock"
-							data-role="input"
-							placeholder="Enter key"
-							type="tel"
-						/>
-						<Button
-							variant="outlined"
-							fullWidth
-							className="openPrivate"
-							onClick={checkPin}
-						>
-							Open
-						</Button>
-					</div>
-				</div>
-			)}
-		</div>
-	);
-}
-
-/**
- *
- * @param {{friends: Object[]}} props
- * @returns
- */
-function Friends(props: props) {
-	const {friendId, friends, openRoom} = props;
-	const NotPrivateFriends = friends?.filter((friend) => !friend.IsPrivate);
-	return (
-		<div className="friends_chats chats_listbox" role="listbox">
-			<ul className="chats-list list" role="list">
-				{NotPrivateFriends?.map((user) => {
-					var key = uuid();
-					return (
-						<Chats
-							key={key}
-							friendId={friendId}
-							open={openRoom}
-							user={user}
-						/>
-					);
-				})}
-				{!friends?.length && (
-					<div className="no-friend-available">
-						<div className="text">
-							<span>You dont have any friend</span>
-						</div>
-					</div>
-				)}
-			</ul>
-		</div>
-	);
-}
 
 export default ChatBoard;

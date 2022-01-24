@@ -13,8 +13,6 @@ const {promisify} = require("util");
 
 // FriendRequests.findByIdAndUpdate = promisify(FriendRequests.findByIdAndUpdate)
 function ControlSocketActions(socket) {
-	socket.broadcast.emit("join", socket.id);
-	socket.broadcast.emit("userjoined", "new user joined");
 	socket.emit("userid", socket.id);
 
 	socket.on("ACTIVEUSERS", async (callback) => {
@@ -268,89 +266,85 @@ function ControlSocketActions(socket) {
 
 	socket.on("ANSWERED", async (data, callback) => {
 		try {
-			if (data.answer.index === data.picked.index) {
+			if (data.OptionPicked.checked) {
 				if (data.coin) {
 					const coin = parseInt(data.coin);
-					await Users.findByIdAndUpdate(data.from, {
+					await Users.findByIdAndUpdate(data.coming, {
 						$inc: {Coins: coin},
 					}).exec();
 
-					await Users.findByIdAndUpdate(data.to, {
+					await Users.findByIdAndUpdate(data.going, {
 						$inc: {Coins: -coin},
 					}).exec();
 				}
 			}
-
-			await Messages.findOneAndUpdate(
-				{
-					_id: new ObjectId(data.id),
-					"Message._id": data.messageId,
-				},
-				{"Message.$.answered": data.picked}
-			).exec();
-
-			const active = await Activities.find({UserId: data.to});
-			active.forEach(({SocketId}) => {
-				socket.to(SocketId).emit("ANSWERED", data);
-			});
-
-			callback(null, "Done");
 		} catch (err) {
 			console.log(err);
 			callback({Error: "Internal server error"});
 		}
 	});
 
-	socket.on("no_answer_checked", (/** @type {any} */ user_id) => {
-		Activities.find((err, user) => {
-			if (err) return;
+	socket.on("NOANSWER", async (data, callback) => {
+		try {
+			if (data.coin) {
+				const coin = parseInt(data.coin);
+				await Users.findByIdAndUpdate(data.coming, {
+					$inc: {Coins: coin},
+				}).exec();
 
-			console.log(user, "This is user message");
-			const d = JSON.parse(JSON.stringify(user[0].USERS));
-			let fil = d.filter((s) => s.user.id === user_id);
+				await Users.findByIdAndUpdate(data.going, {
+					$inc: {Coins: -coin},
+				}).exec();
+			}
 
-			socket
-				.to(fil[0].user.socketId)
-				.emit("incoming_message", {name: "james"});
-		});
-		socket.to();
+			await Messages.findOneAndUpdate(
+				{
+					_id: new ObjectId(data.messagesId),
+					"Message._id": data.messageId,
+				},
+				{"Message.$.noAnswer": true}
+			).exec();
+
+			const active = await Activities.find({UserId: data.going});
+			active.forEach(({SocketId}) => {
+				socket.to(SocketId).emit("NOANSWER", data);
+			});
+
+			callback(null, "Done");
+		} catch (error) {
+			callback(error.message);
+		}
 	});
 
 	socket.on("OUTGOINGFORM", async (data, callback) => {
 		try {
 			const formId = new ObjectId();
-
+			let date = new Date();
 			Messages.findByIdAndUpdate(data._id, {
 				$push: {
 					Message: {
+						...data,
 						_id: formId,
-						Format: data.type,
-						question: data.question,
-						options: data.options,
-						challenge: data.C,
-						coin: data.coin,
-						timer: data.timer,
-						answered: {index: null},
-						date: new Date(),
-						seen: false,
-						going: data.to,
-						coming: data.from,
+						date,
 					},
 				},
 			}).exec();
 
 			const isActive = await Activities.find(
-				{UserId: data.to},
+				{UserId: data.going},
 				{SocketId: 1}
 			);
-			data.date = new Date();
+
+			data.date = date;
 			data._id = formId;
 
-			isActive.forEach((user, i) => {
-				socket.to(user.SocketId).emit("INCOMINGFORM", data);
-			});
+			if (isActive?.length) {
+				isActive.forEach((user, i) => {
+					socket.to(user.SocketId).emit("INCOMINGFORM", data);
+				});
+			}
 
-			return callback(null, {formId});
+			return callback(null, {formId, date});
 		} catch (error) {
 			console.log(error);
 			return callback("Error sending form message", null);

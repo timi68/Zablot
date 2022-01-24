@@ -16,6 +16,12 @@ const DashboardComponent = React.forwardRef(function (props, ref) {
 			UpdateFriends(friend: Friends) {
 				AppChatBoardRef.current.UpdateFriends(friend);
 			},
+			toggle() {
+				AppChatBoardRef.current.toggle();
+			},
+			getModalState() {
+				AppChatBoardRef.current.getModalState();
+			},
 		}),
 		[]
 	);

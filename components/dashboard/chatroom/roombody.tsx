@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import * as Interfaces from "../../../lib/interfaces";
 import IncomingMessage from "./IncomingMessage";
@@ -6,6 +7,10 @@ import j from "jquery";
 import {Socket} from "socket.io-client";
 import axios from "axios";
 import {Container, CircularProgress} from "@mui/material";
+import OutgoingForm from "./OutgoingForm";
+import IncomingForm from "./IncomingForm";
+import IncomingImage from "./IncomingImage";
+import OutgoingImage from "./OutgoingImage";
 
 const RoomBody: React.ForwardRefExoticComponent<{
 	messages: Interfaces.MessageType[];
@@ -14,67 +19,78 @@ const RoomBody: React.ForwardRefExoticComponent<{
 	socket: Socket;
 	target: HTMLElement;
 	chatboard: React.RefObject<Interfaces.AppChatBoardType>;
+	loaded: boolean;
+	coming: string;
 }> = React.forwardRef((props, ref) => {
-	const {user, messages: y, socket, chatboard, target} = props;
+	// ----------------------------------------------
+
+	const {user, messages: y, socket, chatboard, coming, loaded} = props;
 	const [messageData, setMessageData] = React.useState<{
 		messages: Interfaces.MessageType[];
-		type: "in" | "out" | "loaded";
+		type?: "in" | "out" | "loaded";
 	}>({
-		messages: [],
-		type: "out",
+		messages: y,
+		type: "loaded",
 	});
-	const [loading, setLoading] = React.useState<boolean>(false);
+	const [loading, setLoading] = React.useState<boolean>(!loaded);
 
 	const bodyRef = React.useRef<HTMLDivElement>();
 	const Alert = React.useRef<HTMLDivElement>();
 
-	console.log(props);
-
-	const _callback$IncomingMessage = React.useCallback(
-		(message: Interfaces.MessageType) =>
+	const _callback$Incoming = React.useCallback(
+		(message: Interfaces.MessageType) => {
+			console.log({message});
+			if (message.coming !== user.Id) return;
 			setMessageData((prevState) => {
-				console.log({prevState});
-				chatboard.current.SetLastMessage(
-					message.coming,
-					message.message,
-					user.Id
-				);
 				return {
 					...prevState,
 					messages: [...prevState.messages, message],
 				};
-			}),
+			});
+			chatboard.current.SetLastMessage(
+				message.coming,
+				message?.message ?? "Poll",
+				user.Id
+			);
+		},
+		[chatboard, user.Id]
+	);
+
+	const _callback$Answered = React.useCallback(
+		(data: {coming: string; answer: {text: string; checked: boolean}}) => {
+			if (data.coming !== user.Id) return;
+		},
 		[]
 	);
 
-	React.useLayoutEffect(() => {
-		setMessageData({messages: y, type: "loaded"});
+	React.useEffect(() => {
+		// setMessageData({messages: y, type: "loaded"});
+		if (!loading) {
+			switch (messageData.type) {
+				case "out":
+				case "loaded":
+					j(bodyRef.current).animate(
+						{
+							scrollTop: bodyRef.current.scrollHeight,
+						},
+						"slow"
+					);
+					break;
+				case "in":
+					let scrollTop = bodyRef.current.scrollTop;
+					let scrollHeight = bodyRef.current.scrollHeight;
 
-		setTimeout(() => {
-			j(bodyRef.current).animate(
-				{
-					scrollTop: bodyRef.current.scrollHeight,
-				},
-				"slow"
-			);
-		}, 300);
-		// Socket handler; socket listener set when each group in created
-		// they are also removed when user close the room
-
-		socket.on("INCOMINGMESSAGE", _callback$IncomingMessage);
-		// socket.on("STATUS", Status);
-		// socket.on("INCOMINGFORM", IncomingForm);
-		// socket.on("ANSWERED", ANSWERED);
-
-		return () => {
-			// All this listener will be off when the user close
-			// the chat room
-			socket.off("INCOMINGMESSAGE", _callback$IncomingMessage);
-			// socket.off("STATUS", Status);
-			// socket.off("INCOMINGFORM", IncomingForm);
-			// socket.off("ANSWERED", ANSWERED);
-		};
-	}, [y, socket]);
+					if (scrollHeight - scrollTop > 200) {
+						let downMessages =
+							parseInt(Alert.current.innerText) + 1;
+						j(Alert.current).text(downMessages).addClass("show");
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}, [messageData, loading]);
 
 	// creating a connection for this component with outside
 	// component
@@ -85,58 +101,53 @@ const RoomBody: React.ForwardRefExoticComponent<{
 				return messageData.messages;
 			},
 			setMessages(message: Interfaces.MessageType, type) {
+				const newMessages = [...messageData.messages, message];
 				setMessageData({
-					...messageData,
-					messages: [...messageData.messages, message],
+					messages: newMessages,
 					type,
 				});
-
-				switch (type) {
-					case "out":
-						j(bodyRef.current).animate(
-							{
-								scrollTop: bodyRef.current.scrollHeight,
-							},
-							"slow"
-						);
-						break;
-					case "in":
-						let scrollTop = j(bodyRef.current).prop("scrollTop");
-						let scrollHeight = j(bodyRef.current).prop(
-							"scrollHeight"
-						);
-
-						if (scrollHeight - scrollTop > 200) {
-							let downMessages =
-								parseInt(Alert.current.innerText) + 1;
-							j(Alert.current)
-								.text(downMessages)
-								.addClass("show");
-						}
-				}
 			},
 		}),
 		[messageData]
 	);
 
 	React.useEffect(() => {
-		(async () => {
-			try {
-				const response = await axios.post<{
-					_id: string;
-					Message: Interfaces.MessageType[];
-				}>("/api/messages", {
-					_id: user._id,
-				});
-				setMessageData({
-					messages: response.data.Message,
-					type: "loaded",
-				});
-			} catch (error) {
-				console.log({error});
-			}
-		})();
-	}, []);
+		console.log({loading});
+		if (!loaded) {
+			(async () => {
+				try {
+					const response = await axios.post<{
+						_id: string;
+						Message: Interfaces.MessageType[];
+					}>("/api/messages", {
+						_id: user._id,
+					});
+					setMessageData({
+						messages: response.data.Message,
+						type: "loaded",
+					}),
+						setLoading(false);
+				} catch (error) {
+					console.log({error});
+				}
+			})();
+		}
+
+		// Socket handler; socket listener set when each group in created
+		// they are also removed when user close the room
+
+		socket.on("INCOMINGMESSAGE", _callback$Incoming);
+		socket.on("INCOMINGFORM", _callback$Incoming);
+		socket.on("ANSWERED", _callback$Answered);
+
+		return () => {
+			// All this listener will be off when the user close
+			// the chat room
+			socket.off("INCOMINGMESSAGE", _callback$Incoming);
+			socket.off("INCOMINGFORM", _callback$Incoming);
+			socket.off("ANSWERED", _callback$Answered);
+		};
+	}, [y, socket]);
 
 	if (loading) {
 		return (
@@ -149,7 +160,7 @@ const RoomBody: React.ForwardRefExoticComponent<{
 						placeItems: "center",
 					}}
 				>
-					<CircularProgress size="small" />
+					<CircularProgress size={30} thickness={3} />
 				</Container>
 			</div>
 		);
@@ -186,19 +197,11 @@ const RoomBody: React.ForwardRefExoticComponent<{
 						? new Date(data.date).getMinutes()
 						: "0" + new Date(data.date).getMinutes();
 
-				const prevComingId: boolean =
-					i > 0
-						? messageData.messages[i - 1].coming === data.coming
-						: false;
 				const nextComingId: boolean =
 					i > 0 && i < messageData.messages.length - 1
 						? messageData.messages[i + 1].coming === data.coming
 						: false;
 
-				const prevGoingId =
-					i > 0
-						? messageData.messages[i - 1].going === data.going
-						: false;
 				const nextGoingId =
 					i > 0 && i < messageData.messages.length - 1
 						? messageData.messages[i + 1].going === data.going
@@ -212,24 +215,53 @@ const RoomBody: React.ForwardRefExoticComponent<{
 					case user.Id:
 						switch (data.Format) {
 							case "Form":
-								return;
+								return (
+									<IncomingForm
+										message={data}
+										messagesId={user._id}
+										going={user.Id}
+										coming={coming}
+										key={i}
+										nextComingId={nextComingId}
+										hrs={hrs}
+										mins={mins}
+										cur={cur}
+										pre={pre}
+										setMessageData={setMessageData}
+										i={i}
+										socket={
+											data.answered?.text ? null : socket
+										}
+									/>
+								);
 							case "plain":
 								return (
 									<IncomingMessage
 										message={data}
 										key={i}
-										prevComingId={prevComingId}
 										nextComingId={nextComingId}
 										hrs={hrs}
 										mins={mins}
 										cur={cur}
-										target={target}
 										pre={pre}
 										i={i}
 									/>
 								);
 							case "image":
-								return;
+								return (
+									<IncomingImage
+										message={data}
+										messagesId={user._id}
+										key={i}
+										nextComingId={nextComingId}
+										setMessageData={setMessageData}
+										hrs={hrs}
+										mins={mins}
+										cur={cur}
+										pre={pre}
+										i={i}
+									/>
+								);
 							default:
 								return;
 						}
@@ -237,13 +269,27 @@ const RoomBody: React.ForwardRefExoticComponent<{
 					default:
 						switch (data.Format) {
 							case "Form":
-								break;
+								return (
+									<OutgoingForm
+										key={i}
+										message={data}
+										nextGoingId={nextGoingId}
+										hrs={hrs}
+										mins={mins}
+										cur={cur}
+										pre={pre}
+										i={i}
+										setMessageData={setMessageData}
+										socket={
+											data.answered?.text ? null : socket
+										}
+									/>
+								);
 							case "plain":
 								return (
 									<OutgoingMessage
 										key={i}
 										message={data}
-										prevGoingId={prevGoingId}
 										nextGoingId={nextGoingId}
 										hrs={hrs}
 										mins={mins}
@@ -253,12 +299,36 @@ const RoomBody: React.ForwardRefExoticComponent<{
 									/>
 								);
 							case "image":
-								break;
+								return (
+									<OutgoingImage
+										key={i}
+										message={data}
+										messagesId={user._id}
+										going={user.Id}
+										coming={coming}
+										nextGoingId={nextComingId}
+										hrs={hrs}
+										mins={mins}
+										cur={cur}
+										pre={pre}
+										i={i}
+										setMessageData={setMessageData}
+										socket={
+											data.answered?.text ? null : socket
+										}
+									/>
+								);
 							default:
 								return;
 						}
 				}
 			})}
+
+			{!messageData.messages.length && (
+				<div className="empty-messages">
+					<div className="text">Be the first to send message</div>
+				</div>
+			)}
 		</div>
 	);
 });

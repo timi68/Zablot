@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
-import {Fragment, useEffect, useContext, useState, useRef} from "react";
+import React from "react";
 import {AppContext, ModalContext} from "../../../lib/context";
 import {v4 as uuid} from "uuid";
 import j from "jquery";
@@ -15,27 +15,32 @@ import * as Interfaces from "../../../lib/interfaces";
 function Notifications() {
 	const {
 		state: {socket, user},
-	} = useContext(AppContext);
-	const modalSignal = useContext(ModalContext);
-	const [openModal, setOpenModal] = useState(false);
-	const [notifications, setNotifications] = useState<
+	} = React.useContext(AppContext);
+
+	const modalSignal = React.useContext(ModalContext);
+	const [openModal, setOpenModal] = React.useState(false);
+	const [notifications, setNotifications] = React.useState<
 		Interfaces.Notifications[0][]
-	>(user?.Notifications.sort(() => -1) || []);
+	>(user?.Notifications || []);
 	const {enqueueSnackbar, closeSnackbar} = useSnackbar();
+	const IconButtonRef = React.useRef<HTMLButtonElement>(null);
 
 	const handleClick = () => {
 		if (!openModal) return;
 		setOpenModal(false);
-		j(modalSignal.current).removeClass("show");
+		modalSignal.current.classList.remove("show");
+		IconButtonRef.current.classList.remove("active");
 	};
 
-	const handleOpen = () => {
+	const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (!openModal)
 			j(modalSignal?.current).trigger("click").addClass("show");
 		else j(modalSignal?.current).removeClass("show");
+
+		IconButtonRef.current.classList.toggle("active");
 	};
 
-	useEffect(() => {
+	React.useEffect(() => {
 		const modal = modalSignal?.current;
 		j(modalSignal?.current).on("click", handleClick);
 		return () => {
@@ -43,7 +48,7 @@ function Notifications() {
 		};
 	}, [openModal]);
 
-	useEffect(() => {
+	React.useEffect(() => {
 		const UpdateNotification = (data: {
 			Description: string;
 			Name: string;
@@ -75,9 +80,10 @@ function Notifications() {
 			<Badge color="default" badgeContent={0} showZero>
 				<IconButton
 					className="open"
-					onClick={() => {
+					ref={IconButtonRef}
+					onClick={(e) => {
 						setOpenModal(!openModal);
-						handleOpen();
+						handleOpen(e);
 					}}
 				>
 					<NotificationsActiveIcon fontSize="small" />
@@ -141,7 +147,7 @@ function Notifications() {
 function NotificationsPaper(props) {
 	const {data, current, previous, index} = props;
 	return (
-		<Fragment>
+		<React.Fragment>
 			<GroupNotification cur={current} pre={previous} i={index} />
 			<li className="notification">
 				<div className="notification-image">
@@ -168,7 +174,7 @@ function NotificationsPaper(props) {
 					</div>
 				</div>
 			</li>
-		</Fragment>
+		</React.Fragment>
 	);
 }
 
