@@ -31,7 +31,7 @@ interface PropsInterface {
 	href?: string;
 	text?: string;
 	title: string;
-	chatboardRef: React.RefObject<AppChatBoardType>;
+	chatboardRef?: React.RefObject<AppChatBoardType>;
 }
 
 export default function AppLayout(props: PropsInterface) {
