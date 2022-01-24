@@ -1,0 +1,250 @@
+@import "./variable";
+
+@mixin remove() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin expand() {
+	@media (max-width: 800px) {
+		@content;
+	}
+}
+
+@mixin Media() {
+	@media (min-width: 800px) {
+		@content;
+	}
+}
+
+@mixin media_1049 {
+	@media (max-width: 1000px) {
+		@content;
+	}
+}
+@mixin media_649 {
+	@media (max-width: 649px) {
+		@content;
+	}
+}
+@mixin media_749 {
+	@media (max-width: 749px) {
+		@content;
+	}
+}
+@mixin media_549 {
+	@media (max-width: 549px) {
+		@content;
+	}
+}
+@mixin media_399 {
+	@media (max-width: 399px) {
+		@content;
+	}
+}
+@mixin media_499 {
+	@media (max-width: 499px) {
+		@content;
+	}
+}
+
+@mixin media_800 {
+	@media screen and (min-width: 800px) {
+		@content;
+	}
+}
+@mixin media_700 {
+	@media screen and (min-width: 700px) {
+		@content;
+	}
+}
+
+@mixin users() {
+	.users {
+		list-style: none;
+		padding: 10px;
+
+		.user {
+			display: flex;
+			padding: 5px 10px;
+			position: relative;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10px;
+
+			&::after {
+				position: absolute;
+				content: "";
+				bottom: 0;
+				left: 50px;
+				right: 10px;
+				height: 1px;
+				background: map-get($color, $key: "lowgrey");
+			}
+
+			.image {
+				height: 35px;
+				width: 35px;
+				border-radius: 50px;
+			}
+
+			.btn-wrapper {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				height: 100%;
+			}
+			.btn {
+				height: 30px;
+				border-radius: 50px;
+				padding: 5px 10px;
+				display: grid;
+				place-items: center;
+				min-width: 50px;
+				cursor: pointer;
+				text-transform: capitalize;
+				font-size: map-get($fonts, "smaller");
+				font-weight: 300;
+				box-shadow: $shadow;
+				background: #fff;
+			}
+		}
+
+		.user-profile {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			.user-name {
+				margin-left: 5px;
+				font-weight: 300;
+				line-height: 15px;
+				font-size: map-get($fonts, "smaller");
+				text-align: left;
+				transition: $transition;
+
+				.name {
+					text-transform: capitalize;
+				}
+
+				.username {
+					color: map-get($color, "green");
+					font-size: map-get($fonts, "smaller");
+				}
+			}
+		}
+	}
+}
+
+@mixin Box($classname) {
+	.#{$classname}-box {
+		width: 360px;
+		max-width: 100vw;
+		overflow: hidden scroll;
+		position: fixed;
+		top: 80px;
+		right: 10px;
+		height: calc(100vh - 100px);
+		opacity: 0;
+		box-shadow: $shadow;
+		transition: $transition;
+		border-radius: 10px;
+		background: map-get($color, "lightergrey");
+
+		// @media (max-width: 600px) {
+		// 	top: 65px;
+		// }
+
+		// @include media_549() {
+		// 	height: calc(100vh - 65px);
+		// 	width: 100vw;
+		// 	right: 0;
+		// 	border-radius: 0;
+		// 	box-shadow: none;
+		// }
+
+		@include media_399 {
+			border-top: thin solid #fff;
+			top: 60px;
+			height: calc(100vh - 60px);
+		}
+
+		.#{$classname}-header {
+			display: flex;
+			flex-wrap: wrap;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			background: inherit;
+			box-shadow: 0 0 5px map-get($map: $color, $key: "grey");
+			justify-content: space-between;
+			padding: 10px 20px;
+
+			.title {
+				font-weight: 300;
+				font-size: map-get($fonts, "small");
+				// color: map-get($map: $color, $key: "brown");
+			}
+
+			.close-modal {
+				padding: 5px 15px;
+				border-radius: 50px;
+				box-shadow: $shadow;
+				background: map-get($color, "white");
+				font-size: map-get($fonts, "smaller");
+				font-weight: 600;
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+@mixin toggle($className: "toggle") {
+	.#{$className} {
+		position: absolute;
+		content: "";
+		height: 60px;
+		width: 20px;
+		top: 10px;
+		z-index: 100;
+		backdrop-filter: blur(10px);
+		transition: $transition;
+		background: map-get($map: $color, $key: "lowgrey");
+
+		&::before,
+		&::after {
+			position: absolute;
+			top: 50%;
+			width: 2px;
+			height: 50%;
+			transform: translateY(-50%);
+			content: "";
+			background: map-get($map: $color, $key: "brown");
+		}
+	}
+}
+
+@mixin Scrollbar() {
+	@include media_700() {
+		&::-webkit-scrollbar {
+			width: 3px;
+			height: 3px;
+			background-color: transparent;
+		}
+		&::-webkit-scrollbar-thumb {
+			background: map-get($map: $color, $key: "grey");
+			border-radius: 50px;
+		}
+	}
+}
+
+@keyframes shadow {
+	50% {
+		box-shadow: 0px 0px 2px 2px #dc121261;
+	}
+
+	100% {
+		box-shadow: 0px 0px 4px 4px #dc121261;
+	}
+}

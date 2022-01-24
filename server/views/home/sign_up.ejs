@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/icons.css">
+    <link rel="stylesheet" href="../css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../javascript/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo_container">
+            <p class="logo">ZABLOT</p>
+            <div>
+                <i></i>
+                <div></div>
+            </div>
+        </div>
+        <div class="wrapper_sign_up">
+            <div class="wrap">
+                <div class="wrap_main">
+                    <form action="#" class="form-group sign_up_form">
+                        <div class="form-wrapper">
+                            <h3 class="sign_up_text">SIGN UP</h3>
+                            <%-  include('validation') -%>
+                        <div class="form_group_wrapper sign_up_wrapper">
+                            <div class="details">
+                                <input
+                                 type="text"
+                                  name="userFullName"
+                                   class="form-control"
+                                    placeholder="Full Name"
+                                     value="<% if(data != '') { %><%= data[0].userFullName %><% } %>"
+                                      required>
+                                <div class="invalid-feedback">
+                                    Enter your name
+                                </div>
+                            </div>
+                            <div class="details username_wrapper">
+                                <input
+                                 type="text"
+                                  name="userName"
+                                   class="username form-control"
+                                    placeholder="Username"
+                                     value= "<% if(data != '') { %><%= data[0].userName %><% } %>"
+                                      required>
+                                <div class="invalid-feedback username_feedback">
+                                    Enter your username
+                                </div>          
+                            </div>
+                            <div class="details">
+                                <label for="userDOB">Date Of Birth</label>
+                                <input
+                                 type = "date"
+                                  name = "userDOB"
+                                   class = "form-control"
+                                    id = "userDOB"
+                                     value = "<% if(data != '') { %><%= data[0].userDOB %><% } %>"
+                                      required>
+                                <div class="invalid-feedback">
+                                    Date of birth is invalid
+                                </div>
+                            </div>
+                            <div class="details">
+                                <input
+                                 type="email"
+                                  name="userEmail"
+                                   class="form-control"
+                                    placeholder="Email"
+                                     value =  "<% if(data != '') { %><%= data[0].userEmail %><% } %>"
+                                      required>
+                                <div class="invalid-feedback">
+                                    Email is invalid or empty
+                                </div>
+                            </div>
+                            <div class="password_detail">
+                                <input
+                                 type="password"
+                                  id="userPassword_sign_up"
+                                    name="userPassword"
+                                     class="user_password form-control"
+                                      placeholder="Password"
+                                       value = "<% if(data != '') { %><%= data[0].userPassword %><% } %>"
+                                        required>
+                                <i class="ion-md-eye-off" id="show_hide_signup"></i>
+                                <div class="invalid-feedback">
+                                    Security key required
+                                </div>
+                            
+                            </div>
+                            <div class="roboto">
+                                <input type="checkbox" name="roboto" id="" >
+                                <span>I'm not a robot</span>
+                            </div>
+                            <button type="submit" class="signup_submit_button submit_button btn">SIGN UP</button>
+        
+                            <p>Already have an account? <a href="/login"class="login_in">Login In</a></p>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../footer') -%>
+    <script src="../javascript/bootstrap.bundle.min.js"></script>
+    <script src="../javascript/create.custom.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/icons.css">
+    <link rel="stylesheet" href="../css/bootstrap-custom.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="../javascript/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo_container">
+            <p class="logo">ZABLOT</p>
+            <div>
+                <i></i>
+                <div></div>
+            </div>
+        </div>
+        <div class="wrapper_sign_in">
+            <div class="wrap">
+                <div class="wrap_main">
+                    <form action="#" class="form-group sign_in_form">
+                        <h3 class="sign_in_text">SIGN IN</h3>
+                         <%-  include('validation') -%>
+                        <div class="form_group_wrapper sign_in_wrapper">
+                            <div class="login_details details">
+                                <input
+                                 type="email"
+                                  name="userEmail"
+                                   class="form-control"
+                                    placeholder="Enter your Email"
+                                     value="<% if(data != '') { %>
+                                               <%= data[0].userEmail %>                                              
+                                             <% } %>"
+                                      required>
+                                <div class="invalid-feedback">
+                                    Email is invalid or empty
+                                </div>
+                            </div>
+                            <div class="password_detail">
+                                <input 
+                                type="password"
+                                 id="userPassword_sign_in"
+                                  name="userPassword"
+                                   placeholder="Enter your password"
+                                    class="user_password form-control"
+                                     value="<% if(data != '') { %><%= data[0].userPassword.trim() %><% } %>"
+                                    required>
+                                <i class="ion-md-eye-off" id="show_hide_signin" ></i>
+                                <div class="invalid-feedback">
+                                    Required*
+                                </div>
+                            </div>
+                            <button type="submit" class="sign_in_submit_button submit_button btn">SIGN IN</button>
+                            <p>Don't have an account? <a href="/register" class="Create">Create One</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('../footer') -%>
+    <script src="../javascript/bootstrap.bundle.min.js"></script>
+    <script src="../javascript/log_custom.js"></script>
+</body>
+</html>
