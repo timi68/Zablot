@@ -12,6 +12,7 @@ import * as Interfaces from "../../../lib/interfaces";
 import {AppContext} from "../../../lib/context";
 import RoomBody from "./RoomBody";
 import Poll from "./Poll";
+import j from "jquery";
 import RoomHeader from "./RoomHeader";
 
 const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
@@ -54,6 +55,23 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 
 		return;
 	};
+
+	React.useLayoutEffect(() => {
+		var $htmlOrBody = j("html, body"), // scrollTop works on <body> for some browsers, <html> for others
+			scrollTopPadding = 8;
+
+		const handleFocus = function () {
+			var textareaTop = j(this).offset().top;
+			// scroll to the textarea
+			$htmlOrBody.scrollTop(textareaTop - scrollTopPadding);
+		};
+
+		j(MessageBoxRef.current).focus(handleFocus);
+
+		return () => {
+			j(MessageBoxRef.current).off("focus", handleFocus);
+		};
+	}, []);
 
 	const sendMessage = (): void => {
 		let messageText: string = MessageBoxRef.current.value;
