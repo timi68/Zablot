@@ -55,7 +55,7 @@
 	}
 }
 @mixin media_700 {
-	@media screen and (min-width: 700px) {
+	@media screen and (min-width: 650px) {
 		@content;
 	}
 }
@@ -168,6 +168,9 @@
 			border-top: thin solid #fff;
 			top: 60px;
 			height: calc(100vh - 60px);
+			width: 100vw;
+			right: 0;
+			left: 0;
 		}
 
 		.#{$classname}-header {

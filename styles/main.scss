@@ -1115,7 +1115,7 @@ body {
 			z-index: 5;
 			max-width: 100%;
 			width: fit-content;
-			height: fit-content;
+			height: auto;
 
 			.chat-rooms-wrapper {
 				flex-direction: row;
@@ -1638,12 +1638,14 @@ body {
 					margin-bottom: 10px;
 				}
 				.room-footer {
-					position: relative;
 					background: map-get($color, "lowgrey");
 					width: 100%;
 					padding: 10px 10px 10px;
 					height: 56px;
 					backdrop-filter: blur(10px);
+					position: absolute;
+					bottom: 0;
+					left: 0;
 
 					.media-icon {
 						position: absolute;
@@ -1763,7 +1765,7 @@ body {
 						border-radius: 10px 10px 0px 0px;
 						background: map-get($map: $color, $key: "lightergrey");
 						backdrop-filter: blur(10px);
-						max-height: 150px;
+						max-height: 200px;
 						overflow: hidden scroll;
 						clip-path: circle(0.4% at 0 100%);
 

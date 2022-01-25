@@ -45,24 +45,29 @@ function IncomingImage(props: PropsType) {
 				return;
 			}
 
-			(async () => {
-				const uploadImage = await axios.get<Blob>(message.url, {
-					responseType: "blob",
-				});
-				setMessageData((prevState) => {
-					const messages: MessageType[] = prevState.messages.map(
-						(m) => {
-							if (m._id === message._id) {
-								m.blobUrl = URL.createObjectURL(
-									uploadImage.data
-								);
+			try {
+				(async () => {
+					const uploadImage = await axios.get<Blob>(message.url, {
+						responseType: "blob",
+					});
+					setMessageData((prevState) => {
+						const messages: MessageType[] = prevState.messages.map(
+							(m) => {
+								if (m._id === message._id) {
+									m.blobUrl = URL.createObjectURL(
+										uploadImage.data
+									);
+								}
+								return m;
 							}
-							return m;
-						}
-					);
-					return {messages, type: null};
-				});
-			})();
+						);
+						return {messages, type: null};
+					});
+				})();
+			} catch (error) {
+				alert(`Error: ${error.message}`);
+				return;
+			}
 		}
 	}, []);
 
