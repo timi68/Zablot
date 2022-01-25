@@ -78,7 +78,7 @@ client
 			console.log("Listening on http://localhost:8000");
 		});
 
-		const io = socket(server, {pingTimeout: 1000, pingInterval: 1000});
+		const io = socket(server);
 		io.on("connection", (socket) => {
 			console.log("is-connected");
 

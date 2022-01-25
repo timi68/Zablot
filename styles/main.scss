@@ -86,10 +86,6 @@ body {
 
 		@include media_499 {
 			padding-inline: 0;
-
-			.Toolbar {
-				padding-left: 0;
-			}
 		}
 
 		.flex-row {
@@ -1248,6 +1244,7 @@ body {
 					flex-direction: column;
 					-webkit-user-select: none;
 					user-select: none;
+					max-height: 100vh;
 
 					@include media_649() {
 						height: calc(100vh - 226px);
