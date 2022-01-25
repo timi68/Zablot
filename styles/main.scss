@@ -68,9 +68,10 @@ body {
 }
 
 .wrapper {
-	height: 100vh;
+	height: 1100%;
 	overflow: hidden;
 	position: relative;
+
 	header {
 		background: map-get($map: $color, $key: "lightergrey");
 		grid-column: 1/6;
@@ -590,6 +591,7 @@ body {
 		position: relative;
 		overflow: hidden;
 		height: calc(100vh - 75px);
+		max-height: 100vh;
 
 		&::-webkit-scrollbar {
 			width: 5px;
