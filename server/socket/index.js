@@ -278,6 +278,21 @@ function ControlSocketActions(socket) {
 					}).exec();
 				}
 			}
+
+			await Messages.findOneAndUpdate(
+				{
+					_id: new ObjectId(data.messagesId),
+					"Message._id": data.messageId,
+				},
+				{"Message.$.answered": data.OptionPicked}
+			).exec();
+
+			const active = await Activities.find({UserId: data.going});
+			active.forEach(({SocketId}) => {
+				socket.to(SocketId).emit("ANSWERED", data);
+			});
+
+			callback(null, "Done");
 		} catch (err) {
 			console.log(err);
 			callback({Error: "Internal server error"});
@@ -320,7 +335,8 @@ function ControlSocketActions(socket) {
 		try {
 			const formId = new ObjectId();
 			let date = new Date();
-			Messages.findByIdAndUpdate(data._id, {
+
+			await Messages.findByIdAndUpdate(data._id, {
 				$push: {
 					Message: {
 						...data,

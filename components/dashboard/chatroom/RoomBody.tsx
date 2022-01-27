@@ -43,7 +43,7 @@ const RoomBody: React.ForwardRefExoticComponent<{
 			if (message.coming !== user.Id) return;
 			setMessageData((prevState) => {
 				return {
-					...prevState,
+					type: "in",
 					messages: [...prevState.messages, message],
 				};
 			});
@@ -56,12 +56,81 @@ const RoomBody: React.ForwardRefExoticComponent<{
 		[chatboard, user.Id]
 	);
 
+	type DataType = {
+		messageId: string;
+		OptionPicked: {text: string; checked: boolean};
+	};
+
 	const _callback$Answered = React.useCallback(
-		(data: {coming: string; answer: {text: string; checked: boolean}}) => {
-			if (data.coming !== user.Id) return;
+		(data: DataType) => {
+			setMessageData((prevData) => {
+				const messages: Interfaces.MessageType[] =
+					prevData.messages.map((message) => {
+						if (message._id === data.messageId) {
+							message.answered = data.OptionPicked;
+							processCoin(
+								message.coin,
+								data.OptionPicked.checked
+							);
+						}
+						return message;
+					});
+				return {messages};
+			});
 		},
-		[]
+		[setMessageData]
 	);
+
+	const _callback$NoAnswer = React.useCallback(
+		(data: DataType) => {
+			setMessageData((prevData) => {
+				const messages: Interfaces.MessageType[] =
+					prevData.messages.map((message) => {
+						if (message._id === data.messageId) {
+							message.noAnswer = true;
+							processCoin(
+								message.coin,
+								data.OptionPicked.checked
+							);
+						}
+						return message;
+					});
+				return {messages, type: "in"};
+			});
+		},
+		[setMessageData]
+	);
+
+	function processCoin(coinAdded: number, checked: boolean) {
+		console.log({coinAdded, checked});
+		const coinTagName: HTMLSpanElement =
+			document.querySelector(".coin-wrapper span");
+
+		if (coinAdded) {
+			var coin: number = parseInt(coinTagName.innerText);
+
+			var count: number = 0;
+			var interval: NodeJS.Timer;
+			interval = setInterval(() => {
+				if (checked) coin--;
+				else coin++;
+
+				coinTagName.innerText = coin as unknown as string;
+				count++;
+
+				if (count >= coinAdded) {
+					clearInterval(interval);
+				}
+			}, 100);
+		}
+	}
+
+	const handleScroll = (e: React.UIEvent<HTMLDivElement, UIEvent>) => {
+		const target = e.target as HTMLDivElement;
+		if (target.scrollTop >= target.scrollHeight - 180) {
+			j(Alert.current).removeClass("show").text(0);
+		}
+	};
 
 	React.useEffect(() => {
 		// setMessageData({messages: y, type: "loaded"});
@@ -80,11 +149,19 @@ const RoomBody: React.ForwardRefExoticComponent<{
 					let scrollTop = bodyRef.current.scrollTop;
 					let scrollHeight = bodyRef.current.scrollHeight;
 
-					if (scrollHeight - scrollTop > 200) {
-						let downMessages =
-							parseInt(Alert.current.innerText) + 1;
-						j(Alert.current).text(downMessages).addClass("show");
-					}
+					if (scrollHeight - scrollTop > 230) {
+						let downMessages = parseInt(j(Alert.current).text());
+
+						j(Alert.current)
+							.text(downMessages + 1)
+							.addClass("show");
+					} else
+						j(bodyRef.current).animate(
+							{
+								scrollTop: bodyRef.current.scrollHeight,
+							},
+							"slow"
+						);
 					break;
 				default:
 					break;
@@ -92,27 +169,7 @@ const RoomBody: React.ForwardRefExoticComponent<{
 		}
 	}, [messageData, loading]);
 
-	// creating a connection for this component with outside
-	// component
-	React.useImperativeHandle(
-		ref,
-		() => ({
-			getMessages(): Interfaces.MessageType[] {
-				return messageData.messages;
-			},
-			setMessages(message: Interfaces.MessageType, type) {
-				const newMessages = [...messageData.messages, message];
-				setMessageData({
-					messages: newMessages,
-					type,
-				});
-			},
-		}),
-		[messageData]
-	);
-
 	React.useEffect(() => {
-		console.log({loading});
 		if (!loaded) {
 			(async () => {
 				try {
@@ -135,10 +192,10 @@ const RoomBody: React.ForwardRefExoticComponent<{
 
 		// Socket handler; socket listener set when each group in created
 		// they are also removed when user close the room
-
 		socket.on("INCOMINGMESSAGE", _callback$Incoming);
 		socket.on("INCOMINGFORM", _callback$Incoming);
 		socket.on("ANSWERED", _callback$Answered);
+		socket.on("NOANSWER", _callback$NoAnswer);
 
 		return () => {
 			// All this listener will be off when the user close
@@ -146,8 +203,28 @@ const RoomBody: React.ForwardRefExoticComponent<{
 			socket.off("INCOMINGMESSAGE", _callback$Incoming);
 			socket.off("INCOMINGFORM", _callback$Incoming);
 			socket.off("ANSWERED", _callback$Answered);
+			socket.off("NOANSWER", _callback$NoAnswer);
 		};
 	}, [y, socket]);
+
+	// creating a connection for this component with outside
+	// component
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			getMessages(): Interfaces.MessageType[] {
+				return messageData.messages;
+			},
+			setMessages(message: Interfaces.MessageType, type) {
+				const newMessages = [...messageData.messages, message];
+				setMessageData(() => ({
+					messages: newMessages,
+					type,
+				}));
+			},
+		}),
+		[messageData]
+	);
 
 	if (loading) {
 		return (
@@ -167,7 +244,7 @@ const RoomBody: React.ForwardRefExoticComponent<{
 	}
 
 	return (
-		<div className="room-body" ref={bodyRef}>
+		<div className="room-body" ref={bodyRef} onScroll={handleScroll}>
 			<div className="welcome-message">
 				<div className="message">
 					<span>You are now connected</span>
@@ -183,6 +260,7 @@ const RoomBody: React.ForwardRefExoticComponent<{
 						},
 						"slow"
 					);
+					j(Alert.current).removeClass("show").text(0);
 				}}
 			>
 				0

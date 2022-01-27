@@ -322,11 +322,9 @@ const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
 						<Poll
 							ref={PollRef}
 							roomBody={RoomBodyRef}
-							going={props.roomData.user.Id}
-							_id={props.roomData.user.Id}
-							coming={user._id}
 							data={props.roomData.pollData}
 							toggled={props.roomData.pollToggled}
+							chatBoard={props.chatBoard}
 						/>
 					</div>
 				</div>

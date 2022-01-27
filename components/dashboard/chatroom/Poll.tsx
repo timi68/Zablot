@@ -27,9 +27,7 @@ type PropsType = {
 	data: Interfaces.RoomType["pollData"];
 	toggled: boolean;
 	roomBody: React.RefObject<Interfaces.RoomBodyRefType>;
-	coming: string;
-	_id: string;
-	going: string;
+	chatBoard: Interfaces.RoomProps["chatBoard"];
 };
 
 const Poll = React.forwardRef((props: PropsType, ref) => {
@@ -144,6 +142,11 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
 						question.date = date;
 
 						props.roomBody.current.setMessages(question, "out");
+						props.chatBoard.current.SetLastMessage(
+							question.going,
+							"Poll",
+							question.coming
+						);
 						SetDefaultState();
 					}
 				}
@@ -155,6 +158,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
 		setOpen(false);
 		setQuestion((state) => {
 			return {
+				...state,
 				question: "",
 				options: [
 					{index: 0, text: "", checked: false},

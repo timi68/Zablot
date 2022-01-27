@@ -55,6 +55,8 @@ function OutgoingForm(props: {
 		const OptionPicked = message.options[index];
 		const CorrectAnswer = message.options.find((option) => option.checked);
 
+		// console.log({OptionPicked, CorrectAnswer, socket});
+
 		const dataToEmit = {
 			OptionPicked,
 			CorrectAnswer,
@@ -65,22 +67,21 @@ function OutgoingForm(props: {
 			coin: message.coin,
 		};
 
+		setMessageData((prevData) => {
+			const messages: MessageType[] = prevData.messages.map((message) => {
+				if (message._id === dataToEmit.messageId) {
+					message.answered = OptionPicked;
+				}
+				return message;
+			});
+			return {messages, type: "in"};
+		});
+
 		// This will send a emitter to the server that a poll has been answered
 		// and get a response from the server if process is done
 		socket.emit("ANSWERED", dataToEmit, (err: string, _done: string) => {
+			console.log({err, _done});
 			if (!err) {
-				setMessageData((prevData) => {
-					const messages: MessageType[] = prevData.messages.map(
-						(message) => {
-							if (message._id === dataToEmit.messageId) {
-								message.answered = OptionPicked;
-							}
-							return message;
-						}
-					);
-					return {messages, type: "in"};
-				});
-
 				const pollCoinAdded: number = message.coin;
 				const coinTagName: HTMLSpanElement =
 					document.querySelector(".coin-wrapper span");
@@ -154,11 +155,11 @@ function OutgoingForm(props: {
 	};
 
 	const formMessageClass = `form-message poll question${
-		(Boolean(message?.answered) &&
-			(message.answered?.checked
+		Boolean(message?.answered)
+			? message.answered?.checked
 				? " correct before"
-				: " failed before")) ??
-		message?.noAnswer
+				: " failed before"
+			: message?.noAnswer
 			? " no-answer-picked before"
 			: ""
 	}`;
@@ -176,7 +177,8 @@ function OutgoingForm(props: {
 						<div className="poll-question">
 							<div className="poll-question-header">
 								{Boolean(message.timer) &&
-									(!Boolean(message?.answered) ? (
+									(!Boolean(message?.answered) &&
+									!Boolean(message?.noAnswer) ? (
 										<Timer
 											timer={message.timer}
 											PollTimeOut={PollTimeOut}
@@ -230,29 +232,38 @@ function OutgoingForm(props: {
 											key={index}
 										>
 											<div className="form-group">
-												<input
-													type="radio"
-													name={option.text}
-													id="option"
-													className="option"
-													readOnly={
-														message.answered?.text
-															? true
-															: false
-													}
-													checked={
-														message?.answered
-															?.text ===
-														option.text
-													}
-													onChange={() =>
-														message.answered?.text
-															? null
-															: AnswerChecked(
+												{(Boolean(message.answered) ||
+													message.noAnswer) && (
+													<input
+														type="radio"
+														name={option.text}
+														id="option"
+														className="option"
+														readOnly={true}
+														checked={
+															message.noAnswer
+																? option.checked
+																: message
+																		?.answered
+																		?.text ===
+																  option.text
+														}
+													/>
+												)}
+												{!Boolean(message.answered) &&
+													!message.noAnswer && (
+														<input
+															type="radio"
+															name={option.text}
+															id="option"
+															className="option"
+															onChange={() =>
+																AnswerChecked(
 																	index
-															  )
-													}
-												/>
+																)
+															}
+														/>
+													)}
 											</div>
 											<div className="option-text label">
 												<label>{option.text}</label>

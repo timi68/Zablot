@@ -1173,7 +1173,13 @@ body {
 						display: initial;
 					}
 				}
+				.chats-room {
+					min-height: calc(calc(100vh / 2.5) + 106px);
 
+					@include media_399() {
+						min-height: 100vh;
+					}
+				}
 				.room-header {
 					height: 50px;
 					background: map-get($color, "lowgrey");
@@ -1239,20 +1245,21 @@ body {
 
 				.room-body {
 					width: 100%;
-					height: calc(100vh / 2.25);
+					height: calc(100vh / 2.5);
 					padding: 10px;
+					padding-bottom: 0px;
 					display: flex;
 					overflow: hidden scroll;
 					flex-direction: column;
 					-webkit-user-select: none;
 					user-select: none;
-					max-height: 100vh;
+					max-height: 100%;
 
-					@include media_649() {
-						height: calc(100vh - 226px);
-					}
+					// @include media_649() {
+					// 	height: calc(100vh - 226px);
+					// }
 					@include media_399() {
-						height: calc(100vh - 105px);
+						height: calc(100vh - 106px);
 					}
 
 					@include Scrollbar();
@@ -1316,14 +1323,6 @@ body {
 						height: 100%;
 					}
 
-					.text {
-						font-size: map-get($fonts, "smaller");
-						line-height: 13px;
-						word-break: break-word;
-						margin-right: 5px;
-						float: left;
-					}
-
 					.time {
 						display: grid;
 						justify-self: flex-end;
@@ -1364,10 +1363,19 @@ body {
 						background: map-get($color, "white");
 						border-radius: 10px;
 						box-shadow: $shadow;
+
+						.text {
+							font-size: map-get($fonts, "smaller");
+							line-height: 13px;
+							word-break: break-word;
+							margin-right: 5px;
+							float: left;
+						}
 					}
 
 					.form-message {
-						max-width: 70%;
+						max-width: 80%;
+						min-width: 60%;
 						position: relative;
 						width: fit-content;
 						background: map-get($color, "white");
@@ -1444,7 +1452,7 @@ body {
 							// background: map-get($map: $color, $key: "lowgrey");
 							padding: 5px;
 							width: fit-content;
-							border-top-right-radius: 20px;
+							border-radius: 10px;
 							font-weight: 600;
 							color: map-get($map: $color, $key: "brown");
 							font-size: map-get($map: $fonts, $key: "smaller");
@@ -1453,16 +1461,19 @@ body {
 								color: map-get($map: $color, $key: "skyblue");
 							}
 						}
-						.time-count {
-							border-radius: 0;
-							border-top-left-radius: 20px;
-							// padding-left: 15px;
-						}
+						// .time-count {
+						// 	border-radius: 0;
+						// 	border-top-left-radius: 20px;
+						// 	// padding-left: 15px;
+						// }
 
 						.text {
-							padding: 5px;
+							font-size: map-get($map: $fonts, $key: "smaller");
+							font-weight: 300;
+							padding: 10px 5px;
 							background: map-get($map: $color, $key: "lowgrey");
 						}
+
 						.options {
 							list-style: none;
 							padding: 5px;
