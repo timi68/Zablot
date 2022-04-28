@@ -1,2055 +1,2141 @@
 @import "./variable";
 @import "./mixins";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap");
 
 * {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font-family: "Poppins", "Segoe UI";
 }
 
 :focus,
 :active {
-	border: 0;
-	outline: none;
+  border: 0;
+  outline: none;
 }
 
 body {
-	font-family: "Segoe UI", Roboto;
-	background: whitesmoke;
-	max-width: 100vw;
-	max-width: 1366px;
-	max-height: 100vh;
-}
-.icon {
-	cursor: pointer;
-}
-.toolpit {
-	position: absolute;
-	top: 4px;
-	left: 20px;
-	z-index: 100000;
-	background: black;
-	color: #c3bcbc;
-	font-size: 10px;
-	padding: 5px 10px;
-	font-weight: 600;
-	display: none;
-	border-radius: 5px;
+  background: #f5f5f5;
+  max-width: 100vw;
+  max-width: 1366px;
+  max-height: 100vh;
+  color: #56565c;
 
-	&.show {
-		display: block;
-	}
-	&::before {
-		position: absolute;
-		left: 43%;
-		content: "";
-		background: inherit;
-		bottom: -4px;
-		height: 10px;
-		width: 10px;
-		transform: rotateZ(135deg) translateX(-13%);
-	}
+  .modal_open_signal.show {
+    position: absolute;
+    width: 100vw;
+    top: 0;
+    z-index: 10;
+    height: 100vh;
+    background: transparent;
+  }
 
-	span {
-		position: relative;
-		z-index: 10;
-	}
-}
+  .icon {
+    cursor: pointer;
+  }
+  .toolpit {
+    position: absolute;
+    top: 4px;
+    left: 20px;
+    z-index: 100000;
+    background: black;
+    color: #c3bcbc;
+    font-size: 10px;
+    padding: 5px 10px;
+    font-weight: 600;
+    display: none;
+    border-radius: 5px;
 
-.modal_open_signal.show {
-	position: absolute;
-	width: 100vw;
-	top: 0;
-	z-index: 9;
-	height: 100vh;
-	background: transparent;
+    &.show {
+      display: block;
+    }
+    &::before {
+      position: absolute;
+      left: 43%;
+      content: "";
+      background: inherit;
+      bottom: -4px;
+      height: 10px;
+      width: 10px;
+      transform: rotateZ(135deg) translateX(-13%);
+    }
+
+    span {
+      position: relative;
+      z-index: 10;
+    }
+  }
 }
 
 .wrapper {
-	height: 100vh;
-	overflow: hidden;
-	position: relative;
-	header {
-		background: map-get($map: $color, $key: "lightergrey");
-		grid-column: 1/6;
-		padding: 5px 10px;
-		-webkit-user-select: none;
-		user-select: none;
-		position: sticky;
-		width: 100%;
-		top: 0;
-		left: 0;
-		z-index: 10;
-		color: black;
-
-		@include media_499 {
-			padding-inline: 0;
-
-			.Toolbar {
-				padding-left: 0;
-			}
-		}
-
-		.flex-row {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: space-between;
-		}
-
-		.logo {
-			font-weight: 600;
-			font-family: calibri, Tahoma;
-			font-size: 1.3em;
-
-			&.display-small {
-				display: none;
-				// font-size: map-get($map: $fonts, $key: "medium");
-				padding-inline: 16px;
-			}
-
-			@include media_499 {
-				&.display-large {
-					display: none;
-				}
-				&.display-small {
-					display: block;
-				}
-			}
-		}
-		.coin-wrapper {
-			font-weight: 500;
-			height: 35px;
-			border-radius: 50px;
-			font-weight: 600;
-			box-shadow: 0px 0px 10px -5px map-get($color, "brown");
-			background: map-get($map: $color, $key: "white");
-
-			@include media_499 {
-				height: 30px;
-			}
-		}
-
-		.search-container {
-			position: relative;
-			transition: $transition;
-
-			&.focused {
-				z-index: 10000;
-			}
-
-			.search-text-box {
-				.search-form {
-					position: relative;
-					border: none;
-					background: white;
-					width: 300px;
-					min-height: 30px;
-					display: flex;
-					justify-content: flex-start;
-					align-items: center;
-					max-width: 90vw;
-					overflow: hidden;
-					overflow: -moz-hidden-unscrollable;
-					border-radius: 50px;
-					box-shadow: $shadow;
-					transition: $transition;
-
-					@include media_749 {
-						width: 35px;
-						height: 35px;
-						display: flex;
-					}
-
-					@include media_499 {
-						height: 30px;
-						width: 30px;
-					}
-				}
-			}
-
-			.search-icon {
-				height: 100%;
-				padding: 9px;
-				display: grid;
-				place-items: center;
-
-				@include media_749 {
-					padding: 0;
-					width: 100%;
-				}
-
-				&.ready {
-					background: map-get($map: $color, $key: "grey");
-					svg {
-						fill: white;
-					}
-				}
-			}
-
-			.form-control {
-				height: 100%;
-				flex-grow: 1;
-				padding-block: 5px;
-
-				@include media_749 {
-					display: none;
-				}
-
-				@include media_399() {
-					width: 150px;
-				}
-
-				.text-control {
-					height: inherit;
-					width: 100%;
-					padding: 5px;
-
-					&::placeholder {
-						font-weight: 500;
-						font-size: map-get($map: $fonts, $key: "small");
-					}
-				}
-			}
-
-			&.focused .form-control {
-				display: block;
-			}
-
-			&.focused .search-text-box {
-				position: fixed;
-				top: 10px;
-				left: calc((400px - 300px) / 2);
-				z-index: 100;
-
-				@include media_649 {
-					// margin-inline: 10px;
-					left: calc((100vw - 300px) / 2);
-				}
-
-				@include media_399 {
-					left: 50%;
-					transform: translateX(-50%);
-				}
-				.search-form {
-					width: 300px;
-					height: 35px;
-				}
-				.search-icon {
-					width: initial;
-					padding: 9px;
-				}
-			}
-			.search-results {
-				height: 100vh;
-				width: 400px;
-				position: fixed;
-				top: 0px;
-				left: 0px;
-				opacity: 0;
-				background: map-get($map: $color, $key: "lightergrey");
-				overflow: hidden;
-				transition: opacity 200ms;
-				box-shadow: $shadow;
-
-				&.search-results-enter {
-					opacity: 0;
-				}
-				&.search-results-enter-active {
-					opacity: 1;
-				}
-				&.search-results-exit {
-					opacity: 1;
-				}
-				&.search-results-exit-active {
-					opacity: 0;
-				}
-				&.search-results-enter-done {
-					opacity: 1;
-				}
-				@include media_649() {
-					width: 100vw;
-					max-width: 100vw;
-				}
-
-				&::-webkit-scrollbar {
-					appearance: none;
-					width: 5px;
-					background: transparent;
-					border-radius: 10px;
-				}
-
-				&::-webkit-scrollbar-thumb {
-					border-radius: 50px;
-					background: map-get($map: $color, $key: "brown");
-				}
-
-				.search-matched-wrapper {
-					overflow: hidden scroll;
-					height: calc(100vh - 50px);
-					position: relative;
-					margin-top: 4em;
-
-					@include media_649() {
-						height: calc(100vh);
-					}
-
-					&::-webkit-scrollbar {
-						display: none;
-						width: 0px;
-					}
-
-					.header {
-						font-weight: 600;
-						position: sticky;
-						display: flex;
-						align-items: center;
-						justify-content: space-between;
-						position: -webkit-sticky;
-						backdrop-filter: blur(5px);
-						padding: 10px;
-						background: map-get($map: $color, $key: "lowgrey");
-						top: 0;
-						font-size: map-get($map: $fonts, $key: "small");
-
-						.title {
-							font-size: map-get($map: $fonts, $key: "smaller");
-							font-weight: 300;
-						}
-						.close-btn {
-							padding: 5px 15px;
-							cursor: pointer;
-							text-align: center;
-							border-radius: 50px;
-							box-shadow: $shadow;
-							background: map-get($color, "white");
-							font-size: map-get($fonts, "smaller");
-							// font-weight: 600;
-						}
-					}
-				}
-
-				.list-wrapper {
-					display: grid;
-					place-items: center;
-					height: 90%;
-				}
-				@include users();
-				.users {
-					height: 100%;
-					width: 100%;
-					.user {
-						.btn {
-							font-size: 10px;
-						}
-					}
-				}
-			}
-			.search-loader {
-				display: grid;
-				place-items: center;
-			}
-		}
-
-		.top-navigation {
-			position: relative;
-			transition: $transition;
-
-			.open {
-				width: 35px;
-				height: 35px;
-				border-radius: 50%;
-				background-color: white;
-				box-shadow: 0px 0px 10px -5px map-get($color, "brown");
-				padding: 0;
-
-				&.active {
-					background-color: map-get($map: $color, $key: "lowgrey");
-				}
-
-				@include media_499 {
-					width: 30px;
-					height: 30px;
-				}
-			}
-
-			.chatboard-badge {
-				display: none;
-
-				@include media_749 {
-					display: block;
-				}
-			}
-
-			.MuiBadge-badge {
-				background: map-get($map: $color, $key: "grey");
-				color: white;
-			}
-			.friendrequest-wrapper {
-				@mixin check() {
-					@if (100vw > 1366px) {
-						color: calc(100vw / 2 + 100px);
-					}
-				}
-
-				@include Box("requests");
-				.requests-box {
-					transition: opacity 200ms;
-
-					&.requests-box-enter {
-						opacity: 0;
-					}
-					&.requests-box-enter-active {
-						opacity: 1;
-						z-index: 100;
-					}
-					&.requests-box-exit {
-						opacity: 1;
-					}
-					&.requests-box-exit-active {
-						opacity: 0;
-					}
-					&.requests-box-enter-done {
-						opacity: 1;
-						z-index: 100;
-					}
-
-					@include Scrollbar();
-				}
-				@include users();
-				.users {
-					.user {
-						.btn:first-child {
-							margin-right: 10px;
-						}
-						.reject {
-							background: map-get($color, "red");
-							color: map-get($color, "brown");
-						}
-					}
-				}
-
-				.no_request {
-					min-height: 100px;
-					display: grid;
-					place-items: center;
-
-					h4 {
-						font-weight: 500;
-						font-family: "Gill Sans", "Gill Sans MT", Calibri,
-							"Trebuchet MS", sans-serif;
-					}
-				}
-				.request-box.expand .users {
-					visibility: visible;
-				}
-
-				.friends .title {
-					padding: 3px 15px;
-					font-weight: 600;
-					font-size: map-get($fonts, "smaller");
-					background: map-get($color, "white");
-					margin: 5px 0px;
-				}
-			}
-
-			.profile-link-wrapper {
-				position: relative;
-				transition: $transition;
-
-				.profile-expand {
-					width: 250px;
-					height: auto;
-					position: fixed;
-					top: 81px;
-					padding: 10px;
-					right: 10px;
-					opacity: 0;
-					border-radius: 5px;
-					z-index: 100;
-					background: map-get($color, "white");
-					box-shadow: 0px 0px 5px 1px #00000017;
-
-					.profile-header {
-						.profile_details {
-							padding-bottom: 3px;
-							padding: 5px 10px;
-							text-align: right;
-							border-bottom: thin solid
-								map-get($map: $color, $key: "blue");
-						}
-						.name {
-							width: 100%;
-							display: block;
-							font-weight: 600;
-						}
-						.name {
-							line-height: 16px;
-							margin: 5px;
-							font-weight: 500;
-
-							.username {
-								color: map-get($color, "blue");
-								font-size: map-get($fonts, "small");
-							}
-						}
-						.email {
-							font-size: map-get($fonts, "small");
-						}
-					}
-				}
-			}
-
-			.notifications-wrapper {
-				position: relative;
-
-				@include Box("notifications");
-				.notifications-box {
-					transition: opacity 200ms;
-
-					&.notifications-box-enter {
-						opacity: 0;
-					}
-					&.notifications-box-enter-active {
-						opacity: 1;
-						z-index: 100;
-					}
-					&.notifications-box-exit {
-						opacity: 1;
-					}
-					&.notifications-box-exit-active {
-						opacity: 0;
-					}
-					&.notifications-box-enter-done {
-						opacity: 1;
-						z-index: 100;
-					}
-
-					@include Scrollbar();
-				}
-
-				.date {
-					padding: 3px 10px;
-					background: map-get($color, "white");
-					color: map-get($color, "skyblue");
-					font-size: map-get($fonts, "smaller");
-					font-weight: 600;
-				}
-
-				.notification-image {
-					margin-right: 10px;
-
-					.image img {
-						width: 30px;
-						height: 30px;
-						border-radius: 50px;
-					}
-				}
-
-				.notifications-list {
-					list-style: none;
-
-					.notification {
-						padding: 5px 15px;
-						position: relative;
-						margin-bottom: 10px;
-						display: flex;
-
-						&::after {
-							position: absolute;
-							content: "";
-							bottom: 0;
-							left: 50px;
-							right: 10px;
-							height: 1px;
-							background: map-get($color, $key: "lowgrey");
-						}
-					}
-
-					.text {
-						line-height: 13px;
-						font-weight: 300;
-						font-size: 0.7em;
-
-						b {
-							color: map-get($color, "green");
-						}
-					}
-
-					.assigned-name {
-						font-weight: 700;
-						font-size: map-get($fonts, "small");
-						color: map-get($color, "brown");
-					}
-				}
-			}
-		}
-	}
-
-	.main {
-		display: flex;
-		flex-wrap: nowrap;
-		position: relative;
-		overflow: hidden;
-		height: calc(100vh - 75px);
-
-		&::-webkit-scrollbar {
-			width: 5px;
-		}
-
-		&::-webkit-scrollbar-thumb {
-			border-radius: 50px;
-			background: grey;
-		}
-
-		@media screen and (max-width: 600px) {
-			height: calc(100vh - 60px);
-		}
-
-		@include media_1049() {
-			max-width: 100vw;
-		}
-
-		@include media_399 {
-			.breakpoint {
-				width: 100%;
-			}
-		}
-	}
-
-	.sidebar {
-		background: map-get($map: $color, $key: "lightergrey");
-		height: inherit;
-		width: 200px;
-		position: relative;
-		transition: $transition;
-
-		.navigator-wrapper {
-			height: calc(100vh - 85px);
-			overflow: auto scroll;
-
-			&::-webkit-scrollbar {
-				width: 0px;
-			}
-		}
-
-		.preview-profile {
-			background: map-get($map: $color, $key: "lightergrey");
-			box-shadow: 0px 1px 10px 0px rgb(0, 0, 0, 12%);
-			padding: 10px;
-			position: -webkit-sticky;
-			position: sticky;
-			overflow: hidden;
-			top: 0;
-			transition: $transition;
-
-			@include media_1049 {
-				display: none;
-			}
-
-			.user-image-name-wrapper {
-				display: flex;
-				align-items: center;
-				gap: 5px;
-				flex-wrap: nowrap;
-				margin-bottom: 20px;
-
-				.image {
-					width: 35px;
-					height: 35px;
-					border-radius: 50%;
-				}
-
-				.name {
-					font-size: map-get($map: $fonts, $key: "small");
-					line-height: 16px;
-					font-weight: 500;
-					color: map-get($color, "brown");
-					margin-top: 5px;
-					margin-left: 5px;
-					.username {
-						font-size: 0.8em;
-						color: map-get($color, "skyblue");
-					}
-				}
-			}
-			.message {
-				font-size: map-get($fonts, "smaller");
-			}
-		}
-
-		.navigators {
-			transition: $transition;
-			.group-1 {
-				border-bottom: 2px solid map-get($map: $color, $key: "lowgrey");
-			}
-			.links-list {
-				list-style: none;
-
-				li {
-					height: 50px;
-					padding: 5px;
-					display: grid;
-					transition: $transition;
-
-					a {
-						transition: $transition;
-						display: flex;
-						cursor: pointer;
-						align-items: center;
-						justify-content: flex-start;
-						gap: 15px;
-						width: 100%;
-						border-radius: 10px;
-						flex-wrap: nowrap;
-						padding: 5px;
-						text-decoration: none;
-						color: inherit;
-
-						.icon-wrap {
-							height: 24px;
-							.svg {
-								width: 24px;
-								height: inherit;
-								fill: map-get($color, "brown");
-							}
-						}
-
-						.link .link-title {
-							font-size: 0.9em;
-							line-height: 16px;
-							font-weight: 300;
-							color: map-get($color, "brown");
-							text-decoration: none;
-						}
-					}
-					&:hover {
-						place-items: center;
-						a {
-							width: 80%;
-							background: map-get($map: $color, $key: "white");
-							transform: scale(1.2);
-							box-shadow: $shadow;
-
-							.link span {
-								color: map-get($map: $color, $key: "grey");
-							}
-							.icon-wrap .svg {
-								fill: map-get($map: $color, $key: "grey");
-							}
-						}
-					}
-				}
-			}
-		}
-
-		@include media_1049 {
-			width: 40px;
-			&.show {
-				width: 200px;
-				position: absolute;
-				z-index: 100;
-			}
-			.open {
-				position: relative;
-				background: map-get($map: $color, $key: "grey");
-				height: 30px;
-				margin-bottom: 10px;
-				max-width: 40px;
-
-				&::before,
-				&::after {
-					position: absolute;
-					content: "";
-					width: 60%;
-					height: 2px;
-					left: 50%;
-					transform: translateX(-50%);
-					top: 30%;
-					background: map-get($map: $color, $key: "lightgrey");
-				}
-				&::after {
-					top: 70%;
-				}
-			}
-			&.show .open {
-				position: absolute;
-				z-index: 100;
-				top: 0;
-				right: 0px;
-				border-radius: 0px;
-				box-shadow: $shadow;
-				height: 30px;
-				width: 20px;
-
-				background: map-get($map: $color, $key: "grey");
-
-				&::before,
-				&::after {
-					top: 35%;
-					left: 45%;
-					height: 30%;
-					width: 2px;
-					background: map-get($map: $color, $key: "lightgrey");
-				}
-				&::before {
-					transform: rotateZ(145deg);
-				}
-				&::after {
-					transform: rotateZ(-145deg);
-				}
-			}
-			&.show .preview-profile {
-				display: block;
-			}
-		}
-
-		@include media_499 {
-			width: 200px;
-			position: absolute;
-			z-index: 100;
-			left: -200px;
-
-			&.show {
-				left: 0px;
-			}
-			@include toggle("open");
-			.open {
-				border-radius: 0 5px 5px 0;
-				right: -10px;
-
-				&::before {
-					left: 14px;
-				}
-				&::after {
-					left: 7px;
-				}
-			}
-		}
-	}
-
-	.main-body {
-		flex: 0.9;
-		height: 100%;
-		position: relative;
-		overflow: clip scroll;
-
-		&::-webkit-scrollbar {
-			width: 0px;
-		}
-		@include media_1049() {
-			flex: 1.5;
-		}
-
-		.posts.social-feeds {
-			flex: 0.6;
-			position: relative;
-			height: 100%;
-			overflow: auto scroll;
-			max-width: 500px;
-			margin: auto;
-
-			&::-webkit-scrollbar {
-				width: 0px;
-			}
-			.active-feeds {
-				padding: 5px 10px;
-				background: inherit;
-
-				.feeds-list ul {
-					list-style: none;
-					display: inline-flex;
-					gap: 5px;
-					max-width: 100vw;
-					overflow: auto;
-
-					.image_video {
-						border: thin solid map-get($map: $color, $key: "brown");
-						height: 100px;
-						width: 80px;
-						position: relative;
-						border-radius: 10%;
-
-						.image {
-							width: 100%;
-							height: 100%;
-							border-radius: 10%;
-						}
-					}
-				}
-			}
-
-			.upload.create-post {
-				position: relative;
-				padding: 10px;
-			}
-
-			.text-box {
-				position: relative;
-
-				.post-btn {
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-					right: 10px;
-
-					.upload {
-						background: transparent;
-
-						.svg {
-							fill: map-get($map: $color, $key: "skyblue");
-						}
-					}
-				}
-			}
-			.text-control {
-				width: 100%;
-				height: 40px;
-				white-space: wrap;
-				padding: 10px 5px 0px;
-				border-radius: 2px;
-				border: thin solid map-get($color, "grey");
-				resize: none;
-
-				&::-webkit-scrollbar {
-					-webkit-appearance: none;
-					width: 0px;
-					height: 0px;
-				}
-			}
-
-			.alternate-post {
-				.alternate-wrap {
-					display: flex;
-					width: 100%;
-					justify-content: center;
-				}
-
-				.alternate {
-					display: grid;
-					place-items: center;
-					width: 32%;
-					padding: 5px;
-					margin-right: 3px;
-					border-radius: 5px;
-					background: map-get($map: $color, $key: "lowgrey");
-				}
-				.svg {
-					fill: map-get($map: $color, $key: "brown");
-					&:hover {
-						fill: map-get($map: $color, $key: "skyblue");
-					}
-				}
-			}
-
-			.post {
-				background: map-get($map: $color, $key: "lowgrey");
-				width: 90%;
-				margin: auto;
-				margin-bottom: 10px;
-				box-shadow: $shadow;
-				@include media_399 {
-					width: 100%;
-				}
-			}
-
-			.general {
-				list-style: none;
-			}
-			.post-content {
-				position: relative;
-
-				.uploader-wrap {
-					display: flex;
-					flex-wrap: nowrap;
-					align-items: center;
-					padding: 10px;
-					gap: 5px;
-				}
-				.user-image {
-					width: 30px;
-					min-width: 30px;
-					height: 30px;
-
-					.image {
-						width: 100%;
-						height: 100%;
-						border-radius: 50%;
-					}
-				}
-
-				.name {
-					overflow: hidden;
-
-					.text {
-						font-size: map-get($map: $fonts, $key: "smaller");
-						font-weight: 600;
-						overflow: hidden;
-						white-space: nowrap;
-						text-overflow: ellipsis;
-					}
-				}
-
-				.image-post .image {
-					width: 100%;
-					max-height: 350px;
-				}
-			}
-			.feedback {
-				display: flex;
-				justify-content: center;
-				padding: 2px 10px;
-				font-size: map-get($map: $fonts, $key: "smaller");
-				font-weight: 600;
-
-				.replys {
-					text-align: center;
-					width: 33.3%;
-					padding: 0px 5px;
-					.count {
-						background: map-get($map: $color, $key: "white");
-						padding: 3px;
-						border-radius: 5px;
-						width: 100%;
-						margin: auto;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-					}
-				}
-
-				.shares-counts svg {
-					transform: rotateY(180deg);
-				}
-			}
-			.fast-comment-box {
-				padding: 5px 10px;
-			}
-			.recent-comment {
-				font-size: map-get($map: $fonts, $key: "smaller");
-				display: flex;
-				flex-wrap: wrap;
-				margin-bottom: 5px;
-				align-items: center;
-				.user {
-					display: flex;
-					align-items: center;
-					font-weight: 600;
-					gap: 5px;
-					margin-right: 10px;
-					.user-image {
-						width: 20px;
-						height: 20px;
-						.image {
-							width: 100%;
-							height: 100%;
-							border-radius: 50%;
-						}
-					}
-				}
-			}
-			.comment-create-box {
-				position: relative;
-
-				.text-control {
-					width: 100%;
-					height: 35px;
-					padding: 10px 35px 0px;
-					border: none;
-					border-radius: 5px;
-					background: map-get($map: $color, $key: "white");
-				}
-
-				.media-icon {
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-					left: 10px;
-				}
-				.send-btn {
-					position: absolute;
-					top: 50%;
-					transform: translateY(-50%);
-					right: 10px;
-
-					.btn {
-						background: transparent;
-					}
-				}
-
-				svg {
-					fill: map-get($map: $color, $key: "skyblue");
-					width: 20px;
-					height: 20px;
-				}
-				.media-comment-wrapper {
-					position: absolute;
-					background: map-get($map: $color, $key: "white");
-					left: 15px;
-					top: 50%;
-					border-radius: 5px;
-					transform: translateY(-50%);
-					width: 50%;
-					clip-path: circle(0.4% at 0 100%);
-
-					&.show {
-						clip-path: circle(70.7% at 50% 50%);
-					}
-
-					.media-list {
-						display: flex;
-						justify-content: space-between;
-						list-style: none;
-					}
-				}
-			}
-		}
-
-		.chat-rooms-container {
-			flex: 0.6;
-			overflow: auto hidden;
-			position: absolute;
-			right: 0;
-			bottom: 10px;
-			background: transparent;
-			z-index: 5;
-			max-width: 100%;
-			width: fit-content;
-			height: fit-content;
-
-			.chat-rooms-wrapper {
-				flex-direction: row;
-				display: inline-flex;
-				flex-wrap: nowrap;
-				gap: 15px;
-				overflow: auto;
-				padding-inline: 10px;
-				align-items: flex-end;
-			}
-
-			@include media_399() {
-				position: fixed;
-				top: 0;
-				left: 0;
-				padding: 0px;
-				z-index: 10000;
-				background: #fff;
-
-				.chat-rooms-wrapper {
-					padding: 0;
-				}
-			}
-
-			.chats-form {
-				width: 320px;
-				max-width: 100vw;
-				border-radius: 10px;
-				background: map-get($color, "lightergrey");
-				box-shadow: $shadow;
-				overflow: hidden;
-				font-weight: 300;
-				max-height: calc(100vh - 100px);
-				height: fit-content;
-				position: relative;
-
-				@include media_399 {
-					width: 100vw;
-					height: 100vh;
-					max-height: 100vh;
-					border-radius: 0;
-				}
-
-				.application {
-					position: absolute;
-					top: 0;
-					left: 0;
-					background: rgba(7, 7, 7, 0.514);
-					height: 100%;
-					width: 100%;
-					display: none;
-					z-index: 332;
-
-					&.active {
-						display: initial;
-					}
-				}
-
-				.room-header {
-					height: 50px;
-					background: map-get($color, "lowgrey");
-					padding: 5px;
-					display: flex;
-					align-items: center;
-
-					.icon {
-						background-color: #fff;
-						box-shadow: $shadow;
-					}
-
-					.user_image {
-						width: 35px;
-						height: 35px;
-						border-radius: 50%;
-					}
-
-					.profile {
-						display: flex;
-						flex-grow: 1;
-						gap: 5px;
-
-						.avatar.user_image {
-							position: relative;
-
-							.image {
-								width: 30px;
-								height: 30px;
-								border-radius: 50%;
-							}
-						}
-						.user_active_signal {
-							background-color: #44b700;
-							color: #44b700;
-							-webkit-box-shadow: 0 0 0 2px #fdfcfc;
-							box-shadow: 0 0 0 2px #fdfcfc;
-							width: 8px;
-							height: 8px;
-							position: absolute;
-							bottom: 10%;
-							right: 0;
-							border-radius: 50%;
-							&.offline {
-								visibility: hidden;
-							}
-						}
-
-						.name {
-							line-height: 15px;
-						}
-						.textname {
-							font-size: 0.85em;
-							font-weight: 600;
-						}
-
-						.active-text {
-							font-size: map-get($fonts, "smaller");
-							color: map-get($color, "grey");
-						}
-					}
-				}
-
-				.room-body {
-					width: 100%;
-					height: calc(100vh / 2.25);
-					padding: 10px;
-					display: flex;
-					overflow: hidden scroll;
-					flex-direction: column;
-					-webkit-user-select: none;
-					user-select: none;
-
-					@include media_649() {
-						height: calc(100vh - 226px);
-					}
-					@include media_399() {
-						height: calc(100vh - 105px);
-					}
-
-					@include Scrollbar();
-
-					.alert-message {
-						position: absolute;
-						bottom: 60px;
-						right: 6px;
-						font-size: 10px;
-						background: #6e8e93;
-						height: 20px;
-						z-index: 200;
-						visibility: hidden;
-						pointer-events: none;
-						width: 20px;
-						display: grid;
-						color: white;
-						font-weight: 800;
-						place-content: center;
-						border-radius: 50%;
-
-						&.show {
-							visibility: visible;
-							pointer-events: visible;
-							cursor: pointer;
-						}
-					}
-
-					.media_loader {
-						width: 100%;
-						height: 100%;
-						top: 0;
-						background: rgba(255, 255, 255, 0.535);
-						position: absolute;
-						display: grid;
-						place-items: center;
-						border-radius: 10px;
-
-						.loader_spinner {
-							width: 50px;
-							height: 50px;
-							border-radius: 50%;
-							background: rgb(87, 119, 113);
-							position: absolute;
-							display: grid;
-							place-items: center;
-							&::after {
-								display: absolute;
-								width: 80%;
-								height: 80%;
-								border-radius: inherit;
-								background: white;
-								content: "";
-							}
-						}
-					}
-
-					.empty-messages {
-						display: grid;
-						place-items: center;
-						height: 100%;
-					}
-
-					.text {
-						font-size: map-get($fonts, "smaller");
-						line-height: 13px;
-						word-break: break-word;
-						margin-right: 5px;
-						float: left;
-					}
-
-					.time {
-						display: grid;
-						justify-self: flex-end;
-						align-self: flex-end;
-						float: right;
-
-						&.media {
-							position: absolute;
-							bottom: 5px;
-							right: 5px;
-						}
-
-						small {
-							font-size: 9px;
-							font-weight: 600;
-							color: map-get($map: $color, $key: "skyblue");
-						}
-					}
-					.group {
-						width: fit-content;
-						margin: auto;
-						font-size: 9px;
-						margin-block: 10px;
-						background: white;
-						padding: 4px;
-						border-radius: 4px;
-					}
-					.message-wrapper {
-						max-width: 70%;
-						position: relative;
-						width: fit-content;
-					}
-
-					.plain-message {
-						display: flow-root;
-						padding: 8px 5px;
-						width: fit-content;
-						background: map-get($color, "white");
-						border-radius: 10px;
-						box-shadow: $shadow;
-					}
-
-					.form-message {
-						max-width: 70%;
-						position: relative;
-						width: fit-content;
-						background: map-get($color, "white");
-						border-radius: 10px;
-						box-shadow: $shadow;
-						display: grid;
-
-						&.correct {
-							box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
-						}
-						&.failed {
-							box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
-						}
-						&.correct,
-						&.failed,
-						&.no-answer-picked {
-							&.before::before {
-								position: absolute;
-								content: "Correct. Congrats";
-								display: grid;
-								place-items: center;
-								text-align: center;
-								color: rgb(255, 255, 255);
-								font-size: 11px;
-								height: 20%;
-								bottom: 0px;
-								font-weight: 700;
-								border-radius: 10px;
-								width: 100%;
-								pointer-events: none;
-								background: rgba(47, 181, 47, 0.974);
-								backdrop-filter: blur(10px);
-								-webkit-backdrop-filter: blur(10px);
-							}
-						}
-
-						&.failed.before::before {
-							content: "fail. Sorry!";
-							background: rgba(216, 50, 50, 0.974);
-						}
-						&.no-answer-picked.before::before {
-							content: "Sorry!. Timeout!";
-							background: rgba(89, 83, 34, 0.974);
-						}
-
-						.time {
-							padding: 1px 10px;
-						}
-
-						.label {
-							word-break: break-all;
-							line-height: 15px;
-						}
-
-						.user-image {
-							z-index: 20px;
-						}
-						.poll-question {
-							display: flex;
-							flex-direction: column;
-							padding: 0px 0px 5px;
-							background: map-get($map: $color, $key: "white");
-							border-radius: 20px 20px 0px 0px;
-						}
-
-						.poll-question-header {
-							display: flex;
-							justify-content: space-between;
-							align-items: center;
-							padding: 5px;
-						}
-						.coin,
-						.time-count {
-							// background: map-get($map: $color, $key: "lowgrey");
-							padding: 5px;
-							width: fit-content;
-							border-top-right-radius: 20px;
-							font-weight: 600;
-							color: map-get($map: $color, $key: "brown");
-							font-size: map-get($map: $fonts, $key: "smaller");
-
-							b {
-								color: map-get($map: $color, $key: "skyblue");
-							}
-						}
-						.time-count {
-							border-radius: 0;
-							border-top-left-radius: 20px;
-							// padding-left: 15px;
-						}
-
-						.text {
-							padding: 5px;
-							background: map-get($map: $color, $key: "lowgrey");
-						}
-						.options {
-							list-style: none;
-							padding: 5px;
-
-							.option {
-								display: flex;
-								flex-wrap: nowrap;
-								line-height: 11px;
-								align-items: center;
-								box-shadow: $shadow;
-								padding: 3px 8px 3px 3px;
-								border-radius: 10px;
-								margin-bottom: 5px;
-								color: map-get($map: $color, $key: "brown");
-								font-size: map-get(
-									$map: $fonts,
-									$key: "smaller"
-								);
-
-								&.correct {
-									box-shadow: 0px 0px 5px
-										rgba(0, 255, 0, 0.522);
-								}
-								&.failed {
-									box-shadow: 0px 0px 5px
-										rgba(255, 0, 0, 0.556);
-								}
-								.form-group {
-									margin-right: 5px;
-								}
-
-								#option {
-									width: 20px;
-									height: 20px;
-									-webkit-appearance: none;
-									border-radius: 50%;
-									box-shadow: inset 0px 0px 4px 2px
-										map-get($map: $color, $key: "skyblue");
-								}
-								#option:checked {
-									box-shadow: inset 0px 0px 13px 2px
-										map-get($map: $color, $key: "skyblue");
-								}
-							}
-						}
-
-						.response {
-							position: absolute;
-							bottom: 0;
-							background: map-get($map: $color, $key: "white");
-							box-shadow: 0px -2px 5px 0px map-get($map: $color, $key:
-										"lightgrey");
-							width: 100%;
-							border-radius: 20px;
-							text-align: center;
-							font-weight: 600;
-							padding: 10px;
-							font-size: map-get($map: $fonts, $key: "small");
-
-							&.won {
-								color: map-get($map: $color, $key: "grey");
-							}
-						}
-					}
-
-					.media-wrapper,
-					.image-previewer {
-						max-width: 70%;
-						height: auto;
-						border-radius: 10px;
-						overflow: hidden;
-						float: right;
-						position: relative;
-
-						.image {
-							width: auto;
-							height: auto;
-							max-width: 150px;
-							max-height: 200px;
-							border-radius: 10px;
-							position: relative;
-						}
-
-						.time {
-							position: absolute;
-							bottom: 5px;
-							right: 5px;
-							color: white;
-						}
-
-						.media-loader {
-							background-color: rgba(0, 0, 0, 60%);
-							position: absolute;
-							top: 0;
-							height: 100%;
-							width: 100%;
-							left: 0;
-							display: grid;
-							place-items: center;
-						}
-					}
-					.incoming-message {
-						width: 100%;
-						position: relative;
-						margin-bottom: 10px;
-
-						&.adjust,
-						&.adjust-mg {
-							margin-bottom: 3px;
-						}
-
-						.avatar.user_image {
-							position: absolute;
-							top: -10px;
-							left: -10px;
-							width: 25px;
-							height: 25px;
-
-							.image {
-								width: 30px;
-								height: 30px;
-								border-radius: 50%;
-							}
-						}
-
-						.media-wrapper {
-							float: left;
-						}
-					}
-
-					.outgoing-message {
-						width: 100%;
-						position: relative;
-						margin-bottom: 10px;
-
-						.form-message {
-							&.failed.before::before {
-								content: "Your friend failed it";
-							}
-							&.correct.before::before {
-								content: "Your friend got your question";
-							}
-							&.no-answer-picked.before::before {
-								content: "Your friend picked no answer";
-							}
-						}
-
-						&.adjust-mg {
-							margin-bottom: 3px;
-						}
-
-						.time-count {
-							padding: 5px;
-						}
-
-						.message-wrapper {
-							float: right;
-						}
-
-						.form-message {
-							float: right;
-						}
-					}
-				}
-
-				.message-options {
-					position: absolute;
-				}
-				.welcome-message {
-					font-size: map-get($fonts, "smaller");
-					text-align: center;
-					font-weight: 600;
-					margin-bottom: 10px;
-				}
-				.room-footer {
-					position: relative;
-					background: map-get($color, "lowgrey");
-					width: 100%;
-					padding: 10px 10px 10px;
-					height: 56px;
-					backdrop-filter: blur(10px);
-
-					.media-icon {
-						position: absolute;
-						top: 50%;
-						left: 20px;
-						cursor: pointer;
-						display: grid;
-						place-items: center;
-						transform: translateY(-50%);
-					}
-					.input-group .text-control {
-						width: 100%;
-						height: 34px;
-						resize: none;
-						border-radius: 10px;
-						padding: 10px 40px 0px;
-						font-size: smaller;
-						font-weight: 500;
-						font-family: "Gill Sans", "Gill Sans MT", Calibri,
-							"Trebuchet MS", sans-serif;
-						&::-webkit-scrollbar {
-							width: 0px;
-						}
-					}
-
-					.send-btn {
-						position: absolute;
-						right: 15px;
-						top: 50%;
-						height: 100%;
-						display: grid;
-						cursor: pointer;
-						place-items: center;
-						transform: translateY(-50%);
-
-						.btn {
-							background: transparent;
-							&:focus {
-								outline: none;
-								border: none;
-							}
-						}
-						.btn.send.active .send-icon {
-							fill: map-get($map: $color, $key: "green");
-						}
-					}
-
-					.media-message-wrapper {
-						position: absolute;
-						width: 100%;
-						left: 0px;
-						bottom: 0px;
-						transition: $transition;
-						clip-path: circle(0.4% at 0 100%);
-						overflow: hidden;
-						z-index: 100;
-
-						&.active {
-							background: map-get($map: $color, $key: "lowgrey");
-							backdrop-filter: blur(10px);
-							border-radius: 10px 10px 0px 0px;
-							z-index: 100;
-							clip-path: circle(141% at 0 100%);
-						}
-						&.toggle {
-							width: 100%;
-							border-radius: 20px 20px 0px 0px;
-						}
-
-						.media-list {
-							display: flex;
-							justify-content: center;
-							flex-direction: row;
-							flex-wrap: wrap;
-							align-items: center;
-							padding: 10px;
-							list-style: none;
-
-							.media,
-							.poll {
-								text-align: center;
-								cursor: pointer;
-
-								align-items: center;
-								font-size: map-get(
-									$map: $fonts,
-									$key: "smaller"
-								);
-								margin-left: 15px;
-
-								.icon {
-									background: white;
-									display: grid;
-									place-items: center;
-									border-radius: 50%;
-								}
-
-								.svg {
-									width: 20px;
-									height: 20px;
-									fill: map-get(
-										$map: $color,
-										$key: "skyblue"
-									);
-								}
-							}
-						}
-					}
-
-					.create-question {
-						position: absolute;
-						bottom: 0px;
-						left: 0px;
-						width: 100%;
-						box-shadow: $shadow;
-						transition: $transition;
-						border-radius: 10px 10px 0px 0px;
-						background: map-get($map: $color, $key: "lightergrey");
-						backdrop-filter: blur(10px);
-						max-height: 150px;
-						overflow: hidden scroll;
-						clip-path: circle(0.4% at 0 100%);
-
-						&::-webkit-scrollbar {
-							width: 2px;
-							border-radius: 30%;
-						}
-						&::-webkit-scrollbar-thumb {
-							border-radius: 30%;
-							background: rgb(79, 79, 79);
-						}
-
-						.poll-header {
-							background: map-get($map: $color, $key: "lowgrey");
-							padding-top: 2px;
-							position: sticky;
-							position: -webkit-sticky;
-							top: 0;
-							z-index: 100000;
-							backdrop-filter: blur(10px);
-							-webkit-backdrop-filter: blur(10px);
-
-							.title {
-								font-weight: 300;
-								font-size: map-get(
-									$map: $fonts,
-									$key: "medium"
-								);
-								text-align: center;
-							}
-
-							.discard-wrap,
-							.create-wrap {
-								position: absolute;
-								background: map-get(
-									$map: $color,
-									$key: "white"
-								);
-								top: 0;
-								cursor: pointer;
-								transition: $transition;
-								padding: 5px 10px;
-								font-size: map-get(
-									$map: $fonts,
-									$key: "smaller"
-								);
-								font-weight: 300;
-							}
-
-							.discard-wrap {
-								left: 0;
-								border-top-left-radius: 10px;
-							}
-							.create-wrap {
-								right: 0;
-								border-top-right-radius: 10px;
-
-								&.active.create {
-									background: map-get(
-										$map: $color,
-										$key: "skyblue"
-									);
-									color: white;
-								}
-							}
-						}
-
-						.poll-body {
-							padding: 5px;
-
-							.text {
-								font-size: map-get(
-									$map: $fonts,
-									$key: "smaller"
-								);
-								font-weight: 300;
-							}
-							.question {
-								margin-top: 5px;
-								.text-control {
-									height: 35px;
-									width: 100%;
-									resize: none;
-									padding: 10px 10px 0px 5px;
-									font-size: smaller;
-									border-radius: 2px;
-
-									&.empty {
-										box-shadow: 0px 0px 3px rgb(255, 0, 0);
-									}
-								}
-							}
-
-							.question-options {
-								.header {
-									display: flex;
-									justify-content: space-between;
-									box-shadow: $shadow;
-									height: 25px;
-									border-radius: 2px;
-									align-items: center;
-									margin-bottom: 5px;
-
-									.text {
-										padding-left: 5px;
-									}
-
-									.add {
-										background: map-get(
-											$map: $color,
-											$key: "white"
-										);
-										width: 25px;
-										height: 100%;
-										border-radius: 0;
-										cursor: pointer;
-
-										&.more-option-required {
-											animation: shadow 1s alternate
-												infinite ease-in-out;
-										}
-									}
-								}
-								.option-list {
-									list-style: none;
-									display: grid;
-									gap: 5px;
-									margin-bottom: 10px;
-
-									.option {
-										position: relative;
-
-										.text-box {
-											height: 100%;
-										}
-									}
-
-									#answer {
-										-webkit-appearance: none;
-										position: absolute;
-										left: 0;
-										top: 0;
-										height: 100%;
-										width: 25px;
-										border: 1.5px groove;
-
-										&::before {
-											position: absolute;
-											content: "A";
-											height: 100%;
-											width: 100%;
-											padding-bottom: 5px;
-											color: white;
-											display: grid;
-											place-items: center;
-										}
-										&:checked {
-											background: map-get(
-												$map: $color,
-												$key: "brown"
-											);
-										}
-
-										&.required {
-											animation: shadow 1s alternate
-												infinite ease-in-out;
-										}
-									}
-								}
-								.remove-option {
-									background: map-get(
-										$map: $color,
-										$key: "lightgrey"
-									);
-									border-radius: 0px;
-									display: grid;
-									cursor: pointer;
-									place-items: center;
-									width: 25px;
-									height: 100%;
-									position: absolute;
-									right: 0;
-									top: 0;
-								}
-								.text-control {
-									height: 100%;
-									width: 100%;
-									resize: none;
-									font-size: smaller;
-									padding: 5px 5px 5px 27px;
-									border-radius: 10px 50px 50px 10px;
-
-									&.empty {
-										box-shadow: 0px 0px 3px rgb(255, 0, 0);
-									}
-								}
-							}
-
-							.additional-options {
-								.title {
-									margin-bottom: 10px;
-								}
-								.options {
-									display: flex;
-									flex-wrap: wrap;
-									justify-content: space-between;
-									margin-bottom: 10px;
-
-									.option-wrap {
-										width: 31%;
-										padding: 5px;
-										display: flex;
-										box-shadow: $shadow;
-										flex-direction: column;
-										justify-content: center;
-										align-items: center;
-										border-radius: 3px;
-									}
-								}
-								label {
-									font-size: map-get(
-										$map: $fonts,
-										$key: "smaller"
-									);
-									font-weight: 600;
-								}
-
-								.text-control {
-									width: 80%;
-									font-size: map-get(
-										$map: $fonts,
-										$key: "smaller"
-									);
-									padding: 5px;
-									border-radius: 10px;
-									text-align: center;
-									font-weight: 500;
-									color: map-get($map: $color, $key: "brown");
-
-									&.required {
-										animation: shadow 1s alternate infinite
-											ease-in-out;
-									}
-								}
-
-								.challenge {
-									position: relative;
-
-									.control {
-										height: 20px;
-									}
-									input.challenge {
-										-webkit-appearance: none;
-										width: 20px;
-										height: 20px;
-										background: white;
-										border-radius: 50%;
-										box-shadow: 0px 0px 0px 3px
-											map-get($map: $color, $key: "black");
-										cursor: pointer;
-
-										&::before {
-											position: absolute;
-											content: "C";
-											height: 100%;
-											width: 100%;
-											padding-bottom: 5px;
-											color: white;
-											display: grid;
-											place-items: center;
-											border-radius: 50%;
-										}
-										&:checked {
-											background: map-get(
-												$map: $color,
-												$key: "brown"
-											);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  .flex-right {
+    flex-grow: 1;
+  }
+
+  header {
+    background: #ebebeb;
+    grid-column: 1/6;
+    padding: 5px 10px;
+    -webkit-user-select: none;
+    user-select: none;
+    position: sticky;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    color: black;
+    box-shadow: none;
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+    }
+
+    @include media_499 {
+      padding-inline: 0;
+
+      .toolbar {
+        padding-left: 0;
+      }
+    }
+
+    .flex-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 600;
+      font-family: calibri, Tahoma;
+      font-size: 1.3em;
+
+      &.display-small {
+        display: none;
+        // font-size: map-get($map: $fonts, $key: "medium");
+        padding-inline: 16px;
+      }
+
+      @include media_499 {
+        &.display-large {
+          display: none;
+        }
+        &.display-small {
+          display: block;
+        }
+      }
+    }
+    .coin-wrapper {
+      font-weight: 500;
+      height: 35px;
+      border-radius: 50px;
+      font-weight: 600;
+      box-shadow: 0px 0px 10px -5px map-get($color, "brown");
+      background: map-get($map: $color, $key: "white");
+
+      @include media_499 {
+        height: 30px;
+      }
+    }
+
+    .search-container {
+      position: relative;
+      transition: $transition;
+
+      &.focused {
+        z-index: 10000;
+      }
+
+      .search-text-box {
+        .search-form {
+          position: relative;
+          border: none;
+          background: white;
+          width: 300px;
+          min-height: 30px;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          max-width: 90vw;
+          overflow: hidden;
+          overflow: -moz-hidden-unscrollable;
+          border-radius: 50px;
+          box-shadow: $shadow;
+          transition: $transition;
+
+          @include media_830 {
+            width: 35px;
+            height: 35px;
+            display: flex;
+          }
+
+          @include media_499 {
+            height: 30px;
+            width: 30px;
+          }
+        }
+      }
+
+      .search-icon {
+        height: 100%;
+        padding: 9px;
+        display: grid;
+        place-items: center;
+
+        @include media_830 {
+          padding: 0;
+          width: 100%;
+        }
+
+        &.ready {
+          background: map-get($map: $color, $key: "grey");
+          svg {
+            fill: white;
+          }
+        }
+      }
+
+      .form-control {
+        height: 100%;
+        flex-grow: 1;
+        padding-block: 5px;
+
+        @include media_830 {
+          display: none;
+        }
+
+        @include media_399() {
+          width: 150px;
+        }
+
+        .text-control {
+          height: inherit;
+          width: 100%;
+          padding: 5px;
+
+          &::placeholder {
+            font-weight: 500;
+            font-size: map-get($map: $fonts, $key: "small");
+          }
+        }
+      }
+
+      &.focused .form-control {
+        display: block;
+      }
+
+      &.focused .search-text-box {
+        position: fixed;
+        top: 10px;
+        left: calc((400px - 300px) / 2);
+        z-index: 100;
+
+        @include media_649 {
+          // margin-inline: 10px;
+          left: calc((100vw - 300px) / 2);
+        }
+
+        @include media_399 {
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        .search-form {
+          width: 300px;
+          height: 35px;
+        }
+        .search-icon {
+          width: initial;
+          padding: 9px;
+        }
+      }
+
+      .search-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: grid;
+        height: 100vh;
+        background: #0000009e;
+        width: 100vw;
+        z-index: 10000000;
+      }
+
+      .search-results {
+        height: 90%;
+        width: 600px;
+        margin: auto;
+        background: map-get($map: $color, $key: "lightergrey");
+        overflow: auto;
+        transition: $transition;
+        box-shadow: $shadow;
+        border-radius: 20px;
+
+        @include media_649() {
+          width: 100vw;
+          max-width: 100vw;
+        }
+
+        &::-webkit-scrollbar {
+          appearance: none;
+          width: 5px;
+          background: transparent;
+          border-radius: 10px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          border-radius: 50px;
+          background: map-get($map: $color, $key: "brown");
+        }
+
+        .search-matched-wrapper {
+          overflow: hidden scroll;
+          position: relative;
+          height: 100%;
+
+          @include media_649() {
+            height: calc(100vh);
+          }
+
+          &::-webkit-scrollbar {
+            display: none;
+            width: 0px;
+          }
+
+          .header {
+            font-weight: 600;
+            position: sticky;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: -webkit-sticky;
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            background: map-get($map: $color, $key: "lowgrey");
+            top: 0;
+            font-size: map-get($map: $fonts, $key: "small");
+
+            .close-btn {
+              padding: 5px 15px;
+              cursor: pointer;
+              text-align: center;
+              border-radius: 50px;
+              box-shadow: $shadow;
+              background: map-get($color, "white");
+              font-size: map-get($fonts, "smaller");
+              font-weight: 500;
+            }
+          }
+        }
+
+        .list-wrapper {
+          padding: 10px;
+          .title {
+            font-size: map-get($map: $fonts, $key: "smaller");
+            font-weight: 500;
+          }
+
+          .search-message {
+            margin-top: 25%;
+            text-align: center;
+          }
+
+          .search-loader {
+            display: grid;
+            place-items: center;
+            margin-top: 25%;
+          }
+        }
+        @include users();
+        .users {
+          height: 100%;
+          width: 100%;
+          .user {
+            .btn {
+              font-size: 10px;
+            }
+          }
+        }
+      }
+    }
+
+    .top-navigation {
+      position: relative;
+      transition: $transition;
+
+      .open {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background-color: white;
+        box-shadow: 0px 0px 10px -5px map-get($color, "brown");
+        padding: 0;
+
+        &.active {
+          background-color: map-get($map: $color, $key: "lowgrey");
+        }
+
+        @include media_499 {
+          width: 30px;
+          height: 30px;
+        }
+      }
+
+      .chatboard-badge {
+        display: none;
+
+        @include media_830 {
+          display: block;
+        }
+      }
+
+      .MuiBadge-badge {
+        background: map-get($map: $color, $key: "grey");
+        color: white;
+      }
+      .friendrequest-wrapper {
+        @mixin check() {
+          @if (100vw < 1366px) {
+            color: calc(100vw / 2 + 100px);
+          }
+        }
+
+        @include Box("requests");
+        // .requests-box {
+        //   transition: opacity 200ms;
+
+        //   &.requests-box-enter {
+        //     opacity: 0;
+        //   }
+        //   &.requests-box-enter-active {
+        //     opacity: 1;
+        //     z-index: 100;
+        //   }
+        //   &.requests-box-exit {
+        //     opacity: 1;
+        //   }
+        //   &.requests-box-exit-active {
+        //     opacity: 0;
+        //   }
+        //   &.requests-box-enter-done {
+        //     opacity: 1;
+        //     z-index: 100;
+        //   }
+
+        //   @include Scrollbar();
+        // }
+        @include users();
+        .users {
+          .user {
+            .btn:first-child {
+              margin-right: 10px;
+            }
+            .reject {
+              background: map-get($color, "red");
+              color: map-get($color, "brown");
+            }
+          }
+        }
+
+        .no_request {
+          min-height: 100px;
+          display: grid;
+          place-items: center;
+
+          h4 {
+            font-weight: 500;
+            font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+              sans-serif;
+          }
+        }
+        .request-box.expand .users {
+          visibility: visible;
+        }
+
+        .friends .title {
+          padding: 3px 15px;
+          font-weight: 600;
+          font-size: map-get($fonts, "smaller");
+          background: map-get($color, "white");
+          margin: 5px 0px;
+        }
+      }
+
+      .profile-link-wrapper {
+        position: relative;
+        transition: $transition;
+
+        .profile-expand {
+          width: 250px;
+          height: auto;
+          position: fixed;
+          top: 81px;
+          padding: 10px;
+          right: 10px;
+          opacity: 0;
+          border-radius: 5px;
+          z-index: 100;
+          background: map-get($color, "white");
+          box-shadow: 0px 0px 5px 1px #00000017;
+
+          .profile-header {
+            .profile_details {
+              padding-bottom: 3px;
+              padding: 5px 10px;
+              text-align: right;
+              border-bottom: thin solid map-get($map: $color, $key: "blue");
+            }
+            .name {
+              width: 100%;
+              display: block;
+              font-weight: 600;
+            }
+            .name {
+              line-height: 16px;
+              margin: 5px;
+              font-weight: 500;
+
+              .username {
+                color: map-get($color, "blue");
+                font-size: map-get($fonts, "small");
+              }
+            }
+            .email {
+              font-size: map-get($fonts, "small");
+            }
+          }
+        }
+      }
+
+      .notifications-wrapper {
+        position: relative;
+
+        @include Box("notifications");
+        // .notifications-box {
+        //   transition: opacity 200ms;
+
+        //   &.notifications-box-enter {
+        //     opacity: 0;
+        //   }
+        //   &.notifications-box-enter-active {
+        //     opacity: 1;
+        //     z-index: 100;
+        //   }
+        //   &.notifications-box-exit {
+        //     opacity: 1;
+        //   }
+        //   &.notifications-box-exit-active {
+        //     opacity: 0;
+        //   }
+        //   &.notifications-box-enter-done {
+        //     opacity: 1;
+        //     z-index: 100;
+        //   }
+
+        //   @include Scrollbar();
+        // }
+
+        .date {
+          padding: 3px 10px;
+          background: map-get($color, "white");
+          color: map-get($color, "skyblue");
+          font-size: map-get($fonts, "smaller");
+          font-weight: 600;
+        }
+
+        .notification-image {
+          margin-right: 10px;
+
+          .image img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50px;
+          }
+        }
+
+        .notifications-list {
+          list-style: none;
+
+          .notification {
+            padding: 5px 15px;
+            position: relative;
+            margin-bottom: 10px;
+            display: flex;
+
+            &::after {
+              position: absolute;
+              content: "";
+              bottom: 0;
+              left: 50px;
+              right: 10px;
+              height: 1px;
+              background: map-get($color, $key: "lowgrey");
+            }
+          }
+
+          .text {
+            line-height: 13px;
+            font-weight: 500;
+            font-size: 0.7em;
+
+            b {
+              color: map-get($color, "green");
+            }
+          }
+
+          .assigned-name {
+            font-weight: 700;
+            font-size: map-get($fonts, "small");
+            color: map-get($color, "brown");
+          }
+        }
+      }
+    }
+  }
+
+  .main {
+    display: flex;
+    flex-wrap: nowrap;
+    position: relative;
+    overflow: hidden;
+    height: calc(100vh - 75px);
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 50px;
+      background: grey;
+    }
+
+    @media screen and (max-width: 600px) {
+      height: calc(100vh - 60px);
+    }
+
+    @include media_1049() {
+      max-width: 100vw;
+    }
+
+    @include media_399 {
+      .breakpoint {
+        width: 100%;
+      }
+    }
+  }
+
+  .sidebar {
+    background: map-get($map: $color, $key: "lightergrey");
+    height: inherit;
+    width: 300px;
+    min-width: 230px;
+    position: relative;
+    transition: $transition;
+    max-height: 100vh;
+    overflow: auto;
+    padding: 20px 15px;
+
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    .open {
+      display: none;
+    }
+
+    .preview-profile {
+      padding-bottom: 20px;
+      transition: $transition;
+      border-bottom: thin solid #c8c8c8;
+      margin-bottom: 1em;
+      white-space: nowrap;
+
+      @include media_1049 {
+        display: none;
+      }
+
+      .user-image-name-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: nowrap;
+        margin-bottom: 20px;
+
+        .user-image {
+          display: grid;
+          background-color: #fff;
+          padding: 3px;
+          border-radius: 10px;
+          box-shadow: $shadow;
+
+          .image {
+            border-radius: 10px;
+          }
+        }
+
+        .name {
+          font-size: map-get($map: $fonts, $key: "small");
+          font-weight: 500;
+        }
+
+        .username {
+          font-size: 0.8em;
+          font-weight: 400;
+          color: map-get($color, "green");
+        }
+      }
+      .message {
+        margin-top: 10px;
+        font-size: map-get($fonts, "smaller");
+        white-space: normal;
+      }
+    }
+
+    .navigators {
+      transition: $transition;
+
+      .group-1 {
+        border-bottom: thin solid #c8c8c8;
+        padding-bottom: 1em;
+        margin-bottom: 1em;
+      }
+
+      .links-list {
+        list-style: none;
+
+        li {
+          height: 50px;
+          display: grid;
+          transition: $transition;
+          position: relative;
+
+          a {
+            transition: $transition;
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 30px;
+            width: 100%;
+            border-radius: 10px;
+            flex-wrap: nowrap;
+            text-decoration: none;
+            color: inherit;
+
+            .icon-wrap {
+              height: 24px;
+              .svg {
+                width: 24px;
+                height: inherit;
+                fill: #56565c;
+              }
+            }
+
+            .link .link-title {
+              font-size: 0.9em;
+              font-weight: 500;
+              color: #56565c;
+            }
+          }
+          &:hover,
+          &.active {
+            place-items: center;
+            a {
+              width: max-content;
+              background: map-get($map: $color, $key: "white");
+              padding: 10px 20px;
+              box-shadow: $shadow;
+            }
+            .link .link-title {
+              color: map-get($map: $color, $key: "green");
+              text-transform: uppercase;
+            }
+            .icon-wrap .svg {
+              fill: map-get($map: $color, $key: "green");
+            }
+          }
+        }
+      }
+    }
+
+    @include media_1049 {
+      width: 50px;
+      padding: 13px 10px 20px;
+      min-width: 50px;
+
+      .open {
+        display: grid;
+        left: 50%;
+        transform: translateX(-56%);
+      }
+      .nav-tooltip {
+        background-color: #fff;
+        padding: 10px;
+        box-shadow: $shadow;
+        color: map-get($color, "green");
+        font-size: 0.8em;
+        font-weight: 500;
+        z-index: 100;
+
+        &::before {
+          content: "";
+          width: 10px;
+          height: 10px;
+          transform: rotateZ(45deg) translateY(-50%);
+          left: -8px;
+          top: 50%;
+          background: #fff;
+          position: absolute;
+        }
+      }
+
+      &.show {
+        position: absolute;
+        width: 300px;
+        z-index: 100;
+
+        .open {
+          float: right;
+          left: initial;
+          transform: none;
+        }
+
+        .link {
+          display: block;
+        }
+
+        li:hover,
+        &.active {
+          place-items: center !important;
+          a {
+            width: max-content !important;
+            padding: 10px 20px !important;
+            margin: auto !important;
+          }
+        }
+
+        .nav-tooltip {
+          display: none !important;
+        }
+      }
+
+      &.show .preview-profile {
+        display: block;
+      }
+
+      li {
+        a {
+          height: max-content;
+          margin: auto;
+        }
+        &:hover,
+        &.active {
+          display: block;
+          place-items: center !important;
+          a {
+            width: fit-content !important;
+            height: max-content !important;
+            padding: 5px !important;
+            margin: auto !important;
+            margin-left: -4px !important;
+            display: block;
+          }
+        }
+
+        .link {
+          display: none;
+        }
+      }
+
+      &.show {
+        li.active {
+          a {
+            width: max-content !important;
+            padding: 10px 20px !important;
+            margin-left: auto !important;
+          }
+        }
+      }
+    }
+
+    @include media_499 {
+      width: 200px;
+      position: absolute;
+      left: -200px;
+
+      &.show {
+        left: 0px;
+      }
+      @include toggle("open");
+      .open {
+        border-radius: 0 5px 5px 0;
+        right: -10px;
+
+        &::before {
+          left: 14px;
+        }
+        &::after {
+          left: 7px;
+        }
+      }
+    }
+  }
+
+  .main-body {
+    flex-grow: 1;
+    height: 100%;
+    position: relative;
+    overflow: clip scroll;
+
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    .posts.social-feeds {
+      position: relative;
+      height: 100%;
+      overflow: auto scroll;
+      max-width: 500px;
+      margin: auto;
+
+      &::-webkit-scrollbar {
+        width: 0px;
+      }
+      .active-feeds {
+        padding: 5px 10px;
+        background: inherit;
+
+        .feeds-title {
+          font-weight: 500;
+          font-size: 0.8em;
+          margin-bottom: 10px;
+        }
+
+        .feeds-list {
+          list-style: none;
+          display: inline-flex;
+          gap: 5px;
+          max-width: 100vw;
+          overflow: hidden auto;
+
+          .feeds {
+            background-color: #ebebeb;
+            border-radius: 7px;
+            width: 80px;
+            height: 100px;
+            overflow: hidden;
+            position: relative;
+
+            .front-feed {
+              display: grid;
+              border-radius: inherit;
+
+              .feed-image {
+                object-fit: fill;
+                width: 100%;
+                height: 100px;
+                border-radius: inherit;
+              }
+            }
+
+            .status-title {
+              background: #fff;
+              border-radius: 0 0 7px 7px;
+              bottom: 0;
+              position: absolute;
+              font-weight: 500;
+              font-size: 12px;
+              text-align: center;
+              padding: 8px;
+              width: 100%;
+            }
+          }
+        }
+      }
+
+      .create-post {
+        position: relative;
+        padding: 10px;
+
+        .text-box {
+          position: relative;
+          display: grid;
+
+          .post-btn {
+            position: absolute;
+            display: none;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 10px;
+
+            .upload {
+              background: transparent;
+
+              .svg {
+                fill: map-get($map: $color, $key: "skyblue");
+              }
+            }
+          }
+
+          .text-control {
+            width: 100%;
+            height: 50px;
+            white-space: wrap;
+            padding: 17px 20px;
+            border-radius: 10px;
+            box-shadow: $shadow;
+            resize: none;
+            font-family: "Segoe UI";
+
+            &::-webkit-scrollbar {
+              -webkit-appearance: none;
+              width: 0px;
+              height: 0px;
+            }
+          }
+
+          .alternate-post {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+          }
+        }
+      }
+
+      .posts-container {
+        padding: 10px;
+
+        .post {
+          background: map-get($map: $color, $key: "lowgrey");
+          width: 100%;
+          margin: auto;
+          margin-bottom: 10px;
+          box-shadow: $shadow;
+          padding: 10px 15px 20px;
+          border-radius: 20px;
+
+          @include media_399 {
+            width: 100%;
+          }
+        }
+        .post-content {
+          position: relative;
+
+          .uploader-wrap {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            padding: 10px;
+            gap: 5px;
+            margin-bottom: 0.5em;
+
+            .user-image {
+              display: grid;
+
+              .image {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+              }
+            }
+
+            .name {
+              overflow: hidden;
+
+              .text {
+                font-size: map-get($map: $fonts, $key: "smaller");
+                font-weight: 600;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+          }
+
+          .image-post {
+            padding: 10px;
+            .image {
+              margin: auto;
+              display: block;
+              width: 100%;
+              // max-height: 350px;
+              border-radius: 10px;
+            }
+          }
+        }
+      }
+
+      .general {
+        list-style: none;
+      }
+
+      .feedback {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        padding: 2px 10px;
+
+        .replys {
+          text-align: center;
+          background: #fff;
+          padding: 3px;
+          border-radius: 50px;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          justify-content: center;
+          flex-grow: 1;
+
+          .count {
+            font-weight: 600;
+          }
+        }
+
+        .shares-counts svg {
+          transform: rotateY(180deg);
+        }
+      }
+
+      .post-attributes {
+        background-color: #cfcfcf;
+        margin-top: 0.5em;
+        border-radius: 5px;
+        margin-inline: 10px;
+        padding: 10px;
+
+        .tags-container {
+          display: inline-flex;
+          font-size: 0.8em;
+        }
+
+        .caption-container {
+          font-size: 0.8em;
+          margin-top: 5px;
+
+          .caption-text {
+            font-weight: 500;
+            color: #363636;
+          }
+        }
+
+        .caption-label,
+        .tag-label {
+          font-weight: 500;
+          color: #369298;
+        }
+
+        .tags,
+        .mentions {
+          text-decoration: none;
+          color: #865711;
+        }
+      }
+      .fast-comment-box {
+        margin-top: 5px;
+        padding-inline: 10px;
+      }
+
+      .recent-comment {
+        font-size: map-get($map: $fonts, $key: "smaller");
+        display: flex;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 10px;
+
+        .user {
+          display: flex;
+          align-items: center;
+          font-weight: 600;
+          gap: 7px;
+          margin-right: 10px;
+
+          .user-image {
+            display: grid;
+
+            .image {
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+            }
+          }
+        }
+      }
+
+      .comment-create-box {
+        position: relative;
+
+        .text-control {
+          width: 100%;
+          height: 35px;
+          padding: 8px 35px 8px;
+          border: none;
+          border-radius: 5px;
+          background: map-get($map: $color, $key: "white");
+          resize: none;
+          font-family: "Segoe UI";
+        }
+
+        .input-group {
+          display: grid;
+
+          .media-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 5px;
+          }
+          .send-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 5px;
+
+            .btn {
+              background: transparent;
+            }
+          }
+
+          svg {
+            fill: map-get($map: $color, $key: "skyblue");
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .media-comment-wrapper {
+          position: absolute;
+          background: map-get($map: $color, $key: "white");
+          left: 15px;
+          top: 50%;
+          border-radius: 5px;
+          transform: translateY(-50%);
+          width: 50%;
+          clip-path: circle(0.4% at 0 100%);
+
+          &.show {
+            clip-path: circle(70.7% at 50% 50%);
+          }
+
+          .media-list {
+            display: flex;
+            justify-content: space-between;
+            list-style: none;
+          }
+        }
+      }
+    }
+
+    .chat-rooms-container {
+      flex: 0.6;
+      overflow: auto hidden;
+      position: absolute;
+      right: 0;
+      bottom: 10px;
+      background: transparent;
+      z-index: 5;
+      max-width: 100%;
+      width: fit-content;
+      height: fit-content;
+
+      .chat-rooms-wrapper {
+        flex-direction: row;
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        overflow: auto;
+        padding-inline: 10px;
+        align-items: flex-end;
+      }
+
+      @include media_399() {
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 0px;
+        z-index: 10000;
+        background: #fff;
+
+        .chat-rooms-wrapper {
+          padding: 0;
+        }
+      }
+
+      .chats-form {
+        width: 320px;
+        max-width: 100vw;
+        border-radius: 10px;
+        background: map-get($color, "lightergrey");
+        box-shadow: $shadow;
+        overflow: hidden;
+        font-weight: 500;
+        max-height: calc(100vh - 100px);
+        height: fit-content;
+        position: relative;
+
+        @include media_399 {
+          width: 100vw;
+          height: 100vh;
+          max-height: 100vh;
+          border-radius: 0;
+        }
+
+        .application {
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: rgba(7, 7, 7, 0.514);
+          height: 100%;
+          width: 100%;
+          display: none;
+          z-index: 332;
+
+          &.active {
+            display: initial;
+          }
+        }
+
+        .room-header {
+          height: 50px;
+          background: map-get($color, "lowgrey");
+          padding: 5px;
+          display: flex;
+          align-items: center;
+
+          .icon {
+            background-color: #fff;
+            box-shadow: $shadow;
+          }
+
+          .user_image {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+          }
+
+          .profile {
+            display: flex;
+            flex-grow: 1;
+            gap: 5px;
+
+            .avatar.user_image {
+              position: relative;
+
+              .image {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+              }
+            }
+            .user_active_signal {
+              background-color: #44b700;
+              color: #44b700;
+              -webkit-box-shadow: 0 0 0 2px #fdfcfc;
+              box-shadow: 0 0 0 2px #fdfcfc;
+              width: 8px;
+              height: 8px;
+              position: absolute;
+              bottom: 10%;
+              right: 0;
+              border-radius: 50%;
+              &.offline {
+                visibility: hidden;
+              }
+            }
+
+            .name {
+              line-height: 15px;
+            }
+            .textname {
+              font-size: 0.85em;
+              font-weight: 600;
+            }
+
+            .active-text {
+              font-size: map-get($fonts, "smaller");
+              color: map-get($color, "grey");
+            }
+          }
+        }
+
+        .room-body {
+          width: 100%;
+          height: calc(100vh / 2.25);
+          padding: 10px;
+          display: flex;
+          overflow: hidden scroll;
+          flex-direction: column;
+          -webkit-user-select: none;
+          user-select: none;
+
+          @include media_649() {
+            height: calc(100vh - 226px);
+          }
+          @include media_399() {
+            height: calc(100vh - 105px);
+          }
+
+          @include Scrollbar();
+
+          .alert-message {
+            position: absolute;
+            bottom: 60px;
+            right: 6px;
+            font-size: 10px;
+            background: #6e8e93;
+            height: 20px;
+            z-index: 200;
+            visibility: hidden;
+            pointer-events: none;
+            width: 20px;
+            display: grid;
+            color: white;
+            font-weight: 800;
+            place-content: center;
+            border-radius: 50%;
+
+            &.show {
+              visibility: visible;
+              pointer-events: visible;
+              cursor: pointer;
+            }
+          }
+
+          .media_loader {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            background: rgba(255, 255, 255, 0.535);
+            position: absolute;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+
+            .loader_spinner {
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              background: rgb(87, 119, 113);
+              position: absolute;
+              display: grid;
+              place-items: center;
+              &::after {
+                display: absolute;
+                width: 80%;
+                height: 80%;
+                border-radius: inherit;
+                background: white;
+                content: "";
+              }
+            }
+          }
+
+          .empty-messages {
+            display: grid;
+            place-items: center;
+            height: 100%;
+          }
+
+          .text {
+            font-size: map-get($fonts, "smaller");
+            line-height: 13px;
+            word-break: break-word;
+            margin-right: 5px;
+            float: left;
+          }
+
+          .time {
+            display: grid;
+            justify-self: flex-end;
+            align-self: flex-end;
+            float: right;
+
+            &.media {
+              position: absolute;
+              bottom: 5px;
+              right: 5px;
+            }
+
+            small {
+              font-size: 9px;
+              font-weight: 600;
+              color: map-get($map: $color, $key: "skyblue");
+            }
+          }
+          .group {
+            width: fit-content;
+            margin: auto;
+            font-size: 9px;
+            margin-block: 10px;
+            background: white;
+            padding: 4px;
+            border-radius: 4px;
+          }
+          .message-wrapper {
+            max-width: 70%;
+            position: relative;
+            width: fit-content;
+          }
+
+          .plain-message {
+            display: flow-root;
+            padding: 8px 5px;
+            width: fit-content;
+            background: map-get($color, "white");
+            border-radius: 10px;
+            box-shadow: $shadow;
+          }
+
+          .form-message {
+            max-width: 70%;
+            position: relative;
+            width: fit-content;
+            background: map-get($color, "white");
+            border-radius: 10px;
+            box-shadow: $shadow;
+            display: grid;
+
+            &.correct {
+              box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
+            }
+            &.failed {
+              box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
+            }
+            &.correct,
+            &.failed,
+            &.no-answer-picked {
+              &.before::before {
+                position: absolute;
+                content: "Correct. Congrats";
+                display: grid;
+                place-items: center;
+                text-align: center;
+                color: rgb(255, 255, 255);
+                font-size: 11px;
+                height: 20%;
+                bottom: 0px;
+                font-weight: 700;
+                border-radius: 10px;
+                width: 100%;
+                pointer-events: none;
+                background: rgba(47, 181, 47, 0.974);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+              }
+            }
+
+            &.failed.before::before {
+              content: "fail. Sorry!";
+              background: rgba(216, 50, 50, 0.974);
+            }
+            &.no-answer-picked.before::before {
+              content: "Sorry!. Timeout!";
+              background: rgba(89, 83, 34, 0.974);
+            }
+
+            .time {
+              padding: 1px 10px;
+            }
+
+            .label {
+              word-break: break-all;
+              line-height: 15px;
+            }
+
+            .user-image {
+              z-index: 20px;
+            }
+            .poll-question {
+              display: flex;
+              flex-direction: column;
+              padding: 0px 0px 5px;
+              background: map-get($map: $color, $key: "white");
+              border-radius: 20px 20px 0px 0px;
+            }
+
+            .poll-question-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 5px;
+            }
+            .coin,
+            .time-count {
+              // background: map-get($map: $color, $key: "lowgrey");
+              padding: 5px;
+              width: fit-content;
+              border-top-right-radius: 20px;
+              font-weight: 600;
+              color: map-get($map: $color, $key: "brown");
+              font-size: map-get($map: $fonts, $key: "smaller");
+
+              b {
+                color: map-get($map: $color, $key: "skyblue");
+              }
+            }
+            .time-count {
+              border-radius: 0;
+              border-top-left-radius: 20px;
+              // padding-left: 15px;
+            }
+
+            .text {
+              padding: 5px;
+              background: map-get($map: $color, $key: "lowgrey");
+            }
+            .options {
+              list-style: none;
+              padding: 5px;
+
+              .option {
+                display: flex;
+                flex-wrap: nowrap;
+                line-height: 11px;
+                align-items: center;
+                box-shadow: $shadow;
+                padding: 3px 8px 3px 3px;
+                border-radius: 10px;
+                margin-bottom: 5px;
+                color: map-get($map: $color, $key: "brown");
+                font-size: map-get($map: $fonts, $key: "smaller");
+
+                &.correct {
+                  box-shadow: 0px 0px 5px rgba(0, 255, 0, 0.522);
+                }
+                &.failed {
+                  box-shadow: 0px 0px 5px rgba(255, 0, 0, 0.556);
+                }
+                .form-group {
+                  margin-right: 5px;
+                }
+
+                #option {
+                  width: 20px;
+                  height: 20px;
+                  -webkit-appearance: none;
+                  border-radius: 50%;
+                  box-shadow: inset 0px 0px 4px 2px
+                    map-get($map: $color, $key: "skyblue");
+                }
+                #option:checked {
+                  box-shadow: inset 0px 0px 13px 2px
+                    map-get($map: $color, $key: "skyblue");
+                }
+              }
+            }
+
+            .response {
+              position: absolute;
+              bottom: 0;
+              background: map-get($map: $color, $key: "white");
+              box-shadow: 0px -2px 5px 0px map-get($map: $color, $key:
+                    "lightgrey");
+              width: 100%;
+              border-radius: 20px;
+              text-align: center;
+              font-weight: 600;
+              padding: 10px;
+              font-size: map-get($map: $fonts, $key: "small");
+
+              &.won {
+                color: map-get($map: $color, $key: "grey");
+              }
+            }
+          }
+
+          .media-wrapper,
+          .image-previewer {
+            max-width: 70%;
+            height: auto;
+            border-radius: 10px;
+            overflow: hidden;
+            float: right;
+            position: relative;
+
+            .image {
+              width: auto;
+              height: auto;
+              max-width: 150px;
+              max-height: 200px;
+              border-radius: 10px;
+              position: relative;
+            }
+
+            .time {
+              position: absolute;
+              bottom: 5px;
+              right: 5px;
+              color: white;
+            }
+
+            .media-loader {
+              background-color: rgba(0, 0, 0, 60%);
+              position: absolute;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              left: 0;
+              display: grid;
+              place-items: center;
+            }
+          }
+          .incoming-message {
+            width: 100%;
+            position: relative;
+            margin-bottom: 10px;
+
+            &.adjust,
+            &.adjust-mg {
+              margin-bottom: 3px;
+            }
+
+            .avatar.user_image {
+              position: absolute;
+              top: -10px;
+              left: -10px;
+              width: 25px;
+              height: 25px;
+
+              .image {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+              }
+            }
+
+            .media-wrapper {
+              float: left;
+            }
+          }
+
+          .outgoing-message {
+            width: 100%;
+            position: relative;
+            margin-bottom: 10px;
+
+            .form-message {
+              &.failed.before::before {
+                content: "Your friend failed it";
+              }
+              &.correct.before::before {
+                content: "Your friend got your question";
+              }
+              &.no-answer-picked.before::before {
+                content: "Your friend picked no answer";
+              }
+            }
+
+            &.adjust-mg {
+              margin-bottom: 3px;
+            }
+
+            .time-count {
+              padding: 5px;
+            }
+
+            .message-wrapper {
+              float: right;
+            }
+
+            .form-message {
+              float: right;
+            }
+          }
+        }
+
+        .message-options {
+          position: absolute;
+        }
+        .welcome-message {
+          font-size: map-get($fonts, "smaller");
+          text-align: center;
+          font-weight: 600;
+          margin-bottom: 10px;
+        }
+        .room-footer {
+          position: relative;
+          background: map-get($color, "lowgrey");
+          width: 100%;
+          padding: 10px 10px 10px;
+          height: 56px;
+          backdrop-filter: blur(10px);
+
+          .media-icon {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transform: translateY(-50%);
+          }
+          .input-group .text-control {
+            width: 100%;
+            height: 34px;
+            resize: none;
+            border-radius: 10px;
+            padding: 10px 40px 0px;
+            font-size: smaller;
+            font-weight: 500;
+            font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+              sans-serif;
+            &::-webkit-scrollbar {
+              width: 0px;
+            }
+          }
+
+          .send-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            height: 100%;
+            display: grid;
+            cursor: pointer;
+            place-items: center;
+            transform: translateY(-50%);
+
+            .btn {
+              background: transparent;
+              &:focus {
+                outline: none;
+                border: none;
+              }
+            }
+            .btn.send.active .send-icon {
+              fill: map-get($map: $color, $key: "green");
+            }
+          }
+
+          .media-message-wrapper {
+            position: absolute;
+            width: 100%;
+            left: 0px;
+            bottom: 0px;
+            transition: $transition;
+            clip-path: circle(0.4% at 0 100%);
+            overflow: hidden;
+            z-index: 100;
+
+            &.active {
+              background: map-get($map: $color, $key: "lowgrey");
+              backdrop-filter: blur(10px);
+              border-radius: 10px 10px 0px 0px;
+              z-index: 100;
+              clip-path: circle(141% at 0 100%);
+            }
+            &.toggle {
+              width: 100%;
+              border-radius: 20px 20px 0px 0px;
+            }
+
+            .media-list {
+              display: flex;
+              justify-content: center;
+              flex-direction: row;
+              flex-wrap: wrap;
+              align-items: center;
+              padding: 10px;
+              list-style: none;
+
+              .media,
+              .poll {
+                text-align: center;
+                cursor: pointer;
+
+                align-items: center;
+                font-size: map-get($map: $fonts, $key: "smaller");
+                margin-left: 15px;
+
+                .icon {
+                  background: white;
+                  display: grid;
+                  place-items: center;
+                  border-radius: 50%;
+                }
+
+                .svg {
+                  width: 20px;
+                  height: 20px;
+                  fill: map-get($map: $color, $key: "skyblue");
+                }
+              }
+            }
+          }
+
+          .create-question {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            width: 100%;
+            box-shadow: $shadow;
+            transition: $transition;
+            border-radius: 10px 10px 0px 0px;
+            background: map-get($map: $color, $key: "lightergrey");
+            backdrop-filter: blur(10px);
+            max-height: 150px;
+            overflow: hidden scroll;
+            clip-path: circle(0.4% at 0 100%);
+
+            &::-webkit-scrollbar {
+              width: 2px;
+              border-radius: 30%;
+            }
+            &::-webkit-scrollbar-thumb {
+              border-radius: 30%;
+              background: rgb(79, 79, 79);
+            }
+
+            .poll-header {
+              background: map-get($map: $color, $key: "lowgrey");
+              padding-top: 2px;
+              position: sticky;
+              position: -webkit-sticky;
+              top: 0;
+              z-index: 100000;
+              backdrop-filter: blur(10px);
+              -webkit-backdrop-filter: blur(10px);
+
+              .title {
+                font-weight: 500;
+                font-size: map-get($map: $fonts, $key: "medium");
+                text-align: center;
+              }
+
+              .discard-wrap,
+              .create-wrap {
+                position: absolute;
+                background: map-get($map: $color, $key: "white");
+                top: 0;
+                cursor: pointer;
+                transition: $transition;
+                padding: 5px 10px;
+                font-size: map-get($map: $fonts, $key: "smaller");
+                font-weight: 500;
+              }
+
+              .discard-wrap {
+                left: 0;
+                border-top-left-radius: 10px;
+              }
+              .create-wrap {
+                right: 0;
+                border-top-right-radius: 10px;
+
+                &.active.create {
+                  background: map-get($map: $color, $key: "skyblue");
+                  color: white;
+                }
+              }
+            }
+
+            .poll-body {
+              padding: 5px;
+
+              .text {
+                font-size: map-get($map: $fonts, $key: "smaller");
+                font-weight: 500;
+              }
+              .question {
+                margin-top: 5px;
+                .text-control {
+                  height: 35px;
+                  width: 100%;
+                  resize: none;
+                  padding: 10px 10px 0px 5px;
+                  font-size: smaller;
+                  border-radius: 2px;
+
+                  &.empty {
+                    box-shadow: 0px 0px 3px rgb(255, 0, 0);
+                  }
+                }
+              }
+
+              .question-options {
+                .header {
+                  display: flex;
+                  justify-content: space-between;
+                  box-shadow: $shadow;
+                  height: 25px;
+                  border-radius: 2px;
+                  align-items: center;
+                  margin-bottom: 5px;
+
+                  .text {
+                    padding-left: 5px;
+                  }
+
+                  .add {
+                    background: map-get($map: $color, $key: "white");
+                    width: 25px;
+                    height: 100%;
+                    border-radius: 0;
+                    cursor: pointer;
+
+                    &.more-option-required {
+                      animation: shadow 1s alternate infinite ease-in-out;
+                    }
+                  }
+                }
+                .option-list {
+                  list-style: none;
+                  display: grid;
+                  gap: 5px;
+                  margin-bottom: 10px;
+
+                  .option {
+                    position: relative;
+
+                    .text-box {
+                      height: 100%;
+                    }
+                  }
+
+                  #answer {
+                    -webkit-appearance: none;
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    height: 100%;
+                    width: 25px;
+                    border: 1.5px groove;
+
+                    &::before {
+                      position: absolute;
+                      content: "A";
+                      height: 100%;
+                      width: 100%;
+                      padding-bottom: 5px;
+                      color: white;
+                      display: grid;
+                      place-items: center;
+                    }
+                    &:checked {
+                      background: map-get($map: $color, $key: "brown");
+                    }
+
+                    &.required {
+                      animation: shadow 1s alternate infinite ease-in-out;
+                    }
+                  }
+                }
+                .remove-option {
+                  background: map-get($map: $color, $key: "lightgrey");
+                  border-radius: 0px;
+                  display: grid;
+                  cursor: pointer;
+                  place-items: center;
+                  width: 25px;
+                  height: 100%;
+                  position: absolute;
+                  right: 0;
+                  top: 0;
+                }
+                .text-control {
+                  height: 100%;
+                  width: 100%;
+                  resize: none;
+                  font-size: smaller;
+                  padding: 5px 5px 5px 27px;
+                  border-radius: 10px 50px 50px 10px;
+
+                  &.empty {
+                    box-shadow: 0px 0px 3px rgb(255, 0, 0);
+                  }
+                }
+              }
+
+              .additional-options {
+                .title {
+                  margin-bottom: 10px;
+                }
+                .options {
+                  display: flex;
+                  flex-wrap: wrap;
+                  justify-content: space-between;
+                  margin-bottom: 10px;
+
+                  .option-wrap {
+                    width: 31%;
+                    padding: 5px;
+                    display: flex;
+                    box-shadow: $shadow;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 3px;
+                  }
+                }
+                label {
+                  font-size: map-get($map: $fonts, $key: "smaller");
+                  font-weight: 600;
+                }
+
+                .text-control {
+                  width: 80%;
+                  font-size: map-get($map: $fonts, $key: "smaller");
+                  padding: 5px;
+                  border-radius: 10px;
+                  text-align: center;
+                  font-weight: 500;
+                  color: map-get($map: $color, $key: "brown");
+
+                  &.required {
+                    animation: shadow 1s alternate infinite ease-in-out;
+                  }
+                }
+
+                .challenge {
+                  position: relative;
+
+                  .control {
+                    height: 20px;
+                  }
+                  input.challenge {
+                    -webkit-appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    background: white;
+                    border-radius: 50%;
+                    box-shadow: 0px 0px 0px 3px
+                      map-get($map: $color, $key: "black");
+                    cursor: pointer;
+
+                    &::before {
+                      position: absolute;
+                      content: "C";
+                      height: 100%;
+                      width: 100%;
+                      padding-bottom: 5px;
+                      color: white;
+                      display: grid;
+                      place-items: center;
+                      border-radius: 50%;
+                    }
+                    &:checked {
+                      background: map-get($map: $color, $key: "brown");
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,25 +1,25 @@
 $color: (
-	"white": #fff,
-	"whiteblue": #6e8aca,
-	// "whiteblue": #6ba2b4,
-	"lightgrey": #f3f1f1,
-	"lightergrey": #ececec,
-	"lowgrey": #d6d6d67d,
-	"brown": #4d4646,
-	"grey": #696969,
-	"red": #e9d1d1,
-	"green": #597f85,
-	"black": rgb(102, 99, 99, 40%),
+  "white": #fff,
+  "whiteblue": #6e8aca,
+  // "whiteblue": #6ba2b4,
+  "lightgrey": #f3f1f1,
+  "lightergrey": #ececec,
+  "lowgrey": #e5e5e5,
+  "brown": #4d4646,
+  "grey": #696969,
+  "green": #369298,
+  "black": rgb(102, 99, 99, 40%),
+  "coral": #d0830e,
 );
 
 $transition: all 0.2s ease-out;
 $fonts: (
-	"smaller": 0.75em,
-	"small": 1em,
-	"medium": 1.2em,
-	"big": 18px,
-	"bigger": 21px,
-	"large": 30px,
+  "smaller": 0.75em,
+  "small": 1em,
+  "medium": 1.2em,
+  "big": 18px,
+  "bigger": 21px,
+  "large": 30px,
 );
 
 $shadow: 0px 2px 7px rgba(0, 0, 0, 25%);

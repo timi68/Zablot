@@ -1,21 +1,17 @@
 const mongoose = require("mongoose");
 
 mongoose.connect(
-	process.env.MONGO_URI || `mongodb://127.0.0.1:27017/zablot`,
-	{
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		autoIndex: false, // Don't build indexes
-		maxPoolSize: 10, // Maintain up to 10 socket connections
-		serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-		socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-	},
-	(err, connected) => {
-		if (!connected) {
-			console.log("database failed to conect");
-			process.exit(1);
-		} else {
-			console.log("database connected");
-		}
-	}
+  process.env.MONGO_URI || `mongodb://127.0.0.1:27017/zablot`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  (err, connected) => {
+    if (!connected) {
+      console.log("database failed to conect");
+      process.exit(1);
+    } else {
+      console.log("database connected");
+    }
+  }
 );

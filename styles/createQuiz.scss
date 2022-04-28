@@ -2,556 +2,588 @@
 @import "./mixins";
 
 @mixin scrollbar {
-	&::-webkit-scrollbar {
-		appearance: none;
-		height: 100%;
-		width: 3px;
-		background: map-get($map: $color, $key: "lightergrey");
-	}
-	&::-webkit-scrollbar-thumb {
-		border-radius: 50px;
-		background: map-get($map: $color, $key: "grey");
-	}
+  &::-webkit-scrollbar {
+    appearance: none;
+    height: 100%;
+    width: 0px;
+    background: map-get($map: $color, $key: "lightergrey");
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 50px;
+    background: map-get($map: $color, $key: "grey");
+  }
 }
 
-.main {
-	.question-toggler {
-		border-radius: 50%;
-		position: absolute;
-		bottom: 16px;
-		right: 16px;
-		background: map-get($map: $color, $key: "grey");
-		color: white;
-		transition: $transition;
-		@include media_399 {
-			width: 40px;
-			height: 40px;
-		}
-		&:hover {
-			background: darken(
-				$color: map-get($map: $color, $key: "grey"),
-				$amount: 10
-			);
-		}
-	}
+.create-quiz-wrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  position: relative;
+  overflow: hidden;
+  height: calc(100vh - 62px);
+  width: calc(100vw - 230px);
+
+  @include media_1049 {
+    width: calc(100vw - 50px);
+  }
+
+  @include media_549 {
+    width: 100vw;
+  }
+
+  .question-toggler {
+    border-radius: 50%;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: map-get($map: $color, $key: "green");
+    color: white;
+    transition: $transition;
+    display: none;
+
+    &:hover {
+      background: darken(
+        $color: map-get($map: $color, $key: "grey"),
+        $amount: 10
+      );
+    }
+
+    @include media_830 {
+      display: block;
+    }
+  }
 }
 .form-container {
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	padding-block: 1em;
-	color: map-get($map: $color, $key: "brown");
-	@include scrollbar();
+  width: 500px;
+  max-width: 100%;
+  margin: auto;
+  height: 100%;
+  overflow: auto;
+  padding-block: 1em;
+  color: map-get($map: $color, $key: "brown");
+  @include scrollbar();
 
-	.wrapper {
-		width: fit-content;
-		max-width: 85vw;
-		margin: auto;
-		height: auto;
+  .create-wrapper {
+    height: auto;
 
-		@include media_399 {
-			max-width: 95vw;
-		}
+    .header-top {
+      font-weight: 400;
+      padding: 1em;
+      font-size: 0.8em;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      max-width: 90%;
+      margin: auto;
+      margin-bottom: 2em;
+    }
+  }
 
-		.header {
-			font-weight: 600;
-			padding: 1em;
-		}
-	}
+  .text {
+    font-weight: 500;
+    font-size: 0.8em;
+    margin-bottom: 10px;
+  }
 
-	.text {
-		font-weight: 300;
-		font-size: map-get($map: $fonts, $key: "small");
-		margin-bottom: 10px;
-	}
+  .question-form {
+    padding: 1em;
+    width: fit-content;
+    margin: auto;
+    max-width: 100%;
+  }
 
-	.question-form {
-		padding: 1em;
-		width: fit-content;
-		margin: auto;
-		max-width: 100%;
-	}
+  .question-box {
+    width: 600px;
+    max-width: 100%;
+    background: map-get($map: $color, $key: "white");
+    padding: 10px;
+    box-shadow: $shadow;
+    resize: none;
+    min-height: 100px;
+    border-radius: 5px;
+  }
 
-	.question-box {
-		width: 600px;
-		max-width: 100%;
-		background: map-get($map: $color, $key: "lowgrey");
-		padding: 10px;
-		box-shadow: $shadow;
-		resize: none;
-		min-height: 100px;
-		border-radius: 5px;
-	}
+  .option-list-container {
+    list-style: none;
+  }
 
-	.option-list-container {
-		list-style: none;
-	}
+  .options-wrap {
+    width: 600px;
+    max-width: 100%;
+    .header {
+      display: flex;
+      padding: 0px;
+      align-items: center;
+      border-radius: 5px;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1em;
+      font-weight: 500;
+      font-size: 0.8em;
+      padding: 0.3em 5px;
+      background: #fff;
+      z-index: initial;
 
-	.options-wrap {
-		width: 600px;
-		max-width: 100%;
-		.header {
-			display: flex;
-			padding: 0.3em 5px;
-			align-items: center;
-			border-radius: 3px;
-			width: 100%;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 1em;
-			background: map-get($map: $color, $key: "lightergrey");
-			.add {
-				background: map-get($map: $color, $key: "lowgrey");
-				border-radius: 5px;
-			}
-		}
+      // background: map-get($map: $color, $key: "lowgrey");
+      .add {
+        background: map-get($map: $color, $key: "green");
+        border-radius: 5px;
+        color: #fff;
+      }
+    }
 
-		.option:not(:last-child) {
-			margin-bottom: 1em;
-		}
-		.text-box {
-			background: map-get($map: $color, $key: "lowgrey");
-			height: 40px;
-			width: 600px;
-			max-width: 100%;
-			box-shadow: $shadow;
-			border-radius: 5px;
-			overflow: hidden;
-			display: flex;
-			position: relative;
-			justify-content: flex-start;
+    .option:not(:last-child) {
+      margin-bottom: 1em;
+    }
+    .text-box {
+      background: #fff;
+      height: 40px;
+      width: 600px;
+      max-width: 100%;
+      box-shadow: $shadow;
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+      position: relative;
+      justify-content: flex-start;
 
-			.answer.checkbox {
-				appearance: none;
-				height: 100%;
-				position: relative;
-				width: 40px;
+      .answer.checkbox {
+        appearance: none;
+        height: 100%;
+        position: relative;
+        width: 40px;
 
-				&::before {
-					position: absolute;
-					content: "A";
-					height: 100%;
-					width: 100%;
-					font-size: map-get($map: $fonts, $key: "medium");
-					display: grid;
-					font-weight: 800;
-					place-items: center;
-					justify-items: center;
-					color: map-get($map: $color, $key: "brown");
-					background: #fff;
-				}
+        &::before {
+          position: absolute;
+          content: "A";
+          height: 100%;
+          width: 100%;
+          font-size: map-get($map: $fonts, $key: "medium");
+          display: grid;
+          font-weight: 800;
+          place-items: center;
+          justify-items: center;
+          color: map-get($map: $color, $key: "brown");
+          background: map-get($map: $color, $key: "lowgrey");
+        }
 
-				&:checked {
-					&::before {
-						background: map-get($map: $color, $key: "grey");
-						color: #fff;
-					}
-				}
-			}
+        &:checked {
+          &::before {
+            background: map-get($map: $color, $key: "green");
+            color: #fff;
+          }
+        }
+      }
 
-			.text-control {
-				flex-grow: 1;
-				background: transparent;
-				height: 100%;
-				padding: 10px 5px;
-				resize: none;
-			}
+      .text-control {
+        flex-grow: 1;
+        background: transparent;
+        height: 100%;
+        padding: 10px 5px;
+        resize: none;
+      }
 
-			.remove-btn:hover {
-				background: transparent;
-			}
-		}
-	}
+      .remove-btn:hover {
+        background: transparent;
+      }
+    }
+  }
 }
 
 .created-questions-container {
-	position: absolute;
-	right: -110%;
-	opacity: 0.9;
-	z-index: 10;
-	width: 600px;
-	max-width: 100vw;
-	box-shadow: $shadow;
-	height: 100%;
-	transition: right 0.5s cubic-bezier(0, 0.71, 0, 1.15);
-	color: map-get($map: $color, $key: "brown");
-	background: map-get($map: $color, $key: "lightergrey");
+  border-radius: 20px;
+  margin: 10px;
+  width: 400px;
+  // min-width: 400px;
+  max-width: 100%;
+  box-shadow: $shadow;
+  height: 100%;
+  overflow: hidden;
+  transition: right 0.5s ease-in-out;
+  color: map-get($map: $color, $key: "brown");
+  background: map-get($map: $color, $key: "white");
 
-	&.open {
-		right: 0;
-		opacity: 1;
-	}
+  @include media_830 {
+    position: absolute;
+    right: -130%;
+  }
+
+  &.open {
+    right: 0;
+    opacity: 1;
+    transition: right 0.5s cubic-bezier(0, 0.71, 0, 1.15);
+  }
 }
 
 .created-questions {
-	height: inherit;
+  height: inherit;
 
-	.wrap {
-		height: inherit;
-		overflow: auto;
-		position: relative;
-		padding-block-end: 1em;
+  .wrap {
+    height: inherit;
+    overflow: auto;
+    position: relative;
+    padding-block-end: 1em;
 
-		@include scrollbar();
-	}
+    @include scrollbar();
+  }
 
-	.no-question-created {
-		padding: 5em;
-		text-align: center;
-	}
+  .no-question-created {
+    padding: 5em;
+    text-align: center;
+  }
 
-	.header {
-		display: flex;
-		justify-content: space-between;
-		position: sticky;
-		top: 0;
-		margin-bottom: 10px;
-		padding: 1em;
-		z-index: 100;
-		background: map-get($map: $color, $key: "lowgrey");
-		backdrop-filter: blur(3px);
-		.title {
-			font-weight: 600;
-		}
-		.close-btn {
-			padding: 5px 10px;
-			border-radius: 5px;
-			color: #fff;
-			font-size: 10px;
-			background: map-get($map: $color, $key: "grey");
-		}
-	}
-	.question-list {
-		list-style: none;
-		padding: 1em;
+  .header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+    z-index: 100000;
+    background: map-get($map: $color, $key: "white");
+    backdrop-filter: blur(3px);
 
-		.question-wrapper {
-			padding: 10px;
-			box-shadow: $shadow;
-			background: white;
-			position: relative;
-			border-radius: 10px;
-			overflow: hidden;
-			margin-bottom: 10px;
-		}
+    .title {
+      font-weight: 500;
+    }
 
-		.question-index .index-text {
-			font-weight: 600;
-			font-size: map-get($map: $fonts, $key: "medium");
-			text-align: center;
-			background: map-get($map: $color, $key: "lowgrey");
-			padding: 10px;
-			border-radius: 10px;
-		}
+    .close-btn {
+      padding: 5px 10px;
+      border-radius: 25px;
+      color: #fff;
+      font-size: 10px;
+      background: map-get($map: $color, $key: "coral");
+      display: none;
 
-		.label-text {
-			font-size: map-get($map: $fonts, $key: "small");
-			font-weight: 300;
-			margin-block: 5px;
-			padding-block: 10px;
-		}
+      @include media_830 {
+        display: initial;
+      }
+    }
+  }
+  .question-list {
+    list-style: none;
+    padding: 1em;
 
-		.question-option {
-			position: relative;
-			.answer-tooltip {
-				position: absolute;
-				right: 16px;
-				top: 50%;
-				transform: translateY(-50%);
-			}
+    .question-wrapper {
+      padding: 10px;
+      box-shadow: $shadow;
+      background: map-get($map: $color, $key: "lowgrey");
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
 
-			.answer-check {
-				fill: map-get($map: $color, $key: "green");
-			}
-		}
-		.question-option:not(:last-child) {
-			// border-bottom: thin solid grey;
-			margin-bottom: 5px;
-		}
+    .question-index .index-text {
+      font-weight: 500;
+      font-size: map-get($map: $fonts, $key: "small");
+      text-align: left;
+      background: map-get($map: $color, $key: "lowgrey");
+      padding-block: 10px;
+      border-radius: 10px;
+    }
 
-		.text {
-			font-size: map-get($map: $fonts, $key: "smaller");
-			padding: 10px;
-			font-weight: 300;
-			border-radius: 10px;
-			background: map-get($map: $color, $key: "lightgrey");
-		}
+    .label-text {
+      font-size: map-get($map: $fonts, $key: "smaller");
+      font-weight: 500;
+      margin-block: 5px;
+      padding-block: 5px;
+    }
 
-		.fab-wrapper {
-			position: absolute;
-			top: 16px;
-			right: 16px;
-			width: fit-content;
-			background: map-get($map: $color, $key: "lowgrey");
-			display: flex;
-			gap: 10px;
-			padding: 10px;
-			border-radius: 10px;
+    .question-option {
+      position: relative;
+      .answer-tooltip {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
 
-			.fab {
-				border-radius: 50%;
-				background: map-get($map: $color, $key: "grey");
+      .answer-check {
+        fill: map-get($map: $color, $key: "green");
+      }
+    }
+    .question-option:not(:last-child) {
+      // border-bottom: thin solid grey;
+      margin-bottom: 5px;
+    }
 
-				.fab-icon {
-					fill: #fff;
-				}
+    .text {
+      font-size: map-get($map: $fonts, $key: "smaller");
+      padding: 10px;
+      font-weight: 400;
+      letter-spacing: 0.7px;
+      border-radius: 5px;
+      background: map-get($map: $color, $key: "white");
+    }
 
-				&:hover {
-					background: #fff;
-					.fab-icon {
-						fill: map-get($map: $color, $key: "brown");
-					}
-				}
-			}
-		}
-	}
+    .fab-wrapper {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      width: fit-content;
+      display: flex;
+      gap: 10px;
+      border-radius: 10px;
+
+      .fab {
+        border-radius: 50%;
+        z-index: initial;
+        background: map-get($map: $color, $key: "green");
+
+        .fab-icon {
+          fill: #fff;
+        }
+
+        &:hover {
+          background: #fff;
+          .fab-icon {
+            fill: map-get($map: $color, $key: "brown");
+          }
+        }
+      }
+    }
+  }
+
+  .button-wrap {
+    padding: 10px;
+    .btn {
+      z-index: initial;
+      background-color: map-get($map: $color, $key: "coral") !important;
+    }
+  }
 }
 
 .button-wrap {
-	width: 600px;
-	max-width: 100%;
-	display: flex;
-	justify-content: space-around;
-	flex-wrap: nowrap;
-	gap: 1%;
+  width: 600px;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 20px;
+  margin-top: 20px;
 
-	.btn {
-		width: 150px;
-		max-width: 49%;
-		padding: 10px;
-		text-align: center;
-		font-weight: 300;
-		box-shadow: $shadow;
-		border-radius: 5px;
-		text-transform: capitalize;
-		color: #fff;
-		background: map-get($map: $color, $key: "grey");
+  .btn {
+    width: fit-content;
+    min-width: 100px;
+    padding: 5px 15px;
+    text-align: center;
+    font-weight: 300;
+    box-shadow: $shadow;
+    border-radius: 50px;
+    text-transform: capitalize;
+    color: #fff;
+    background: map-get($map: $color, $key: "green");
 
-		&:hover {
-			background: darken(
-				$color: map-get($map: $color, $key: "grey"),
-				$amount: 10
-			);
-		}
-	}
+    &:hover {
+      background: darken(
+        $color: map-get($map: $color, $key: "green"),
+        $amount: 10
+      );
+    }
+  }
 }
 
+// =======================
+// Edit Question Section
 .edit-question {
-	.backdrop {
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
-		top: 0;
-		left: 0;
-		z-index: 20;
-		background: rgba(0, 0, 0, 70%);
-		display: flex;
-		align-items: center;
-	}
-	.edit-wrap {
-		background: map-get($map: $color, $key: "lightergrey");
-		width: 800px;
-		max-width: 80%;
-		height: 90%;
-		padding: 0;
-		overflow: auto;
-		box-shadow: $shadow;
-		margin: auto;
+  .backdrop {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 70%);
+    display: flex;
+    align-items: center;
+  }
+  .edit-wrap {
+    background: map-get($map: $color, $key: "lightergrey");
+    width: 400px;
+    max-width: 90%;
+    height: 90%;
+    padding: 0;
+    overflow: auto;
+    box-shadow: $shadow;
+    margin: auto;
+    transition: $transition;
 
-		@include media_749() {
-			right: initial;
-			left: 0;
-		}
+    .header {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      // position: sticky;
+      // top: 0;
+      margin-bottom: 10px;
+      padding: 1em;
+      // z-index: 100;
+      // background: map-get($map: $color, $key: "lowgrey");
+      // backdrop-filter: blur(3px);
+      .title {
+        font-weight: 600;
+      }
+      .close-btn {
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 10px;
+        background: map-get($map: $color, $key: "green");
+      }
+    }
 
-		.header {
-			display: flex;
-			flex-direction: row;
-			flex-wrap: nowrap;
-			justify-content: space-between;
-			position: sticky;
-			top: 0;
-			margin-bottom: 10px;
-			padding: 1em;
-			z-index: 100;
-			background: map-get($map: $color, $key: "lowgrey");
-			backdrop-filter: blur(3px);
-			.title {
-				font-weight: 600;
-			}
-			.close-btn {
-				padding: 5px 10px;
-				border-radius: 5px;
-				color: #fff;
-				font-size: 10px;
-				background: map-get($map: $color, $key: "grey");
-			}
-		}
+    .options-wrap {
+      .header {
+        padding: 0.3em 5px;
+        background: #fff;
+        z-index: initial;
+      }
+    }
 
-		.options-wrap {
-			.header {
-				padding: 0.3em 5px;
-				background: #fff;
-				z-index: initial;
-			}
-		}
+    .question-box {
+      background: #fff;
+      max-width: 100%;
+    }
 
-		.question-box {
-			background: #fff;
-			max-width: 100%;
-		}
+    .options-wrap {
+      .text-box {
+        background: map-get($map: $color, $key: "white");
 
-		.options-wrap {
-			.text-box {
-				background: map-get($map: $color, $key: "white");
+        .answer.checkbox {
+          &::before {
+            color: map-get($map: $color, $key: "brown");
+            background: map-get($map: $color, $key: "lightergrey");
+          }
 
-				.answer.checkbox {
-					&::before {
-						color: map-get($map: $color, $key: "brown");
-						background: map-get($map: $color, $key: "lightergrey");
-					}
+          &:checked {
+            &::before {
+              background: map-get($map: $color, $key: "grey");
+              color: #fff;
+            }
+          }
+        }
 
-					&:checked {
-						&::before {
-							background: map-get($map: $color, $key: "grey");
-							color: #fff;
-						}
-					}
-				}
-
-				.remove-btn:hover {
-					background: transparent;
-				}
-			}
-		}
-	}
+        .remove-btn:hover {
+          background: transparent;
+        }
+      }
+    }
+  }
 }
+
+// Upload question sections stylesheet
 .upload-question {
-	.backdrop {
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
-		top: 0;
-		left: 0;
-		z-index: 20;
-		background: rgba(0, 0, 0, 70%);
-		display: flex;
-		align-items: center;
-	}
+  .backdrop {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 70%);
+    display: flex;
+    align-items: center;
+  }
 
-	.title {
-		font-size: 0.9em;
-		margin-block: 1em;
-	}
-	.wrapper {
-		background: map-get($map: $color, $key: "lightergrey");
-		width: 800px;
-		max-width: 80%;
-		height: 90%;
-		padding-inline: 1em;
-		overflow: auto;
-		box-shadow: $shadow;
-		margin: auto;
-	}
+  .title {
+    font-size: 0.9em;
+    margin-block: 1em;
+  }
+  .upload-wrapper {
+    background: #f2f2f2;
+    width: 400px;
+    max-width: 90%;
+    height: 90%;
+    padding: 1em 1.5em;
+    overflow: auto;
+    box-shadow: $shadow;
+    margin: auto;
+    transition: $transition;
 
-	.form-wrapper {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, 49%);
-		gap: 0.2em;
-		position: relative;
-		height: 100%;
-		max-width: 100%;
+    @include scrollbar();
+  }
 
-		@include media_499 {
-			display: flex;
-			flex-direction: column;
-		}
-	}
+  .form-wrapper {
+    display: block;
+    position: relative;
+    height: 100%;
+    max-width: 100%;
+  }
 
-	.button-wrap {
-		justify-content: flex-end;
-		gap: 20px;
-		width: 100%;
-		padding: 10px;
-		margin-top: 2em;
-	}
+  .button-wrap {
+    justify-content: flex-end;
+    gap: 20px;
+    width: 100%;
+    padding: 10px;
+    margin-top: 2em;
+  }
 
-	.additional-fields {
-		grid-column: 1/3;
+  .additional-fields {
+    grid-column: 1/3;
 
-		.title {
-			margin-block: 1em;
-		}
-		.time-wrapper {
-			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(200px, 49%));
-			gap: 0.5em;
+    .title {
+      margin-block: 1em;
+    }
+  }
 
-			@include media_499 {
-				display: flex;
-				flex-direction: column;
-			}
-		}
-	}
+  .details-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    flex-direction: row-reverse;
+  }
 
-	.details-wrapper {
-		display: flex;
-		flex-wrap: nowrap;
-		gap: 10px;
-		flex-direction: row-reverse;
-	}
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: auto;
+    align-items: center;
+    padding: 30px;
+    overflow: hidden;
+    background: white;
 
-	.main-content {
-		display: flex;
-		flex-direction: column;
-		max-width: 500px;
-		margin: auto;
-		align-items: center;
-		padding: 30px;
-		overflow: hidden;
-		background: white;
+    .title {
+      font-weight: 300;
+      color: map-get($map: $color, $key: "grey");
+    }
+    .header .title {
+      margin-block: 10px;
+    }
 
-		.title {
-			font-weight: 300;
-			color: map-get($map: $color, $key: "grey");
-		}
-		.header .title {
-			margin-block: 10px;
-		}
+    .card {
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: $shadow;
+      min-width: 100%;
 
-		.card {
-			background: #fff;
-			padding: 10px;
-			border-radius: 5px;
-			box-shadow: $shadow;
-			min-width: 100%;
+      &:not(:last-child) {
+        margin-bottom: 10px;
+      }
 
-			&:not(:last-child) {
-				margin-bottom: 10px;
-			}
+      .text {
+        font-size: map-get($map: $fonts, $key: "smaller");
+      }
+    }
+  }
 
-			.text {
-				font-size: map-get($map: $fonts, $key: "smaller");
-			}
-		}
-	}
-
-	.pdf-format {
-		transform: scale(0.5) translate(-50%, -50%);
-		border-radius: 10px;
-		position: absolute;
-		left: 50%;
-		top: 50%;
-	}
+  .pdf-format {
+    transform: scale(0.5) translate(-50%, -50%);
+    border-radius: 10px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+  }
 }
 
 .loader {
-	height: 100%;
-	display: grid;
-	place-items: center;
-	.loader-wrapper {
-		width: 100%;
-		gap: 20px;
-		display: grid;
-		place-items: center;
-	}
+  height: 100%;
+  display: grid;
+  place-items: center;
+  .loader-wrapper {
+    width: 100%;
+    gap: 20px;
+    display: grid;
+    place-items: center;
+  }
 }
