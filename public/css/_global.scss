@@ -1,0 +1,35 @@
+// colors
+
+$skyblue: rgba(173, 199, 215, 0.38);
+$error: #9d353540;
+$text-primary: #3c6063;
+$text-success: #2bdd3d;
+$text-secondary: rgba(
+  $color: #000000,
+  $alpha: 0.8,
+);
+$btn-primary: #82b5d2;
+$btn-secondary: #369298;
+
+// transition
+$transition: all 0.3s ease-in-out;
+$hover: #135062;
+
+// shadow
+$shadow-primary: 0 0 50px 3px $skyblue;
+$shadow-secondary: 0 0 20px 0px $skyblue;
+$shadow-error: 0 0 20px 0px $error;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #f2f2fb;
+  color: $text-secondary;
+  overflow-x: hidden;
+  font-family: Poppins;
+  position: relative;
+}

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-css-tags */
-import React, { useEffect, useRef, useContext, useState } from "react";
+import React from "react";
 import Layout from "../../src/AppLayout";
 import { AppContext } from "../../lib/context";
 import NoSession from "../../components/nosession";
@@ -12,46 +12,29 @@ import { Container, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import * as Interfaces from "../../lib/interfaces";
+import FetchUser from "../../lib/fetch_user";
 
-function QuizCreator(props: { user: string | number }) {
+function QuizCreator(props: { user: string }) {
   const {
     state: { loggedIn, user, socket },
     dispatch,
-  } = useContext(AppContext);
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const uploadQuestionsRef = useRef<HTMLDivElement & Interfaces.Handle>(null);
-  const editingQuestionRef = useRef<HTMLDivElement & Interfaces.Handle>(null);
-  const createdQuestionsRef = useRef<HTMLDivElement & Interfaces.Handle>(null);
+  } = React.useContext(AppContext);
+  const { enqueueSnackbar } = useSnackbar();
+  const uploadQuestionsRef = React.useRef<HTMLDivElement & Interfaces.Handle>(
+    null
+  );
+  const editingQuestionRef = React.useRef<HTMLDivElement & Interfaces.Handle>(
+    null
+  );
+  const createdQuestionsRef = React.useRef<HTMLDivElement & Interfaces.Handle>(
+    null
+  );
   // const [upload, setUpload] = useState<boolean>(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!user || !socket || !loggedIn) {
       if (props?.user) {
-        (async () => {
-          try {
-            let data = { id: props.user };
-            const request = await axios.post("/api/user/details", data);
-            let user = await request.data;
-
-            user.Notifications = user.Notifications[0].notifications;
-            user.Friends = user.Friends[0].friends;
-            user.FriendRequests = user.FriendRequests[0].requests;
-            user.Settings = user.Settings[0].settings;
-
-            dispatch({
-              type: Interfaces.ActionType.FETCHED,
-              payload: {
-                user,
-                loggedIn: true,
-              },
-            });
-          } catch (error) {
-            enqueueSnackbar(error.message, {
-              variant: "error",
-            });
-          }
-        })();
-
+        FetchUser(dispatch, enqueueSnackbar, props.user);
         return;
       }
       axios.get("/logout").then((response) => {

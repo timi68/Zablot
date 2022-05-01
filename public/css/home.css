@@ -1,0 +1,267 @@
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  background: #f2f2fb;
+  color: rgba(0, 0, 0, 0.8);
+  overflow-x: hidden;
+  font-family: Poppins;
+  position: relative;
+}
+
+.main_container::before {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background-color: rgba(173, 199, 215, 0.38);
+  right: -300px;
+  top: -300px;
+}
+
+.main_container::after {
+  content: "";
+  position: absolute;
+  width: 900px;
+  height: 900px;
+  border-radius: 50%;
+  background-color: rgba(173, 199, 215, 0.38);
+  right: -100px;
+  top: -600px;
+}
+
+.main_container .main_wrapper {
+  position: relative;
+  z-index: 4;
+}
+
+.main_container .main_wrapper .main-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 1em;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  padding: 10px 20px;
+  max-width: 1200px;
+  margin: 1em auto;
+}
+
+.main_container .main_wrapper .main-header .logo {
+  font-size: 1.5em;
+  color: #369298;
+  font-weight: 600;
+}
+
+.main_container .main_wrapper .main-header .header-center {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 1em;
+}
+
+.main_container .main_wrapper .main-header .header-center a {
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 0.8em;
+  font-weight: 500;
+}
+
+.main_container .main_wrapper .main-header .header-right {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 1em;
+}
+
+.main_container .main_wrapper .main-header .header-right .link {
+  background-color: #369298;
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 10px 20px;
+  font-size: 0.8em;
+  border-radius: 50px;
+  display: block;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.main_container .main_wrapper .main-header .header-right .link.signin-link {
+  background: #fff;
+  color: #369298;
+}
+
+.main_container .main_wrapper .main-header .header-right .link:hover {
+  background-color: #135062;
+  -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+  color: #fff;
+}
+
+.main_container .main_wrapper .main-header .header-right .link:active {
+  -webkit-transform: scale(0.8);
+          transform: scale(0.8);
+}
+
+.main_container .main_wrapper .section-front {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+  padding: 2em 0 2em 2.2em;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper {
+  max-width: 400px;
+  position: relative;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper::before {
+  position: absolute;
+  content: "";
+  background-color: rgba(173, 199, 215, 0.38);
+  top: -30%;
+  left: -26%;
+  -webkit-filter: blur(110px);
+          filter: blur(110px);
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper::after {
+  position: absolute;
+  content: "";
+  background-color: rgba(173, 199, 215, 0.38);
+  top: 10%;
+  left: 30%;
+  border-radius: 66% 77% 41% 97% / 81% 92% 58% 58%;
+  width: 300px;
+  height: 300px;
+  z-index: -1;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper .primary-text {
+  font-size: 2.5em;
+  font-weight: 600;
+  color: #3c6063;
+  line-height: 1.2;
+  margin-bottom: 0.4em;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper .secondary-text {
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 1em;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper .btn-explore {
+  background-color: #369298;
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 15px 50px;
+  font-size: 0.8em;
+  display: inline-block;
+  border-radius: 50px;
+  outline: none;
+  border: none;
+  font-family: Poppins;
+  -webkit-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper .btn-explore:hover {
+  background-color: #135062;
+  -webkit-transform: scale(1.1);
+          transform: scale(1.1);
+}
+
+.main_container .main_wrapper .section-front .board-text-wrapper .btn-explore:active {
+  -webkit-transform: scale(0.8);
+          transform: scale(0.8);
+}
+
+.main_container .main_wrapper .section-front .svg_container .svg {
+  width: 400px;
+}
+
+.main_container .main_wrapper .section-objectives {
+  margin-block: 5em;
+}
+
+.main_container .main_wrapper .section-objectives .card-group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 30px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.main_container .main_wrapper .section-objectives .card {
+  width: 33.3%;
+  max-width: 300px;
+}
+
+.main_container .main_wrapper .section-objectives .card .card-wrapper {
+  background: #fff;
+  border-radius: 150px;
+  height: 300px;
+  padding: 2em;
+  -webkit-box-shadow: 0 0 50px 3px rgba(173, 199, 215, 0.38);
+          box-shadow: 0 0 50px 3px rgba(173, 199, 215, 0.38);
+}
+
+.main_container .main_wrapper .section-objectives .card .card-image .image {
+  display: block;
+  width: 80%;
+  margin: auto;
+  border-radius: 10px;
+  height: 160px;
+}
+
+.main_container .main_wrapper .section-objectives .card .card-text {
+  font-size: 14px;
+  text-align: center;
+  margin-top: 1em;
+}
+
+.main_container .main_wrapper .section-objectives .card .card-action {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  margin: auto;
+}
+
+.main_container .main_wrapper .section-objectives .card .card-action .btn {
+  background: #369298;
+  outline: none;
+  border: none;
+  border-radius: 50px;
+  min-width: 120px;
+  min-height: 50px;
+  -webkit-box-shadow: 0 0 50px 3px rgba(173, 199, 215, 0.38);
+          box-shadow: 0 0 50px 3px rgba(173, 199, 215, 0.38);
+  margin-top: 2em;
+}
+/*# sourceMappingURL=home.css.map */

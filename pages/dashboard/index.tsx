@@ -8,7 +8,7 @@ import axios from "axios";
 import NoSession from "../../components/nosession";
 import { CircularProgress, Container } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { useRouter } from "next/router";
+import FetchUser from "../../lib/fetch_user";
 
 const Dashboard = React.forwardRef(function (
   props: { children?: React.ReactNode; user: string },
@@ -61,33 +61,7 @@ const Dashboard = React.forwardRef(function (
   React.useEffect(() => {
     if (!user || !socket || !loggedIn) {
       if (props?.user) {
-        (async () => {
-          try {
-            let data = { id: props.user };
-            const request = await axios.post("/api/user/details", data);
-            let user = await request.data;
-
-            user.Notifications = user.Notifications[0].notifications.reverse();
-            user.Friends = user.Friends[0].friends;
-            user.FriendRequests = user.FriendRequests[0].requests.reverse();
-            user.Settings = user.Settings[0].settings;
-
-            console.log("this is from room", user);
-
-            dispatch({
-              type: ActionType.FETCHED,
-              payload: {
-                user,
-                loggedIn: true,
-              },
-            });
-          } catch (error) {
-            enqueueSnackbar(error.message, {
-              variant: "error",
-            });
-          }
-        })();
-
+        FetchUser(dispatch, enqueueSnackbar, props.user);
         return;
       }
       axios.get("/logout").then((response) => {
@@ -100,9 +74,6 @@ const Dashboard = React.forwardRef(function (
       socket?.on("userid", handleJoined);
       socket?.on("disconnect", () => {
         console.log("disconnected");
-      });
-      socket?.on("INCOMINGMESSAGE", (data) => {
-        console.log(data);
       });
     }
 

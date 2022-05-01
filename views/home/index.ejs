@@ -1,57 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="/javascript/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zablot - Home page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/home.css" />
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="../css/icons.css">
-    <link rel="stylesheet" href="../css/bootstrap-custom.css">
-    <link rel="stylesheet" href="../css/index.css">
-    <script src="../javascript/jquery.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
+  <body>
     <div class="main_container">
-        <div class="main_wrapper">
-            <div class="logo_container">
-                <p class="logo">ZABLOT</p>
-                <div>
-                    <i></i>
-                    <div></div>
-                </div>
+      <div class="main_wrapper">
+        <div class="main-header">
+          <div class="logo_container">
+            <p class="logo">ZABLOT</p>
+          </div>
+          <div class="header-center">
+            <div class="link">
+              <a href="/about-us" class="about-us">About us</a>
             </div>
-            <div class="wrapper_home_screen">
-                <div class="svg_container">
-                    <div class="svg1">
-                        <img src="images/lover_book.svg" alt="">
-                    </div>
-                </div>
-                <div class="index_main_body">
-                    <h2 class="preview_text">SCHOLAR CHALLENGE</h2>
-                    <div class="signin_signup_container">
-                        <a href="/login" class="sign_in">
-                            SIGN IN
-                        </a>
-                        <a href="/register" class="sign_up">
-                            SIGN UP
-                        </a>
-                        <%- include('validation') -%>
-                    </div>
-                </div>
-                <div class="svg_container">
-                    <div class="svg2">
-                        <img src="images/maths.svg" alt="">
-                        <img src="images/knowledge.svg" alt="">
-                        <img src="images/learning.svg" alt="">
-                    </div>
-                </div>
+            <div class="link">
+              <a href="/learn-more" class="about-us">Learn more</a>
             </div>
+          </div>
+          <div class="header-right">
+            <div class="signup-link">
+              <a href="/register" class="link signup-link">Sign up</a>
+            </div>
+            <div class="signin-link">
+              <a href="/login" class="link signin-link">Login</a>
+            </div>
+          </div>
         </div>
+        <div class="section-front">
+          <div class="board-text-wrapper">
+            <div class="big-text primary-text">
+              Solving the intelligency very easily.
+            </div>
+            <div class="secondary-text">
+              will solely based on making education virtual and helping in
+              education.
+            </div>
+            <div class="btn-wrap">
+              <a href="/dashboard" class="btn btn-explore">Explore</a>
+            </div>
+          </div>
+          <div class="svg_container">
+            <div class="svg-wrap">
+              <img src="/images/atom.png" alt="" class="svg" />
+            </div>
+          </div>
+        </div>
+        <div class="section-objectives">
+          <div class="card-group">
+            <div class="card objective">
+              <div class="card-wrapper">
+                <div class="card-image">
+                  <img
+                    src="/images/collection_tools.png"
+                    alt=""
+                    class="image"
+                  />
+                </div>
+                <div class="card-content">
+                  <div class="card-text">Get you set for your exams</div>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn link"></button>
+              </div>
+            </div>
+            <div class="card objective">
+              <div class="card-wrapper">
+                <div class="card-image">
+                  <img src="/images/online-study.png" alt="" class="image" />
+                </div>
+                <div class="card-content">
+                  <div class="card-text">
+                    Help make test to your student anywhere in the world
+                  </div>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn link"></button>
+              </div>
+            </div>
+            <div class="card objective">
+              <div class="card-wrapper">
+                <div class="card-image">
+                  <img src="/images/friends.png" alt="" class="image" />
+                </div>
+                <div class="card-content">
+                  <div class="card-text">Meet new friends to learn with</div>
+                </div>
+              </div>
+              <div class="card-action">
+                <button class="btn link"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <%- include('../footer') -%>
-        <script src="../javascript/bootstrap.bundle.min.js"></script>
-</body>
-
+    <!-- <script src="../javascript/bootstrap.bundle.min.js"></script> -->
+  </body>
 </html>

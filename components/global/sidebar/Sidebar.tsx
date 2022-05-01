@@ -23,11 +23,15 @@ import { motion, AnimatePresence } from "framer-motion";
 const links = [
   { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
   { title: "Create Quiz", icon: CreateQuiz, url: "/create-quiz" },
-  { title: "Past Questions", icon: DynamicFormRoundedIcon, url: "#" },
+  {
+    title: "Past Questions",
+    icon: DynamicFormRoundedIcon,
+    url: "/past-questions",
+  },
   {
     title: "Attempt Quiz",
     icon: QuestionMarkOutlinedIcon,
-    url: "#",
+    url: "/attempt-quiz",
   },
   {
     title: "Get Coin",
