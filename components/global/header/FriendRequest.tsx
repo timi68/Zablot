@@ -22,7 +22,7 @@ import * as Interfaces from "../../../lib/interfaces";
 
 type PropsType = {
   SearchbarRef: Interfaces.Ref;
-  ChatboardRef: Interfaces.Ref;
+  ChatboardRef: Interfaces.Ref | null;
   children?: React.ReactNode;
 };
 
@@ -143,8 +143,8 @@ const FriendRequests = function (props: PropsType, ref) {
     }
 
     return () => {
-      socket.off("REMOVEREQUEST", REMOVEREQUEST);
-      socket.off("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
+      socket?.off("REMOVEREQUEST", REMOVEREQUEST);
+      socket?.off("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
     };
   }, [socket]);
 

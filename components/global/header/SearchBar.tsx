@@ -217,7 +217,7 @@ const SearchBar = React.forwardRef(function (
       socket.on("Notifications", Notification);
     }
     return () => {
-      socket.off("Notifications", Notification);
+      socket?.off("Notifications", Notification);
     };
   }, [socket, searchData]);
 

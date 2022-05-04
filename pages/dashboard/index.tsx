@@ -9,6 +9,7 @@ import NoSession from "../../components/nosession";
 import { CircularProgress, Container } from "@mui/material";
 import { useSnackbar } from "notistack";
 import FetchUser from "../../lib/fetch_user";
+import { useRouter, NextRouter } from "next/router";
 
 const Dashboard = React.forwardRef(function (
   props: { children?: React.ReactNode; user: string },
@@ -21,6 +22,7 @@ const Dashboard = React.forwardRef(function (
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [error, setError] = React.useState(null);
   const DashboardComponentRef = React.useRef(null);
+  const router: NextRouter = useRouter();
 
   React.useImperativeHandle(
     ref,
@@ -59,9 +61,9 @@ const Dashboard = React.forwardRef(function (
   );
 
   React.useEffect(() => {
-    if (!user || !socket || !loggedIn) {
+    if (!user || !socket) {
       if (props?.user) {
-        FetchUser(dispatch, enqueueSnackbar, props.user);
+        FetchUser(dispatch, enqueueSnackbar, props.user, router);
         return;
       }
       axios.get("/logout").then((response) => {
@@ -82,16 +84,10 @@ const Dashboard = React.forwardRef(function (
     };
   }, [socket]);
 
+  console.log("Mounting from dashboard");
+
   if (socket && user && loggedIn) {
-    return (
-      <AppLayout
-        loggedIn={true}
-        title="dashboard"
-        chatboardRef={DashboardComponentRef}
-      >
-        <DashboardComponent ref={DashboardComponentRef} />
-      </AppLayout>
-    );
+    return <DashboardComponent ref={DashboardComponentRef} />;
   } else if (props?.user) {
     return (
       <Container

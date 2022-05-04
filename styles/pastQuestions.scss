@@ -1,0 +1,160 @@
+@import "./variable";
+@import "./mixins";
+
+.content-main {
+  display: flex;
+  gap: 1em;
+  height: calc(100vh - 62px);
+  width: 100%;
+
+  .education-news-update {
+    width: 300px;
+    padding-block: 1em;
+    padding-inline: 5px;
+    height: 100%;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .header {
+      .title {
+        font-weight: 600;
+      }
+    }
+
+    .news-group {
+      background-color: azure;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: $shadow;
+      margin-top: 1em;
+    }
+
+    @include media_1049 {
+      display: none;
+    }
+  }
+}
+
+.past-questions-wrapper {
+  background: #fff;
+  border-radius: 50px;
+  max-width: 100%;
+  margin: 1em;
+  flex-grow: 1;
+  padding: 1em;
+  border-radius: 20px;
+  height: 100%;
+  overflow: auto;
+
+  .nav-bar {
+    display: flex;
+    gap: 0.5em;
+    margin-bottom: 1em;
+  }
+
+  .page-title {
+    .primary-text {
+      font-weight: 700;
+    }
+    .secondary-text {
+      font-size: 0.8em;
+    }
+  }
+
+  .exams-wrapper {
+    background: whitesmoke;
+    padding: 1em;
+    margin-top: 1em;
+    border-radius: 20px;
+    flex-grow: 1;
+    overflow-x: hidden;
+
+    .btn-group {
+      display: flex;
+      gap: 1em;
+      margin-bottom: 1em;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: scroll;
+
+      .btn-toggle {
+        border-radius: 5px;
+        padding: 7px 1em;
+        // background: map-get($map: $color, $key: "green");
+        color: map-get($map: $color, $key: "green");
+        border: 1px solid map-get($map: $color, $key: "green");
+        font-weight: 500;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        min-width: max-content;
+        text-decoration: none;
+
+        span {
+          position: relative;
+          z-index: 1;
+        }
+
+        // &:hover,
+        // &.active {
+        //   background: map-get($map: $color, $key: "green");
+        //   color: #fff;
+        // }
+
+        &.active {
+          background: map-get($map: $color, $key: "green");
+          color: #fff;
+        }
+
+        &::before {
+          position: absolute;
+          content: "";
+          top: -100%;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          transition: $transition;
+        }
+
+        &:hover {
+          color: #fff;
+          &::before {
+            top: 0;
+            background: map-get($map: $color, $key: "green");
+          }
+        }
+      }
+    }
+
+    .exam-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-auto-rows: 1fr;
+      gap: 20px;
+      flex-wrap: wrap;
+
+      .exam.card {
+        background: white;
+        // width: max-content;
+        height: 100%;
+        text-align: center;
+        font-size: 0.8em;
+        font-weight: 500;
+        padding: 2em 1em;
+        border-radius: 20px;
+        box-shadow: 0 0 16px 1px #1718181f;
+        // flex-grow: 1;
+
+        .exam-title {
+          font-weight: 700;
+          font-size: 1.3em;
+          margin-bottom: 0.5em;
+          color: map-get($map: $color, $key: "coral");
+        }
+      }
+    }
+  }
+}

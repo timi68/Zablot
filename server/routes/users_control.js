@@ -220,11 +220,10 @@ const Search = async (SearchText, CB) => {
 
 const FetchUserDetails = async (id) => {
   try {
-    const user = await Users.findById(id, {
+    const user = await Users.findById(mongoose.Types.ObjectId(id), {
       All_Logins: 0,
       Online: 0,
       Last_Seen: 0,
-      Coins: 0,
       Account_Creation_Date: 0,
       DateOfBirth: 0,
     })

@@ -44,7 +44,6 @@ const SettingSchema = Schema(
 
 const UsersSchema = Schema(
   {
-    _id: Schema.Types.ObjectId,
     FullName: {
       type: String,
       required: true,

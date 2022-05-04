@@ -13,6 +13,7 @@ import axios from "axios";
 import { useSnackbar } from "notistack";
 import * as Interfaces from "../../lib/interfaces";
 import FetchUser from "../../lib/fetch_user";
+import { NextRouter, useRouter } from "next/router";
 
 function QuizCreator(props: { user: string }) {
   const {
@@ -20,6 +21,7 @@ function QuizCreator(props: { user: string }) {
     dispatch,
   } = React.useContext(AppContext);
   const { enqueueSnackbar } = useSnackbar();
+  const router: NextRouter = useRouter();
   const uploadQuestionsRef = React.useRef<HTMLDivElement & Interfaces.Handle>(
     null
   );
@@ -34,7 +36,7 @@ function QuizCreator(props: { user: string }) {
   React.useEffect(() => {
     if (!user || !socket || !loggedIn) {
       if (props?.user) {
-        FetchUser(dispatch, enqueueSnackbar, props.user);
+        FetchUser(dispatch, enqueueSnackbar, props.user, router);
         return;
       }
       axios.get("/logout").then((response) => {
@@ -44,23 +46,23 @@ function QuizCreator(props: { user: string }) {
     }
   }, []);
 
+  console.log("Mounting from create Quiz");
+
   if (loggedIn && user && socket) {
     return (
-      <Layout title="Zablot | Create Quiz" loggedIn={loggedIn}>
-        <div className="create-quiz-wrapper">
-          <UploadQuestions ref={uploadQuestionsRef} />
-          <CreateQuestion setQuestion={createdQuestionsRef} />
-          <CreatedQuestions
-            ref={createdQuestionsRef}
-            edit={editingQuestionRef}
-            upload={uploadQuestionsRef}
-          />
-          <EditQuestion
-            ref={editingQuestionRef}
-            setQuestion={createdQuestionsRef}
-          />
-        </div>
-      </Layout>
+      <div className="create-quiz-wrapper">
+        <UploadQuestions ref={uploadQuestionsRef} />
+        <CreateQuestion setQuestion={createdQuestionsRef} />
+        <CreatedQuestions
+          ref={createdQuestionsRef}
+          edit={editingQuestionRef}
+          upload={uploadQuestionsRef}
+        />
+        <EditQuestion
+          ref={editingQuestionRef}
+          setQuestion={createdQuestionsRef}
+        />
+      </div>
     );
   } else if (props?.user) {
     return (

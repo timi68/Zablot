@@ -49,6 +49,7 @@
   async function Auth(event) {
     event.preventDefault();
     e(".form-group").removeClass("error");
+    e(".submit_btn").prop("disabled", true);
 
     var formData = {};
     var required = [];
@@ -68,6 +69,7 @@
         e(`#${key}`).addClass("error");
       });
 
+      e(".submit_btn").prop("disabled", false);
       return false;
     }
 
@@ -80,15 +82,17 @@
     var isEmailValid = validateEmail(email);
 
     if (!isPasswordValid) e("#userPassword").addClass("error");
-    if (!isEmailValid) e("#userPassword").addClass("error");
+    if (!isEmailValid) e("#userEmail").addClass("error");
 
-    if (!isPasswordValid || !isEmailValid) return false;
+    if (!isPasswordValid || !isEmailValid)
+      return e(".submit_btn").prop("disabled", false);
 
     // submit form
 
     const { success, message } = await Fetch(formData, name);
 
-    if (!success) return modal(message);
+    if (!success)
+      return e(".submit_btn").prop("disabled", false), modal(message);
     console.log({ name });
     if (name === "login") await modal(message, success);
 

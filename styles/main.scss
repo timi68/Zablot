@@ -8,7 +8,7 @@
   padding: 0;
   border: 0;
   outline: none;
-  font-family: "Poppins", "Segoe UI";
+  font-family: "Poppins", "Segoe UI" !important;
 }
 
 :focus,
@@ -23,6 +23,7 @@ body {
   max-width: 1366px;
   max-height: 100vh;
   color: #56565c;
+  margin: auto;
 
   .modal_open_signal.show {
     position: absolute;
@@ -638,7 +639,7 @@ body {
   .sidebar {
     background: map-get($map: $color, $key: "lightergrey");
     height: inherit;
-    width: 300px;
+    width: 250px;
     min-width: 230px;
     position: relative;
     transition: $transition;

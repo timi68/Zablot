@@ -3,9 +3,10 @@ import NProgress from "nprogress";
 import Router from "next/router";
 import "nprogress/nprogress.css";
 import "../styles/main.scss";
-import { SnackbarProvider } from "notistack";
 import "../styles/chatboard.scss";
 import "../styles/createQuiz.scss";
+import "../styles/pastQuestions.scss";
+import "../styles/attemptQuiz.scss";
 import AppContextProvider from "../lib/context/appContext";
 import { AppProps } from "next/app";
 
@@ -23,9 +24,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <AppContextProvider>
-      <SnackbarProvider maxSnack={3} dense>
-        <Component {...pageProps} />
-      </SnackbarProvider>
+      <Component {...pageProps} />
     </AppContextProvider>
   );
 }

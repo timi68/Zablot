@@ -63,7 +63,7 @@ function Notifications() {
     }
 
     return () => {
-      socket.off("Notifications", UpdateNotification);
+      socket?.off("Notifications", UpdateNotification);
     };
   }, [socket]);
 

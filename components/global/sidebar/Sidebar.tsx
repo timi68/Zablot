@@ -19,6 +19,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import IconButton from "@mui/material/IconButton";
 import DynamicFormRoundedIcon from "@mui/icons-material/DynamicFormRounded";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 
 const links = [
   { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
@@ -36,9 +37,9 @@ const links = [
   {
     title: "Get Coin",
     icon: MonetizationOnOutlinedIcon,
-    url: "#",
+    url: "/get-coin",
   },
-  { title: "Logout", icon: LogoutOutlinedIcon, url: "/logout" },
+  { title: "Logout", icon: LogoutOutlinedIcon, url: "#" },
 ];
 
 const link2 = [
@@ -87,6 +88,13 @@ export default function Sidebar() {
     setTimeout(() => {
       setTooltip({ open: true, title, top: offsetTop + 6 - parent.scrollTop });
     }, 100);
+  };
+
+  const logOut = async () => {
+    var response = await axios.get<string>("/logout");
+    alert(response.data);
+
+    return router.replace("/login");
   };
 
   return (
@@ -164,7 +172,10 @@ export default function Sidebar() {
                     }
                   >
                     <Link href={data.url} passHref>
-                      <a href="#">
+                      <a
+                        href="#"
+                        onClick={data.title !== "Logout" ? null : logOut}
+                      >
                         <div className="icon-wrap">
                           <data.icon fontSize="small" className="svg" />
                         </div>
