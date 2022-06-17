@@ -42,7 +42,7 @@
     "mongodb": "^4.1.2",
     "mongoose": "^6.0.7",
     "multer": "^1.4.4",
-    "next": "^12.1.5",
+    "next": "^12.1.6",
     "next-cli": "^1.0.0",
     "next-connect": "^0.10.1",
     "next-iron-session": "^4.2.0",
