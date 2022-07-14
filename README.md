@@ -1,12 +1,12 @@
-<center>
-<h1>
+<div align="center">
+    <h1>
 ------------
     ZABLOT 
 ------------
 </h1>
 <span><small>Serve Education</small></span>
 <hr>
-</center>
+</div>
 
 <style>
   *{
