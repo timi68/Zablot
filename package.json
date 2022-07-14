@@ -48,7 +48,7 @@
     "next-iron-session": "^4.2.0",
     "notistack": "^2.0.4",
     "nprogress": "^0.2.0",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-local": "^1.0.0",
     "pdfmake": "^0.2.4",
     "peer": "^0.6.1",
