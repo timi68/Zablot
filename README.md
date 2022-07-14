@@ -1,10 +1,18 @@
 <center>
 <h1>
-    ZABLOT
+------------
+    ZABLOT 
+------------
 </h1>
 <span><small>Serve Education</small></span>
 <hr>
 </center>
+
+<style>
+  *{
+    font-family:  "Segoe UI Semibold", calibri, serif
+  }
+</style>
 
 ## **About Zablot**
 Zablot is an educational purpose software, it's features
@@ -51,3 +59,40 @@ to manage the coins part of the application.
 
 
 ### FEATURES
+- **<span style="color: #64a;font-size: 1.2em">Social Interaction</span>** ==> There will be facebook like features included in the application
+  
+#### Features under this section
+  - Notification Alert
+  - Friend Requests
+  - Messaging Room
+  - Quiz Room
+  - Web3 integration => placing coins on question asked
+   <br/><br/>
+  
+  - **<span style="color: #64a;font-size: 1.2em">Quiz Creator</span>** ==> 
+There will able to create quiz easily, and host quiz for studying group
+  
+  - **<span style="color: #64a;font-size: 1.2em">Exam Organizer</span>** ==> 
+     Universities/Schools should be able to create and host exams and test on the platform, 
+     - Monitoring features we be included to mak sure student don't conduct examination malpractice
+     <br /> | <b> The business value </b> | =>> to host exam on zablot, there will be a certain amount of money
+     to pay based on the number of people that will access the exam at the time.
+     ####
+
+  - **<span style="color: #64a;font-size: 1.2em">Course Material</span>** ==> Course materials should accessible on zablot. 
+Specific Course materials will be first provided on Zablot, but the goal is to make all course materials to be accessible on zablot.
+    - Users will play a role here => users will also be providing materials that they think we be of help to people, 
+    either <i style="color: pink">they want sell or make it free to access</i>
+####
+- **<span style="color: #64a;font-size: 1.2em">Past Questions</span>** ==> 
+   All Nigeria University Past questions should be accessible on zablot
+  - How to accomplish this depends on the connection we have to get in all ***Universities of Nigeria***, 
+  We will need to get someone in all universities to join the team work with.
+
+    
+## ------------ Processes--------------
+### - DevOps Practice will be adopted
+Features   
+### - Gitlab to be the code organizer
+
+
