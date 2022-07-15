@@ -40,7 +40,7 @@
     "minimist": "^1.2.6",
     "mobile-detect": "^1.4.5",
     "mongodb": "^4.1.2",
-    "mongoose": "^6.0.7",
+    "mongoose": "^6.3.4",
     "multer": "^1.4.4",
     "next": "^12.1.5",
     "next-cli": "^1.0.0",
