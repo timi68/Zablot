@@ -1,6 +1,6 @@
 import React from "react";
 import { RoomType, MessageType } from "../../../lib/interfaces";
-import GroupMessage from "./GroupMessage";
+import GroupMessage from "./Group_Message";
 import { Socket } from "socket.io-client";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import Chip from "@mui/material/Chip";
