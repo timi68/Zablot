@@ -11,7 +11,7 @@ import * as Interfaces from "../../../lib/interfaces";
 import { AppContext } from "../../../lib/context";
 import Poll from "./Poll";
 import RoomHeader from "./RoomHeader";
-import RoomBody from "./Roombody";
+import RoomBody from "./Room_body";
 
 const Room = React.forwardRef((props: Interfaces.RoomProps, ref) => {
   const {
