@@ -6,7 +6,6 @@ import AttachmentOutlinedIcon from "@mui/icons-material/AttachmentOutlined";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { IconButton } from "@mui/material";
 import * as Interfaces from "../../../lib/interfaces";
 import { AppContext } from "../../../lib/context";
