@@ -90,8 +90,11 @@ function UploadScreen() {
                       />
                     </div>
                     <div className="name">
-                      <div className="username text">
-                        Oderinde james Oluwatimileyin
+                      <div
+                        className="username text"
+                        style={{ fontWeight: 600, fontSize: "1.1em" }}
+                      >
+                        Oderinde James Oluwatimileyin
                       </div>
                     </div>
                   </div>

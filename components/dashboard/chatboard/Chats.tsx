@@ -39,7 +39,7 @@ function Chats({ friendId, user, open }: chats): JSX.Element {
       </div>
       <div className="text" role="listitem">
         <div className="wrap">
-          <div className="user_name primary_text">{"Timi James"}</div>
+          <div className="user_name primary_text">{user.Name}</div>
           <div className="unseenmessages badge">{user.UnseenMessages}</div>
         </div>
         <div className="last_message secondary_text">
