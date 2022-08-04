@@ -21,8 +21,8 @@ and make it able run render ServerSide Components.
     #### We be used for <big style="font-weight:800;font-size:1.5em">?</big>
     - For Building Static Pages
     - For Building Some Apis, <a>*api.zablot.com*</a> will server as the main Api Server URl
-    ####
-    [Go to Official Website to learn more]("https://nextjs.org")
+<br />  
+[Go to Official Website to learn more]("https://nextjs.org")
 
 #####
 
@@ -30,8 +30,8 @@ and make it able run render ServerSide Components.
   #### We be used for <big style="font-weight:800;font-size:1.5em">?</big>
     - For Storing Data
     - For Performing heavy queries, because social interaction features will be integrated into the App
-  ####  
-  [Go to Official Website to learn more]("https://mongodb.com")
+<br />  
+[Go to Official Website to learn more]("https://mongodb.com")
 
 #####
 
@@ -40,8 +40,8 @@ to perform the E2E (End To End) testing and the components testing
   #### We be used for <big style="font-weight:800;font-size:1.5em">?</big>
     - End-To-End (also know at E2E) Testing
     - Components Testing
-  ####  
-  [Go to Official Website to learn more]("https://cypress.io)
+<br />  
+[Go to Official Website to learn more]("https://cypress.io)
 
 #####
 
@@ -51,10 +51,10 @@ to manage the coins part of the application.
   #### We be used for <big style="font-weight:800;font-size:1.5em">?</big>
     - For Storing Data
     - For Performing heavy queries, because social interaction features will be integrated into the App
-  ####  [Go to Official Website to learn more]("https://mongodb.com")
+<br />
+[Go to Official Website to learn more]("https://mongodb.com")
 
-#####
-
+#
 
 ### FEATURES
 - **<span style="color: #64a;font-size: 1.2em">Social Interaction</span>** ==> There will be facebook like features included in the application

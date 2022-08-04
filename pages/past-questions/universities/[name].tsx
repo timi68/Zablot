@@ -13,7 +13,7 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Link from "next/link";
 import { InferGetServerSidePropsType } from "next";
-import { Subjects } from "../questions";
+import { Subjects } from "../../../utils/questions";
 import NavigateNextIcon from "@mui/icons-material/NavigateNextRounded";
 
 export default function PastQuestions(

@@ -39,6 +39,8 @@ const FriendRequests = function (props: PropsType, ref) {
   const IconButtonRef = useRef<HTMLButtonElement>(null);
   const Backdrop = useRef<HTMLDivElement>(null);
 
+  console.log({ user, requests });
+
   const Reject = (id: string) => {
     let data = {
       going_id: id,
@@ -147,6 +149,10 @@ const FriendRequests = function (props: PropsType, ref) {
       socket?.off("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
     };
   }, [socket]);
+
+  useEffect(() => {
+    if (user) setRequests(user.FriendRequests);
+  }, [user]);
 
   const closemodal = () => {
     setOpenModal(false);

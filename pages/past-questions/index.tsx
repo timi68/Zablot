@@ -6,9 +6,8 @@ import FetchUser from "../../lib/fetch_user";
 import axios from "axios";
 import { AppContext } from "../../lib/context";
 import { NextRouter, useRouter } from "next/router";
-import { Button } from "@mui/material";
 import { motion, AnimatePresence, AnimateSharedLayout } from "framer-motion";
-import { Olevel, Universities, Polytechniques } from "./questions";
+import { Olevel, Universities, Polytechniques } from "../../utils/questions";
 import { CardActionArea } from "@mui/material";
 
 const tabLabels = ["Olevel", "Universities", "Polytechniques"];
