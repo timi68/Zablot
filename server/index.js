@@ -29,7 +29,7 @@ client
     app.use(express.json());
     app.use(cors());
     app.use(compressor());
-    app.use("/uploads", express.static("uploads"));
+    app.use("/uploads", express.static(" "));
     app.use(express.static("public"));
 
     ///-momery unleaked---------

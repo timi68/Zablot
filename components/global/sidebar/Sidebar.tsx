@@ -145,17 +145,17 @@ export default function Sidebar() {
               />
             </div>
             <div className="name-wrap">
-              <div className="name">Oderinde James</div>
+              <div className="name">{user?.FullName}</div>
               <div className="username">@{user?.UserName}</div>
             </div>
           </div>
+        </div>
+        <div className="links-container navigators">
           <div className="message-from-zablot">
             <div className="message">
               Good day TJ, hope you are having a nice day
             </div>
           </div>
-        </div>
-        <div className="links-container navigators">
           <div className="group-1 face-1 links-wrapper">
             <ul className="links-list">
               {links.map((data, index) => {

@@ -645,7 +645,7 @@ body {
     transition: $transition;
     max-height: 100vh;
     overflow: auto;
-    padding: 20px 15px;
+    padding: 0px 15px 20px;
 
     &::-webkit-scrollbar {
       width: 0px;
@@ -656,11 +656,15 @@ body {
     }
 
     .preview-profile {
-      padding-bottom: 20px;
+      padding-top: 15px;
       transition: $transition;
       border-bottom: thin solid #c8c8c8;
       margin-bottom: 1em;
       white-space: nowrap;
+      position: sticky;
+      top: 0;
+      background: map-get($map: $color, $key: "lightergrey");
+      z-index: 1000;
 
       @include media_1049 {
         display: none;
@@ -696,11 +700,12 @@ body {
           color: map-get($color, "green");
         }
       }
-      .message {
-        margin-top: 10px;
-        font-size: map-get($fonts, "smaller");
-        white-space: normal;
-      }
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: map-get($fonts, "smaller");
+      white-space: normal;
     }
 
     .navigators {
