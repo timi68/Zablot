@@ -89,7 +89,7 @@ client
     });
 
     const server = app.listen(process.env.PORT || 8000, () => {
-      console.log("Listening on http://localhost:8000");
+      console.log("Listening on http://localhost:" + processenv.PORT ?? 8000);
     });
 
     const io = socket(server, { pingTimeout: 1000, pingInterval: 1000 });
