@@ -9,29 +9,18 @@ import CardActionArea from "@mui/material/CardActionArea";
  */
 
 interface props {
-  friends: Interface.Friends[];
-  openRoom(
-    user: Interface.Friends,
-    e: React.MouseEvent<HTMLElement, MouseEvent>
-  ): void;
+  friends: Interface.Friend[];
   friendId: string;
 }
 
 function Friends(props: props) {
-  const { friendId, friends, openRoom } = props;
+  const { friendId, friends } = props;
   const NotPrivateFriends = friends?.filter((friend) => !friend.IsPrivate);
   return (
     <div className="friends_chats chats_listbox" role="listbox">
       <ul className="chats-list list" role="list">
         {NotPrivateFriends?.map((user, index) => {
-          return (
-            <Chats
-              key={index}
-              friendId={friendId}
-              open={openRoom}
-              user={user}
-            />
-          );
+          return <Chats key={index} friendId={friendId} user={user} />;
         })}
         {!friends?.length && (
           <div className="no-friend-available">

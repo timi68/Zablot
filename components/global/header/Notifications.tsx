@@ -2,7 +2,6 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
-import { AppContext, ModalContext } from "../../../lib/context";
 import { v4 as uuid } from "uuid";
 import j from "jquery";
 import GroupNotification from "../../../utils/GroupNotifications";
@@ -11,13 +10,11 @@ import { CSSTransition } from "react-transition-group";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge, IconButton } from "@mui/material";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../../lib/interfaces";
+import * as Interfaces from "@lib/interfaces";
+import { useAppSelector } from "@lib/redux/store";
 
 function Notifications() {
-  const {
-    state: { socket, user },
-  } = React.useContext(AppContext);
-
+  const { socket, user } = useAppSelector((s) => s.sessionStore);
   const [openModal, setOpenModal] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
     Interfaces.Notifications[0][]
@@ -26,7 +23,7 @@ function Notifications() {
   const IconButtonRef = React.useRef<HTMLButtonElement>(null);
   const Backdrop = React.useRef<HTMLDivElement>(null);
 
-  const closemodal = () => {
+  const CloseModal = () => {
     setOpenModal(false);
     IconButtonRef.current.classList.remove("active");
   };
@@ -38,8 +35,14 @@ function Notifications() {
 
   const CaptureClick = (e: React.MouseEvent) => {
     var target = e.target === Backdrop.current;
-    if (target) closemodal();
+    if (target) CloseModal();
   };
+
+  React.useEffect(() => {
+    if (user) {
+      setNotifications(user.Notifications);
+    }
+  }, [user]);
 
   React.useEffect(() => {
     const UpdateNotification = (data: {
@@ -47,7 +50,6 @@ function Notifications() {
       Name: string;
       title: string;
     }) => {
-      console.log(data);
       setNotifications([data, ...notifications]);
       enqueueSnackbar(data.title, {
         variant: "info",
@@ -67,7 +69,6 @@ function Notifications() {
     };
   }, [socket]);
 
-  console.log("mounting from notification");
   return (
     <div className="notifications-wrapper">
       <Badge color="default" badgeContent={0} showZero>
@@ -92,10 +93,10 @@ function Notifications() {
               className="notifications-box"
             >
               <div className="notifications-header">
-                <div className="title">Notifications</div>
+                <div className="title font-bold">Notifications</div>
                 <motion.button
                   className="close-modal modal"
-                  onClick={closemodal}
+                  onClick={CloseModal}
                   whileTap={{ scale: 0.9 }}
                   whileHover={{
                     scale: 1.1,
@@ -152,6 +153,7 @@ function NotificationsPaper(props) {
         <div className="notification-image">
           <div className="image">
             <img
+              className="avatar w-10 h-10 rounded-full"
               src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
               alt=""
             />
@@ -177,4 +179,4 @@ function NotificationsPaper(props) {
   );
 }
 
-export default Notifications;
+export default React.memo(Notifications);

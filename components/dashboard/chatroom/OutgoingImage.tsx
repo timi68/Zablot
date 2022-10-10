@@ -3,7 +3,7 @@
 import React from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Socket } from "socket.io-client";
+import { Socket } from "socket.io";
 import { MessageType } from "../../../lib/interfaces";
 import Skeleton from "@mui/material/Skeleton";
 import GroupMessage from "./Group_Message";

@@ -2,7 +2,7 @@
 import React from "react";
 import { MessageType } from "../../../lib/interfaces";
 import GroupMessage from "./Group_Message";
-import { Socket } from "socket.io-client";
+import { Socket } from "socket.io";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import Chip from "@mui/material/Chip";

@@ -3,25 +3,36 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { Button, CardActionArea } from "@mui/material";
 import Image from "next/image";
-import * as Interface from "../../../lib/interfaces";
+import * as Interface from "@lib/interfaces";
+import React from "react";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 
 interface chats {
   friendId: string;
-  user: Interface.Friends;
-  open(
-    user: Interface.Friends,
-    e: React.MouseEvent<HTMLElement, MouseEvent>
-  ): void;
+  user: Interface.Friend;
 }
 /**
  *
  */
-function Chats({ friendId, user, open }: chats): JSX.Element {
+function Chats({ friendId, user }: chats): JSX.Element {
+  const CardRef = React.useRef<HTMLDivElement>(null);
+
+  useCustomEventListener(
+    "openRoomById",
+    (id: string) => {
+      console.log("OpenRoomID", id, user.Id);
+      if (user.Id === id) CardRef.current.click();
+    },
+    [user]
+  );
+
   return (
     <CardActionArea
+      component={"div"}
+      ref={CardRef}
       className="chats_listItem list_item chat"
       role="listitem"
-      onClick={(e) => open(user, e)}
+      onClick={(e) => emitCustomEvent("openRoom", { user, target: e.target })}
     >
       <div className="avatar user_image list_item" role="listitem">
         <Image
@@ -39,11 +50,15 @@ function Chats({ friendId, user, open }: chats): JSX.Element {
       </div>
       <div className="text" role="listitem">
         <div className="wrap">
-          <div className="user_name primary_text">{user.Name}</div>
-          <div className="unseenmessages badge">{user.UnseenMessages}</div>
+          <div className="text-sm font-semibold capitalize">{user.Name}</div>
+          {Boolean(user.UnseenMessages) && (
+            <div className="unseenmessages badge bg-green text-white">
+              {user.UnseenMessages}
+            </div>
+          )}
         </div>
-        <div className="last_message secondary_text">
-          {user?.LastPersonToSendMessage === friendId && <span>You: </span>}
+        <div className="last_message secondary_text text-xs">
+          {user?.LastPersonToSendMessage === friendId && <b>You: </b>}
           {user.Last_Message === "Image" ? (
             <ImageOutlinedIcon fontSize="small" />
           ) : (

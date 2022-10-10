@@ -1,25 +1,24 @@
-const dotenv = require("dotenv").config(),
-  next = require("next"),
+// @ts-check
+require("dotenv").config();
+require("./connection/mongodb");
+
+const { ObjectId } = require("mongodb");
+const { Socket } = require("socket.io");
+const { Activities, Users } = require("./models");
+const next = require("next"),
   express = require("express"),
-  session = require("cookie-session"),
-  { finished } = require("stream");
-(flash = require("connect-flash")),
-  (passport = require("passport")),
-  (compressor = require("compression")),
-  (cors = require("cors")),
-  (connection = require("./connection/mongodb")),
-  ({ router } = require("./routes")),
-  ({
-    addUsers,
-    calluser,
-    checkUserName,
-  } = require("./routes/users_control.js")),
-  (ensureIsAuthenticated = require("./config/auth.js")),
-  ({ activities: Act, users_auth: dbs } = require("./connection/mongodb.js")),
-  (socket = require("socket.io")),
-  (dev = process.env.NODE_ENV !== "production"),
-  (client = next({ dev })),
-  (handle = client.getRequestHandler());
+  session = require("express-session"),
+  flash = require("connect-flash"),
+  passport = require("passport"),
+  compressor = require("compression"),
+  cors = require("cors"),
+  { router } = require("./routes"),
+  ensureIsAuthenticated = require("./config/auth.js"),
+  socket = require("socket.io"),
+  dev = process.env.NODE_ENV !== "production",
+  // @ts-ignore
+  client = next({ dev }),
+  handle = client.getRequestHandler();
 
 client
   .prepare()
@@ -32,26 +31,23 @@ client
     app.use("/uploads", express.static(" "));
     app.use(express.static("public"));
 
-    ///-momery unleaked---------
-    app.set("trust proxy", 1);
+    app.set("trust proxy", Number(dev));
     app.set("view engine", "ejs");
 
-    app.use(
-      session({
-        cookie: {
-          secure: true,
-          maxAge: 24 * 30 * 60 * 60 * 1000,
-        },
-        secret: "zablot#",
-        saveUninitialized: true,
-        resave: false,
-      })
-    );
+    const sessionMiddleWare = session({
+      cookie: {
+        secure: !dev,
+        maxAge: 24 * 30 * 60 * 60 * 1000,
+      },
+      secret: "zablot#",
+      saveUninitialized: false,
+      resave: false,
+    });
 
+    app.use(sessionMiddleWare);
     app.use(passport.initialize());
     app.use(passport.session());
     app.use(flash());
-
     app.use((req, res, next) => {
       res.locals.error = req.flash("error");
       res.locals.data = req.flash("data");
@@ -59,48 +55,99 @@ client
       next();
     });
 
+    // @ts-ignore
     app.use((req, res, next) => {
       next();
     });
 
     app.use("/api", router);
 
-    app.get("/login", (req, res, next) => {
-      return res.render("home/sign_in");
-    });
-
-    app.get("/register", (req, res, next) => {
-      return res.render("home/sign_up");
-    });
-
-    app.get("/", (req, res, next) => {
-      return res.render("home/index");
-    });
-
-    app.get("/logout", async (req, res) => {
-      req.session = null;
-      req.logout();
-      res.send("Done");
-    });
-
-    app.get("*", (req, res) => {
-      req.session.name = { james: "oderinde" };
-      return handle(req, res);
-    });
-
     const server = app.listen(process.env.PORT || 8000, () => {
-      console.log("Listening on http://localhost:" + process.env.PORT ?? 8000);
+      console.log(
+        "Listening on http://localhost:" + (process.env.PORT ?? 8000)
+      );
     });
 
-    const io = socket(server, { pingTimeout: 1000, pingInterval: 1000 });
-    io.on("connection", (socket) => {
-      console.log("is-connected");
+    // @ts-ignore
+    const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
 
-      const Controller = require("./socket");
-      Controller(socket);
+    // convert a connect middleware to a Socket.IO middleware
+    const wrap =
+      (/** @type {any} */ middleware) =>
+      (
+        /** @type {socket.Socket & Request} */ socket,
+        /** @type {Next} */ next
+      ) =>
+        middleware(socket.request, {}, next);
+
+    io.use(wrap(sessionMiddleWare));
+
+    /**
+     * @typedef {{request: {session: {user: string}}}} Request
+     * @typedef {(arg0?: Error | undefined) => void} Next
+     */
+
+    // only allow authenticated users
+    io.use(
+      async (
+        /** @type {socket.Socket & Request} */ socket,
+        /** @type {Next} */ next
+      ) => {
+        const session = socket.request.session;
+        if (session && session.user) {
+          const new_user = new Activities({
+            UserId: new ObjectId(session.user),
+            SocketId: socket.id,
+          });
+
+          await new_user.save();
+          await Users.findByIdAndUpdate(session.user, {
+            Online: true,
+          }).exec();
+
+          socket.broadcast.emit("STATUS", {
+            _id: session.user,
+            online: true,
+          });
+          next();
+        } else {
+          next(new Error("unauthorized"));
+        }
+      }
+    );
+
+    app.set("io", io);
+
+    io.on(
+      "connection",
+      (
+        /** @type {Socket & {request: { session: {user: string}} }} */ socket
+      ) => {
+        const Controller = require("./socket");
+        Controller(socket);
+      }
+    );
+
+    // @ts-ignore
+    app.get("/login", (req, res) => res.render("home/sign_in"));
+    app.get("/register", (req, res) => res.render("home/sign_up"));
+    app.get("/", (req, res) => res.render("home/index"));
+    app.get("/logout", async (req, res) => {
+      req.session.destroy(() => {
+        req.logout(
+          {
+            keepSessionInfo: true,
+          },
+          () => {
+            res.end("Done");
+          }
+        );
+      });
     });
+
+    app.get("*", (req, res) => handle(req, res));
   })
-  .catch((ex) => {
+  .catch((/** @type {{ stack: any; }} */ ex) => {
     console.log(ex.stack, "from stack");
     process.exit(1);
   });

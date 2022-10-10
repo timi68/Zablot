@@ -1,43 +1,27 @@
-/* eslint-disable import/no-anonymous-default-export */
-import axios from "axios";
+import { AppDispatch } from "./redux/store";
 import { SnackbarMessage, OptionsObject, SnackbarKey } from "notistack";
 import React from "react";
-import { actionInterface, ActionType, User } from "../lib/interfaces";
-import { NextRouter } from "next/router";
+import { User } from "@/lib/interfaces";
+import { USER } from "./redux/userSlice";
 
 type enqueueSnackbar = (
   message: SnackbarMessage,
   options?: OptionsObject
 ) => SnackbarKey;
 
-export default async function (
-  dispatch: React.Dispatch<actionInterface>,
+export default function DispatchUser(
+  dispatch: AppDispatch,
   enqueueSnackbar: enqueueSnackbar,
-  id: string,
-  router: NextRouter
-): Promise<boolean | void> {
+  _user: string
+): void {
   try {
-    let data: { id: string } = { id: id };
-    const request = await axios.post<{ success: boolean; user: any }>(
-      "/api/user/details",
-      data
-    );
-
-    if (!request.data.success) return router.replace("/login");
-    let user = await request.data.user;
-
+    const user = JSON.parse(_user) as any;
     user.Notifications = user.Notifications[0].notifications.reverse();
     user.Friends = user.Friends[0].friends;
     user.FriendRequests = user.FriendRequests[0].requests.reverse();
     user.Settings = user.Settings[0].settings;
 
-    dispatch({
-      type: ActionType.FETCHED,
-      payload: {
-        user,
-        loggedIn: true,
-      },
-    });
+    dispatch(USER(user as unknown as User));
   } catch (error) {
     enqueueSnackbar(error.message, {
       variant: "error",

@@ -1,25 +1,22 @@
-import { Socket } from "socket.io-client";
+import type { Socket } from "socket.io";
 
 export enum ActionType {
-  LOGGEDIN = "LOGGEDIN",
   SESSION = "SESSION",
   CLIENTSOCKET = "CLIENTSOCKET",
   REFRESH = "REFRESH",
   FETCHED = "FETCHED",
-  ACTIVEFRIENDS = "ACTIVEFRIENDS",
-  UPDATEFRIENDS = "UPDATEFRIENDS",
 }
 
-export interface stateInterface {
+export type stateInterface = {
+  [x: string]: any;
   loggedIn?: boolean;
-  socket?: null | Socket;
+  socket: null | Socket;
   user?: null | User;
   mode?: string;
   session?: Session;
   activeFriends?: string[];
   active: string;
-}
-
+};
 export interface actionInterface {
   type: ActionType;
   payload: object;
@@ -36,7 +33,7 @@ export type Notifications = [
   }
 ];
 
-export type Friends = {
+export type Friend = {
   _id?: string;
   Id: string;
   Name: string;
@@ -72,27 +69,27 @@ export type User = {
   };
   NewUser: string;
   Notifications: Notifications;
-  Friends: Friends[];
+  Friends: Friend[];
   FriendRequests: Requests[];
   Settings: Settings;
   PendingRequests: string[];
 };
 
 export interface context {
-  state: stateInterface;
+  state: { socket: Socket | null };
   dispatch: React.Dispatch<actionInterface>;
 }
 
 export type Session = {
-  id: string;
-  socket_id: string;
+  USER_ID: string;
+  SOCKET_ID: string;
 };
 
 export interface Handle {
   setQuestions?(newQuestions: Question, questionId?: number): void;
-  updateQuestions?(questionid: number, questiondetails: Question): void;
+  updateQuestions?(question_id: number, question_details: Question): void;
   setOpen?(questions?: Question[]): void;
-  setQuestionToEdit?(questionid: number, questiondetails?: Question): void;
+  setQuestionToEdit?(question_id: number, question_details?: Question): void;
 }
 
 export type Option = {
@@ -127,9 +124,9 @@ export type Matched = {
   friends?: boolean;
 };
 
-export type Ref = { current: { UpdateFriends(friend: Friends): void } };
+export type Ref = { current: { UpdateFriends(friend: Friend): void } };
 export type AppChatBoardType = {
-  UpdateFriends(friend: Friends): void;
+  UpdateFriends(friend: Friend): void;
   SetLastMessage(id: string, message: string, flow: string): void;
   toggle(): void;
   getModalState(): boolean;
@@ -160,12 +157,14 @@ export type MessageType = Partial<{
 }>;
 
 export type RoomType = {
-  user: Friends;
+  room_id: string;
+  user: Friend;
   messages: MessageType[];
   loaded: boolean;
   pollToggled?: boolean;
   pollData?: MessageType;
   target: HTMLElement;
+  type?: "in" | "out" | "loaded";
 };
 
 export type RoomProps = {
@@ -174,7 +173,6 @@ export type RoomProps = {
   setRooms: React.Dispatch<React.SetStateAction<RoomType[]>>;
   roomsRef: React.RefObject<{ getProps(): RoomType } | null>[];
   index: number;
-  chatBoard: React.RefObject<AppChatBoardType>;
 };
 
 export type RoomBodyRefType = {

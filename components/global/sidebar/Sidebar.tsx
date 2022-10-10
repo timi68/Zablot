@@ -20,6 +20,7 @@ import IconButton from "@mui/material/IconButton";
 import DynamicFormRoundedIcon from "@mui/icons-material/DynamicFormRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
+import { useAppSelector } from "@lib/redux/store";
 
 const links = [
   { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
@@ -55,10 +56,8 @@ type Tooltip = {
   open: boolean;
 };
 
-export default function Sidebar() {
-  const {
-    state: { user, active },
-  } = React.useContext(AppContext);
+export default React.memo(function Sidebar() {
+  const { user, active } = useAppSelector((state) => state.sessionStore);
   const sidebar: React.MutableRefObject<HTMLDivElement> =
     React.useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = React.useState<Tooltip>({
@@ -218,4 +217,4 @@ export default function Sidebar() {
       </div>
     </div>
   );
-}
+});

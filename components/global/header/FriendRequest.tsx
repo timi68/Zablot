@@ -1,45 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-key */
 /* eslint-disable @next/next/no-img-element */
-import {
-  Fragment,
-  useEffect,
-  useContext,
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import React from "react";
+import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CSSTransition } from "react-transition-group";
-import { AppContext, ModalContext } from "../../../lib/context";
-import { v4 as uuid } from "uuid";
-import time from "../../../utils/CalculateTime";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { IconButton, Badge } from "@mui/material";
+import { IconButton, Badge, Button } from "@mui/material";
 import j from "jquery";
 import * as Interfaces from "../../../lib/interfaces";
+import { emitCustomEvent } from "react-custom-events";
+import { useAppSelector } from "@lib/redux/store";
+import { formatDistanceToNowStrict } from "date-fns";
 
-type PropsType = {
-  SearchbarRef: Interfaces.Ref;
-  ChatboardRef: Interfaces.Ref | null;
-  children?: React.ReactNode;
-};
-
-const FriendRequests = function (props: PropsType, ref) {
-  const {
-    state: { socket, user, session },
-    dispatch,
-  } = useContext(AppContext);
-  // const modalSignal = useContext(ModalContext);
-  const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>(
-    user?.FriendRequests.reverse() || []
-  );
+const FriendRequests = () => {
+  const { socket, user } = useAppSelector((state) => state.sessionStore);
+  const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const IconButtonRef = useRef<HTMLButtonElement>(null);
   const Backdrop = useRef<HTMLDivElement>(null);
-
-  console.log({ user, requests });
 
   const Reject = (id: string) => {
     let data = {
@@ -49,13 +28,9 @@ const FriendRequests = function (props: PropsType, ref) {
       coming_image: user?.Image.profile,
     };
     socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
-      console.log(err ?? done);
       setRequests((state) => {
-        return (state = state.filter((req) => {
-          if (req.From === id) {
-            req.Rejected = true;
-          }
-          return req;
+        return (state = state.map((req) => {
+          return { ...req, Rejected: req.From === id };
         }));
       });
 
@@ -68,8 +43,6 @@ const FriendRequests = function (props: PropsType, ref) {
   };
 
   const Accept = (data: Interfaces.Requests) => {
-    console.log("user accepted request %s", data);
-
     const data_to_emit = {
       going_id: data.From,
       going_name: data.Name,
@@ -82,41 +55,31 @@ const FriendRequests = function (props: PropsType, ref) {
     socket.emit(
       "ACCEPT_REQUEST",
       data_to_emit,
-      (err: string | object, id: string) => {
-        console.log(err ?? id);
-
-        setTimeout(() => {
+      (err: string | object, FriendData: Interfaces.Friend) => {
+        if (!err) {
           setRequests((state) => {
-            state = state.filter((req) => {
-              if (req.From === data.From) {
-                req.Accepted = true;
-              }
-              return req;
+            return state.map((req) => {
+              return { ...req, Accepted: req.From === data.From };
             });
-            return state;
           });
-        }, 6000);
 
-        const NewFriendDetails: Interfaces.Friends = {
-          _id: id,
-          Id: data.From,
-          Name: data.Name,
-          active: true,
-          Image: data.Image,
-          UnseenMessages: 1,
-          Last_Message: "You are now friends",
-          LastPersonToSendMessage: null,
-          IsPrivate: false,
-        };
-
-        props.SearchbarRef.current.UpdateFriends(NewFriendDetails);
-        props.ChatboardRef.current.UpdateFriends(NewFriendDetails);
+          emitCustomEvent("newFriend", { ...FriendData, Id: data.From });
+        } else {
+          let reload = confirm(
+            "There is an error processing new friend request. Would you like to reload the page?."
+          );
+          if (reload) location.reload();
+        }
       }
     );
   };
 
-  const FRIENDSHIPDEMAND = (data: Interfaces.Requests) => {
-    console.log(data);
+  const Message = (id: string) => {
+    setOpenModal(false);
+    emitCustomEvent("openRoomById", id);
+  };
+
+  const FRIENDSHIP_DEMAND = (data: Interfaces.Requests) => {
     const newRequest: Interfaces.Requests = {
       From: data.From,
       Name: data.Name,
@@ -125,38 +88,36 @@ const FriendRequests = function (props: PropsType, ref) {
       Date: new Date(),
     };
 
-    setRequests((state) => {
-      return (state = [newRequest, ...state]);
-    });
+    // Check if new request is already existing and add new or removing any existing one
+    setRequests([newRequest, ...requests.filter((r) => r.From !== data.From)]);
   };
 
-  const REMOVEREQUEST = (data: { from: string }) => {
+  const REMOVE_REQUEST = (data: { from: string }) => {
     setRequests((state) => {
       return (state = state.filter((user) => user.From !== data.from));
     });
   };
 
   useEffect(() => {
-    console.log("mounting times 3");
-
     if (socket) {
-      socket.on("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
-      socket.on("REMOVEREQUEST", REMOVEREQUEST);
+      socket.on("FRIENDSHIP_DEMAND", FRIENDSHIP_DEMAND);
+      socket.on("REMOVE_REQUEST", REMOVE_REQUEST);
     }
 
     return () => {
-      socket?.off("REMOVEREQUEST", REMOVEREQUEST);
-      socket?.off("FRIENDSHIPDEMAND", FRIENDSHIPDEMAND);
+      socket?.off("REMOVE_REQUEST", REMOVE_REQUEST);
+      socket?.off("FRIENDSHIP_DEMAND", FRIENDSHIP_DEMAND);
     };
   }, [socket]);
 
   useEffect(() => {
-    if (user) setRequests(user.FriendRequests);
+    if (user) setRequests(user.FriendRequests.reverse());
   }, [user]);
 
-  const closemodal = () => {
+  const CloseModal = () => {
     setOpenModal(false);
     IconButtonRef.current.classList.remove("active");
+    setRequests(requests.filter((r) => !r.Accepted));
   };
 
   const handleOpen = () => {
@@ -165,13 +126,11 @@ const FriendRequests = function (props: PropsType, ref) {
   };
 
   const CaptureClick = (e: React.MouseEvent) => {
-    var target = e.target === Backdrop.current;
-    if (target) closemodal();
+    e.target === Backdrop.current && CloseModal();
   };
-
   return (
     <div className="friendrequest-wrapper">
-      <Badge color="secondary" badgeContent={0} showZero>
+      <Badge color="secondary" badgeContent={requests.length} showZero>
         <IconButton className="open" ref={IconButtonRef} onClick={handleOpen}>
           <PersonAddIcon fontSize="small" />
         </IconButton>
@@ -196,7 +155,7 @@ const FriendRequests = function (props: PropsType, ref) {
                 <div className="title">Friend Requests</div>
                 <motion.button
                   className="close-modal modal"
-                  onClick={closemodal}
+                  onClick={CloseModal}
                   whileTap={{ scale: 0.9 }}
                   whileHover={{
                     scale: 1.1,
@@ -210,21 +169,24 @@ const FriendRequests = function (props: PropsType, ref) {
               <div className="requests-list">
                 <ul className="users">
                   {requests?.map((user, index) => {
-                    var duration = time(user.Date);
+                    var duration = formatDistanceToNowStrict(
+                      new Date(user.Date)
+                    );
 
                     return (
                       <Requests
                         key={index}
                         accept={Accept}
                         reject={Reject}
+                        message={Message}
                         user={user}
                         duration={duration}
                       />
                     );
                   })}
                   {!Boolean(requests?.length) && (
-                    <div className="no_request">
-                      <h4>There is no request available</h4>
+                    <div className="no_request !text-sm">
+                      <h6>There is no request available</h6>
                     </div>
                   )}
                 </ul>
@@ -243,9 +205,10 @@ interface RequestsInterface {
   accept(user: Interfaces.Requests): void;
   reject(id: string): void;
   duration: string;
+  message(id: string): void;
 }
 function Requests(props: RequestsInterface) {
-  const { user, duration, accept: Accept, reject: Reject } = props;
+  const { user, duration, accept, reject, message } = props;
 
   return (
     <li className="user">
@@ -259,42 +222,49 @@ function Requests(props: RequestsInterface) {
           <div className="name">
             <span>{user.Name}</span>
           </div>
-          <div className="username">
+          <div className="username !text-xs">
             <span>@{user.UserName}</span>
-            &nbsp; &nbsp; &nbsp; &nbsp;
-            <span> {duration} </span>
           </div>
+          <small className="block mt-1 text-xs" style={{ fontSize: 10 }}>
+            {" "}
+            {duration} ago
+          </small>
         </div>
       </div>
-      {user?.Accepted && <button className="btn open-chat"> Message </button>}
+      {user?.Accepted && (
+        <Button
+          size="small"
+          className="btn open-chat"
+          onClick={() => message(user.From)}
+        >
+          Message
+        </Button>
+      )}
       {user?.Rejected && (
-        <button className="btn rejected" disabled={true}>
-          {" "}
-          Rejected{" "}
-        </button>
+        <Button size="small" className="btn rejected" disabled={true}>
+          Rejected
+        </Button>
       )}
       {!user?.Accepted && !user?.Rejected && (
         <div className="friend-reject-accept-btn btn-wrapper">
-          <div className="accept btn">
-            <span
-              className="accept-text"
-              onClick={(e) => {
-                Accept(user);
-              }}
-            >
-              Accept
-            </span>
-          </div>
-          <div className="reject btn">
-            <span
-              className="reject-text"
-              onClick={(e) => {
-                Reject(user.From);
-              }}
-            >
-              Reject
-            </span>
-          </div>
+          <Button
+            size="small"
+            onClick={(e) => {
+              accept(user);
+            }}
+            className="accept btn !bg-green text-white"
+          >
+            <span className="accept-text ">Accept</span>
+          </Button>
+          <Button
+            size="small"
+            onClick={(e) => {
+              reject(user.From);
+            }}
+            className="reject btn button !bg-gradient-to-r from-red-200"
+          >
+            <span className="reject-text">Reject</span>
+          </Button>
         </div>
       )}
     </li>
@@ -319,7 +289,7 @@ function PeopleYouMightKnow() {
             </div>
             <div className="user-name">
               <div className="name">
-                <span>Oderinde Tobi</span>
+                <span>Timi James</span>
               </div>
               <div className="username">
                 <span>@tjdbbs</span>
@@ -327,12 +297,15 @@ function PeopleYouMightKnow() {
             </div>
           </div>
           <div className="friend-reject-accept-btn btn-wrapper">
-            <div className="accept btn">
-              <span className="accept-text">Add</span>
-            </div>
-            <div className="reject btn">
+            <Button size="small" className="accept btn !bg-green text-white">
+              <span className="accept-text ">Add</span>
+            </Button>
+            <Button
+              size="small"
+              className="reject btn button !bg-gradient-to-r from-red-200"
+            >
               <span className="reject-text">Cancel</span>
-            </div>
+            </Button>
           </div>
         </li>
       </ul>
@@ -340,4 +313,4 @@ function PeopleYouMightKnow() {
   );
 }
 
-export default FriendRequests;
+export default React.memo(FriendRequests);

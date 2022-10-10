@@ -1,16 +1,15 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @next/next/no-img-element */
-// @ts-check
 import React from "react";
-import { AppContext, ModalContext } from "../../../lib/context";
+import { AppContext, ModalContext } from "@lib/context";
 import { motion, AnimatePresence } from "framer-motion";
 import j from "jquery";
 import { v4 as uuid } from "uuid";
 import MatchedUser from "./MatchedUser";
-import * as Interfaces from "../../../lib/interfaces";
+import * as Interfaces from "@lib/interfaces";
 import SearchIcon from "@mui/icons-material/Search";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
+import { useAppSelector } from "@lib/redux/store";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 
 interface SearchInterface {
   matched: Interfaces.Matched[];
@@ -18,68 +17,22 @@ interface SearchInterface {
   pending: string[];
 }
 
-const SearchBar = React.forwardRef(function (
-  props: { ref: React.Ref<Interfaces.Ref> },
-  ref
-) {
-  const {
-    state: { socket, user },
-  } = React.useContext(AppContext);
+const SearchBar = () => {
+  const { socket, user } = useAppSelector((state) => state.sessionStore);
   const [searchData, setSearchData] = React.useState<SearchInterface>({
     matched: [],
-    pending: user?.PendingRequests || [],
+    pending: [],
     message: "Waiting to search",
   });
   const [loading, setLoading] = React.useState<boolean>(false);
   const [open, setOpen] = React.useState<boolean>(false);
-  const [friends, setFriends] = React.useState<Interfaces.Friends[]>(
-    user?.Friends || []
-  );
-  const searchbar = React.useRef<HTMLInputElement>(null);
+  const [friends, setFriends] = React.useState<Interfaces.Friend[]>([]);
+
+  const searchBar = React.useRef<HTMLInputElement>(null);
   const searchIcon = React.useRef<HTMLDivElement>(null);
   const Backdrop = React.useRef<HTMLDivElement>(null);
   const container = React.useRef<HTMLDivElement>(null);
   const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
-
-  React.useImperativeHandle(
-    ref,
-    () => ({
-      UpdateFriends(friend: Interfaces.Friends) {
-        console.log(friend);
-
-        setFriends([friend, ...friends]);
-        setSearchData((state) => {
-          state = {
-            ...state,
-            pending: state.pending.filter((id) => id !== friend.Id),
-          };
-          return state;
-        });
-
-        if (searchData.matched.length > 0) {
-          setSearchData((state) => {
-            const newstate = state.matched.map((user) => {
-              if (user._id === friend.Id) {
-                user.sent = false;
-                user.friends = true;
-              }
-              return user;
-            });
-            return { ...state, matched: newstate };
-          });
-        }
-      },
-    }),
-    [friends, searchData]
-  );
-
-  React.useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        searchbar.current.focus();
-      }, 200);
-    }
-  }, [open]);
 
   const ReadyForSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!j(e.target).val()) return j(searchIcon.current).removeClass("ready");
@@ -89,7 +42,7 @@ const SearchBar = React.forwardRef(function (
   const Search = async (e: any) => {
     e.preventDefault();
     try {
-      const searchText: string = j(searchbar.current).val();
+      const searchText: string = j(searchBar.current).val() as string;
       if (searchText != "") {
         setLoading(true);
         const data = { searchText, id: user._id };
@@ -101,6 +54,7 @@ const SearchBar = React.forwardRef(function (
 
         let matched = response.data;
         if (matched?.length) {
+          console.log({ matched, friends });
           const friendsId = friends.map(({ Id }) => Id);
           matched = matched.filter((matchedUser) => {
             if (user._id != matchedUser._id) {
@@ -144,31 +98,27 @@ const SearchBar = React.forwardRef(function (
       To: id,
     };
 
-    socket.emit("FRIEND_REQUEST", newRequest, (res) => {
+    axios.post("/api/socket/friend-request", newRequest).then((response) => {
+      console.log({ response });
       setSearchData((state) => {
         let newMatched = state.matched.map((user) => {
-          if (user._id === id) user.sent = true;
-          return user;
+          return { ...user, sent: user._id === id };
         });
         return { ...searchData, matched: newMatched };
       });
     });
-
-    console.log(searchData.pending);
   }
 
-  function processFriend(
-    user: Interfaces.Matched,
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) {}
+  function processFriend(id: string) {
+    setOpen(false);
+    emitCustomEvent("openRoomById", id);
+  }
 
   // Function that runs when user cancelled the request
   // he/she had sent and delivered or on delivery
   function processCancel(to: string) {
     const data = { from: user._id, to };
-    console.log(data);
-    socket.emit("CANCELREQUEST", data, (err: string) => {
-      console.log("Response from socket", err);
+    socket.emit("CANCEL_REQUEST", data, (err: string) => {
       if (!err) {
         setSearchData((state) => {
           let matched = state.matched.map((user) => {
@@ -207,21 +157,71 @@ const SearchBar = React.forwardRef(function (
     [searchData]
   );
 
-  const CaptureClick = (e: React.MouseEvent) => {
-    var target = e.target === Backdrop.current;
-    if (target) setOpen(!open);
-  };
+  const NewFriend = React.useCallback((friend: Interfaces.Friend) => {
+    setFriends((friends) => [...friends, friend]);
+    setSearchData(({ message, matched, pending }) => {
+      return {
+        message,
+        matched: matched?.length
+          ? matched.map((user) => {
+              if (user._id === friend.Id) {
+                user.sent = false;
+                user.friends = true;
+              }
+              return {
+                ...user,
+                sent: !(user._id === friend.Id),
+                friends: user._id === friend.Id,
+              };
+            })
+          : matched,
+        pending: pending.filter((id) => id !== friend.Id),
+      };
+    });
+  }, []);
+
+  const CaptureClick = React.useCallback(
+    (e: React.MouseEvent) => {
+      var target = e.target === Backdrop.current;
+      if (target) setOpen(!open);
+    },
+    [open]
+  );
 
   React.useEffect(() => {
     if (socket) {
       socket.on("Notifications", Notification);
-    }
-    return () => {
-      socket?.off("Notifications", Notification);
-    };
-  }, [socket, searchData]);
+      socket.on("NEW_FRIEND", NewFriend);
 
-  console.log("mounting from searchbar");
+      return () => {
+        socket.off("Notifications", Notification);
+        socket.off("NEW_FRIEND", NewFriend);
+      };
+    }
+  }, [NewFriend, Notification, socket]);
+
+  React.useEffect(() => {
+    if (user) {
+      setFriends(user.Friends);
+      setSearchData({
+        matched: [],
+        pending: user.PendingRequests,
+        message: "Waiting to search",
+      });
+    }
+  }, [user]);
+
+  // New Friend Event Listener
+  useCustomEventListener("newFriend", NewFriend, [friends, searchData]);
+
+  React.useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        searchBar.current.focus();
+      }, 200);
+    }
+  }, [open]);
+
   return (
     <div className="search-container" ref={container}>
       <div
@@ -238,9 +238,9 @@ const SearchBar = React.forwardRef(function (
               type="search"
               role="searchbox"
               aria-autocomplete="none"
-              ref={searchbar}
+              ref={searchBar}
               onChange={ReadyForSearch}
-              className="text-control"
+              className="text-control text-sm p-0"
               id="text-control"
               placeholder="Search a friend.."
               autoComplete="off"
@@ -261,7 +261,11 @@ const SearchBar = React.forwardRef(function (
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.7, visibility: "hidden" }}
+              exit={{
+                scale: 0.7,
+                visibility: "hidden",
+                transitionDuration: "100ms",
+              }}
               className="search-results fetched matched"
             >
               <div className="search-matched-wrapper">
@@ -292,9 +296,9 @@ const SearchBar = React.forwardRef(function (
                           type="search"
                           role="searchbox"
                           aria-autocomplete="none"
-                          ref={searchbar}
+                          ref={searchBar}
                           onChange={ReadyForSearch}
-                          className="text-control"
+                          className="text-control text-sm p-0 font-normal"
                           id="text-control"
                           placeholder="Search a friend.."
                           autoComplete="off"
@@ -304,7 +308,14 @@ const SearchBar = React.forwardRef(function (
                   </div>
                   <motion.button
                     className="close-btn modal"
-                    onClick={() => setOpen(!open)}
+                    onClick={() => {
+                      setOpen(!open);
+                      setSearchData({
+                        ...searchData,
+                        matched: [],
+                        message: "Waiting to search",
+                      });
+                    }}
                     whileTap={{ scale: 0.9 }}
                     whileHover={{
                       scale: 1.1,
@@ -314,7 +325,6 @@ const SearchBar = React.forwardRef(function (
                   >
                     <span>Close</span>
                   </motion.button>
-                  <div></div>
                 </motion.div>
                 <div className="list-wrapper">
                   <div className="title">
@@ -354,8 +364,6 @@ const SearchBar = React.forwardRef(function (
       </AnimatePresence>
     </div>
   );
-});
+};
 
-SearchBar.displayName = "SearchBar";
-
-export default SearchBar;
+export default React.memo(SearchBar);

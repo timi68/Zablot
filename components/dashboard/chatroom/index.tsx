@@ -1,86 +1,59 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/no-unescaped-entities */
 import React from "react";
-import * as Interfaces from "../../../lib/interfaces";
-import {AppContext} from "../../../lib/context";
+import * as Interfaces from "@lib/interfaces";
+import { useCustomEventListener } from "react-custom-events";
 import Room from "./Room";
+import { nanoid } from "@reduxjs/toolkit";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { addRoom, getRoomIds } from "@lib/redux/roomSlice";
+import store from "@lib/redux/store";
 
-const ChatRoom = React.forwardRef(function (
-	props: {chatBoard: React.RefObject<Interfaces.AppChatBoardType>},
-	ref
-) {
-	const [rooms, setRooms] = React.useState<Partial<Interfaces.RoomType[]>>(
-		[]
-	);
-	const [roomsRef, setRoomRef] = React.useState<Interfaces.RoomProps["ref"]>(
-		[]
-	);
-	const {
-		state: {
-			user: {_id},
-		},
-	} = React.useContext(AppContext);
+const ChatRoom = () => {
+  const rooms = useAppSelector(getRoomIds);
+  const _id = useAppSelector((state) => state.sessionStore.user._id);
+  const dispatch = useAppDispatch();
 
-	React.useEffect(() => {
-		const refs: React.RefObject<{
-			getProps(): Interfaces.RoomType;
-		} | null>[] = Array(rooms.length)
-			//@ts-ignore
-			.fill()
-			.map((_, i) => roomsRef[i] || React.createRef());
-		setRoomRef(refs);
-	}, [rooms]);
+  console.log({ rooms });
 
-	React.useImperativeHandle(ref, () => ({
-		OpenRoom(user: Interfaces.Friends, target: HTMLElement) {
-			setRooms((prev): Interfaces.RoomType[] => {
-				let current: Interfaces.RoomType[] = [
-					...prev,
-					{
-						user,
-						messages: [],
-						target,
-						loaded: false,
-						pollData: {
-							question: "",
-							options: [
-								{text: "", checked: false},
-								{text: "", checked: false},
-							],
-							Format: "Form",
-							_id: user._id,
-							coming: _id,
-							going: user.Id,
-						},
-						pollToggled: false,
-					},
-				];
-				return current;
-			});
-		},
-	}));
+  useCustomEventListener(
+    "openRoom",
+    ({ user, target }: { user: Interfaces.Friend; target: HTMLDivElement }) => {
+      let roomData: Interfaces.RoomType = {
+        room_id: nanoid(),
+        user,
+        messages: [],
+        target,
+        loaded: false,
+        pollData: {
+          question: "",
+          options: [
+            { text: "", checked: false },
+            { text: "", checked: false },
+          ],
+          Format: "Form",
+          _id: user._id,
+          coming: _id,
+          going: user.Id,
+        },
+        pollToggled: false,
+      };
+      dispatch(addRoom(roomData));
+      // setRooms((prev): Interfaces.RoomType[] => {
+      //   return [...prev, roomData];
+      // });
+    }
+  );
 
-	return (
-		<div className="chat-rooms-container">
-			<div className="chat-rooms-wrapper">
-				{rooms?.map((roomData, i) => {
-					return (
-						<Room
-							key={i}
-							index={i}
-							roomsRef={roomsRef}
-							roomData={roomData}
-							ref={roomsRef[i]}
-							setRooms={setRooms}
-							chatBoard={props.chatBoard}
-						/>
-					);
-				})}
-			</div>
-		</div>
-	);
-});
-
-ChatRoom.displayName = "ChatRoomContainer";
+  return (
+    <div className="chat-rooms-container">
+      <div className="chat-rooms-wrapper">
+        {rooms?.map((room, i) => {
+          return <Room key={room} room_id={room} />;
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default ChatRoom;

@@ -5,10 +5,8 @@ const emitter = new eventEmitter();
 const { verify } = require("jsonwebtoken");
 const formidable = require("formidable");
 const { v4: uuid } = require("uuid");
-const fs = require("fs");
-const { promisify } = require("util");
 const Async = require("async");
-
+const SOCKETROUTER = require("./socket/router");
 const {
   FetchUser,
   AuthLogin,
@@ -29,6 +27,7 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
+router.use("/socket", SOCKETROUTER);
 router.post("/users/login", async (req, res, next) => {
   const body = req.body;
 

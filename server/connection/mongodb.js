@@ -8,7 +8,7 @@ mongoose.connect(
   },
   (err, connected) => {
     if (!connected) {
-      console.log("database failed to conect");
+      console.log("database failed to connect");
       process.exit(1);
     } else {
       console.log("database connected");

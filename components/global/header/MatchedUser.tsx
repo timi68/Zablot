@@ -1,12 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
-import * as Interfaces from "../../../lib/interfaces";
+import * as Interfaces from "@lib/interfaces";
+import { emitCustomEvent } from "react-custom-events";
 
 interface MatchedUserInterface {
   user: Interfaces.Matched;
-  processFriend(
-    user: Interfaces.Matched,
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void;
+  processFriend(id: string): void;
   processCancel(to?: string): void;
   processAdd(id?: String): void;
 }
@@ -17,19 +15,17 @@ export default function MatchedUser(props: MatchedUserInterface) {
     <li className="user">
       <div className="user-profile">
         <div className="user-image">
-          <div className="image-wrapper">
-            <img
-              src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-              alt="user-image"
-              className="image"
-            />
-          </div>
+          <img
+            src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+            alt="user-image"
+            className="image"
+          />
         </div>
         <div className="user-name">
-          <div className="name">
+          <div className="name font-semibold">
             <span>{user.FullName}</span>
           </div>
-          <div className="username">
+          <div className="username font-semibold">
             <span>@{user.UserName}</span>
           </div>
         </div>
@@ -37,7 +33,7 @@ export default function MatchedUser(props: MatchedUserInterface) {
       <div className="friend-reject-accept-btn btn-wrapper">
         {user?.rejected && (
           <button
-            className="message-btn btn"
+            className="btn"
             disabled
             aria-disabled="true"
             aria-details="Displayed when friend request sent is rejected immediately"
@@ -48,17 +44,15 @@ export default function MatchedUser(props: MatchedUserInterface) {
 
         {user.friends && (
           <button
-            className="message-btn btn"
-            onClick={(e) => {
-              processFriend(user, e);
-            }}
+            className="bg-green font-light hover:bg-opacity-90 rounded-3xl py-2 px-3 text-xs text-white"
+            onClick={() => processFriend(user._id)}
           >
             <span>message</span>
           </button>
         )}
         {user?.sent && (
           <button
-            className="cancel-btn btn"
+            className="cancel-btn btn !bg-green !bg-opacity-50 !py-2"
             onClick={(e) => {
               processCancel(user._id);
             }}
@@ -68,7 +62,7 @@ export default function MatchedUser(props: MatchedUserInterface) {
         )}
         {!user?.sent && !user?.friends && !user?.rejected && (
           <button
-            className="add-btn btn"
+            className="add-btn btn !bg-green !text-white !py-2"
             onClick={(e) => {
               processAdd(user._id);
             }}

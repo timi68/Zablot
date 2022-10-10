@@ -1,48 +1,31 @@
 import Image from "next/image";
 import React from "react";
-import { AppContext, ModalContext } from "../../../lib/context";
-import { motion } from "framer-motion";
-import SecurityIcon from "@mui/icons-material/Security";
+import { ModalContext } from "@lib/context";
 import { CircularProgress } from "@mui/material";
-import * as Interface from "../../../lib/interfaces";
+import * as Interface from "@lib/interfaces";
 import Friends from "./Friends";
-import PrivateFriends from "./PrivateFriends";
-import Navbar from "./Navbar";
 import j from "jquery";
+import { useCustomEventListener } from "react-custom-events";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 
-interface ChatBoardType {
-  chatRoom: {
-    current: {
-      OpenRoom(user: Interface.Friends, target: HTMLElement): void;
-    };
-  };
-}
-const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
-  const {
-    state: { socket, session, user, activeFriends },
-    dispatch,
-  } = React.useContext(AppContext);
+const ChatBoard: React.FC = function () {
+  const { user, activeFriends, socket } = useAppSelector((s) => s.sessionStore);
+  const dispatch = useAppDispatch();
   const modalSignal = React.useContext(ModalContext);
   const [openModal, setOpenModal] = React.useState<boolean>(false);
-  const [friends, setFriends] = React.useState<Interface.Friends[]>(
-    user?.Friends || []
-  );
+  const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
   const chatBoard = React.useRef<HTMLDivElement>(null);
 
-  const NewFriend = React.useCallback(
-    (data: Interface.Friends) => {
-      console.log("NewFriends emitted", data);
-      setFriends([data, ...friends]);
-    },
-    [friends]
-  );
+  const NewFriend = React.useCallback((data: Interface.Friend) => {
+    setFriends((friends) => [data, ...friends]);
+  }, []);
 
   const _callback$IncomingMessage = React.useCallback(
     (data: Interface.MessageType) => {
-      console.log(" IncomingMessage emitted", data);
       const id = [];
-      j(".chats-form").each((i, e) => {
+      j(".chats-form").each((i: number, e: HTMLDivElement) => {
         id.push(j(e).attr("id").slice(4, 12));
       });
 
@@ -67,7 +50,6 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
   );
 
   const _callback$Status = React.useCallback((data) => {
-    console.log({ data });
     setFriends((state) => {
       const newState = state.map((user) => {
         if (user.Id === data._id) user.active = data.online;
@@ -78,38 +60,21 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
     });
   }, []);
 
-  const handleActiveFriends = (actives) => {
-    setFriends((state) => {
-      state = state.map((user) => {
-        const _id = user.Id.slice(19, 24);
-        const active = actives.includes(_id);
+  const handleActiveFriends = React.useCallback(
+    (actives: string[]) => {
+      setFriends((state) => {
+        state = state.map((user) => {
+          const _id = user.Id.slice(19, 24);
+          return { ...user, active: actives.includes(_id) };
+        });
 
-        if (active) user.active = true;
-        else user.active = false;
-
-        return user;
+        return state;
       });
-
-      return state;
-    });
-
-    console.log({ friends });
-    setLoading(false);
-    dispatch({
-      type: Interface.ActionType.ACTIVEFRIENDS,
-      payload: { activeFriends: actives },
-    });
-  };
-
-  const handleClick = React.useCallback(() => {
-    if (!openModal) return;
-    setOpenModal(false);
-
-    console.log("from chatboard");
-
-    modalSignal.current.classList.remove("show");
-    chatBoard.current.classList.remove("show");
-  }, [modalSignal, openModal]);
+      setLoading(false);
+      dispatch(ACTIVE_FRIENDS(actives));
+    },
+    [dispatch]
+  );
 
   const openChatBoard = React.useCallback(
     (click?: boolean) => {
@@ -126,91 +91,84 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
     [modalSignal, openModal]
   );
 
-  const openRoom = (
-    userRoom: Interface.Friends,
-    e: React.MouseEvent<HTMLElement, MouseEvent>
-  ): void => {
-    openChatBoard(true);
-    setFriends((state) => {
-      state = state.map((u) => {
-        if (u.Id === userRoom.Id) u.UnseenMessages = 0;
-        return u;
+  useCustomEventListener(
+    "openRoom",
+    ({ user: _u }: { user: Interface.Friend }) => {
+      openChatBoard(true);
+      setFriends((state) => {
+        state = state.map((u) => {
+          if (u.Id === _u.Id) {
+            return { ...u, UnseenMessages: 0 };
+          }
+          return u;
+        });
+        return state;
       });
-      return state;
-    });
 
-    socket.emit(
-      "CLEANSEEN",
-      { _id: user._id, Id: userRoom._id },
-      (err: string, done: string) => {
-        console.log(err || done);
-        if (err) {
-          alert("Internal server error: restarting window now");
-          location.reload();
+      socket.emit(
+        "CLEAN_SEEN",
+        { _id: user._id, Id: _u._id },
+        (err: string, done: string) => {
+          if (err) {
+            alert("Internal server error: restarting window now");
+          }
         }
-      }
-    );
+      );
+    }
+  );
 
-    let target = e.target as HTMLElement;
-    props.chatRoom.current.OpenRoom(userRoom, target);
-    return;
-  };
+  useCustomEventListener(
+    "Message",
+    (data: { id: string; message: string; flow: string }) => {
+      setFriends((prevFriends) => {
+        return prevFriends.map((friend) => {
+          if (friend.Id === data.id) {
+            friend.Last_Message = data.message;
+            friend.LastPersonToSendMessage = data.flow;
+          }
+          return friend;
+        });
+      });
+    },
+    []
+  );
+
+  useCustomEventListener(
+    "newFriend",
+    (friend: Interface.Friend) => {
+      setFriends([friend, ...friends]);
+    },
+    [friends]
+  );
+
+  React.useEffect(() => {
+    if (user) setFriends(user.Friends);
+  }, [user]);
 
   React.useEffect(() => {
     if (socket) {
       socket.on("STATUS", _callback$Status);
-      socket.on("IncomingMessage", _callback$IncomingMessage);
+      socket.on("INCOMINGMESSAGE", _callback$IncomingMessage);
+      socket.on("NEW_FRIEND", NewFriend);
     }
 
-    if (!activeFriends) {
-      socket.emit("ACTIVEUSERS", handleActiveFriends);
-    } else {
-      handleActiveFriends(activeFriends);
-    }
+    if (!activeFriends) socket.emit("ACTIVE_USERS", handleActiveFriends);
+    else handleActiveFriends(activeFriends);
 
     return () => {
       socket.off("STATUS", _callback$Status);
-      socket.off("IncomingMessage", _callback$IncomingMessage);
+      socket.off("INCOMINGMESSAGE", _callback$IncomingMessage);
+      socket.off("NEW_FRIEND", NewFriend);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
+  }, [
+    NewFriend,
+    _callback$IncomingMessage,
+    _callback$Status,
+    activeFriends,
+    handleActiveFriends,
+    socket,
+  ]);
 
-  React.useEffect(() => {
-    const modal = modalSignal?.current;
-    j(modalSignal?.current).on("click", handleClick);
-    return () => {
-      j(modal).off("click", handleClick);
-    };
-  }, [handleClick, modalSignal, openModal]);
-
-  React.useImperativeHandle(
-    ref,
-    () => ({
-      UpdateFriends(friend: Interface.Friends) {
-        console.log("Updating friends");
-        setFriends((friends) => [friend, ...friends]);
-      },
-      SetLastMessage(id: string, message: string, flow: string) {
-        setFriends((prevFriends) => {
-          const currentFriends = prevFriends.map((friend) => {
-            if (friend.Id === id) {
-              friend.Last_Message = message;
-              friend.LastPersonToSendMessage = flow;
-            }
-            return friend;
-          });
-          return currentFriends;
-        });
-      },
-      toggle() {
-        setOpenModal(!openModal);
-        openChatBoard();
-      },
-    }),
-    [openChatBoard, openModal]
-  );
-
-  console.log("mounting from chatboard");
   return (
     <div className="chats-container chat-board" ref={chatBoard}>
       <div className="chat-wrapper">
@@ -223,25 +181,16 @@ const ChatBoard = React.forwardRef(function (props: ChatBoardType, ref) {
               <div className="loader">
                 <CircularProgress sx={{ color: "grey" }} />
               </div>
-              <div className="loader">
-                <CircularProgress sx={{ color: "grey" }} />
-              </div>
             </>
           ) : (
             <>
-              <Friends
-                friendId={session.id}
-                friends={friends}
-                openRoom={openRoom}
-              />
+              <Friends friendId={user._id} friends={friends} />
             </>
           )}
         </div>
       </div>
     </div>
   );
-});
-
-ChatBoard.displayName = "ChatBoard";
+};
 
 export default ChatBoard;

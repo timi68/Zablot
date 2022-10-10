@@ -232,10 +232,9 @@ const FetchUserDetails = async (id) => {
       .populate("Settings")
       .populate("Friends");
 
-    if (!user) return { success: false, redirect: true };
     return { success: true, user };
   } catch (error) {
-    return cb({ success: false, message: error.message });
+    return { success: false, message: error.message };
   }
 };
 
