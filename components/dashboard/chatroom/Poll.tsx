@@ -4,9 +4,11 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { IconButton } from "@mui/material";
 import * as Interfaces from "@lib/interfaces";
 import j from "jquery";
-import { AppContext } from "@lib/context";
 import Option from "./Option";
-import { useAppSelector } from "@lib/redux/store";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { propsToClassKey } from "@mui/styles";
+import { updateRoom } from "@lib/redux/roomSlice";
+import store from "@lib/redux/store";
 
 const variant = {
   hidden: {
@@ -25,23 +27,28 @@ const variant = {
 };
 
 type PropsType = {
-  data: Interfaces.RoomType["pollData"];
-  toggled: boolean;
   roomBody: React.RefObject<Interfaces.RoomBodyRefType>;
   coming: string;
   _id: string;
   going: string;
+  room_id: string | number;
 };
 
 const Poll = React.forwardRef((props: PropsType, ref) => {
-  const [open, setOpen] = React.useState<boolean>(props.toggled);
-  const [question, setQuestion] = React.useState<Interfaces.MessageType>(
-    props.data
-  );
+  const [open, setOpen] = React.useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const [question, setQuestion] = React.useState<Interfaces.MessageType>({
+    question: "",
+    options: [
+      { text: "", checked: false },
+      { text: "", checked: false },
+    ],
+    Format: "Form",
+    _id: props._id,
+    coming: props.coming,
+    going: props.going,
+  });
   const socket = useAppSelector((state) => state.sessionStore.socket);
-  // const {
-  // 	state: {socket},
-  // } = React.useContext(SocketContext);
   const PollRef = React.useRef<HTMLUListElement>(null);
 
   const AddOptions = (): void => {
@@ -141,11 +148,22 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
         "OUTGOINGFORM",
         question,
         (err: string, { formId, date }: { formId: string; date: Date }) => {
+          console.log({ err, formId, date });
           if (!err) {
             question._id = formId;
             question.date = date;
 
-            props.roomBody.current.setMessages(question, "out");
+            const messages =
+              store.getState().rooms.entities[props.room_id].messages;
+            dispatch(
+              updateRoom({
+                id: props.room_id,
+                changes: {
+                  messages: [...messages, question],
+                  type: "out",
+                },
+              })
+            );
             SetDefaultState();
           }
         }

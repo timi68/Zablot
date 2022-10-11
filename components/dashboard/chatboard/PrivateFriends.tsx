@@ -34,14 +34,7 @@ function Private(props: props) {
           {!!PrivateFriends?.length && (
             <ul className="chats-list list">
               {PrivateFriends?.map((user, index) => {
-                return (
-                  <Chats
-                    key={index}
-                    friendId={friendId}
-                    open={openRoom}
-                    user={user}
-                  />
-                );
+                return <Chats key={index} friendId={friendId} user={user} />;
               })}
             </ul>
           )}

@@ -5,47 +5,54 @@ import { Socket } from "socket.io";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import Chip from "@mui/material/Chip";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import { format } from "date-fns";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { getRoom } from "@lib/redux/roomSlice";
+import { updateRoom } from "@lib/redux/roomSlice";
+import store from "@lib/redux/store";
 
 function OutgoingForm(props: {
+  room_id: string | number;
   message: MessageType;
   nextComingId: boolean;
-  hrs: number | string;
-  mins: number | string;
   cur: Date;
   pre: Date | null;
-  i: number;
-  messagesId: string;
-  coming: string;
-  going: string;
-  socket: Socket | null;
-  setMessageData: React.Dispatch<
-    React.SetStateAction<{
-      messages: MessageType[];
-      type: "in" | "out" | "loaded";
-    }>
-  >;
 }) {
-  const {
-    nextComingId,
-    message,
-    hrs,
-    mins,
-    cur,
-    pre,
-    i,
-    socket,
-    messagesId,
-    coming,
-    going,
-    setMessageData,
-  } = props;
+  const { room_id, nextComingId, message, cur, pre } = props;
 
+  const [coming, socket, { _id: messagesId, Id: going }] = useAppSelector(
+    (state) => [
+      state.sessionStore.user._id,
+      state.sessionStore.socket,
+      getRoom(state, room_id).user,
+    ]
+  );
+  const dispatch = useAppDispatch();
   const className = `incoming-message incoming-form ${
     nextComingId ? "adjust-mg" : ""
   }`;
 
-  const time = hrs + ":" + mins;
-  const Group = GroupMessage({ cur, pre, i });
+  const Group = GroupMessage({ cur, pre });
+  const UpdateState = (field: Partial<MessageType>) => {
+    const messages = store
+      .getState()
+      .rooms.entities[room_id].messages.map((_message) => {
+        if (_message._id === message._id) {
+          return { ..._message, ...field };
+        }
+        return _message;
+      });
+
+    dispatch(
+      updateRoom({
+        id: room_id,
+        changes: {
+          messages,
+          type: "in",
+        },
+      })
+    );
+  };
 
   /**
    *
@@ -69,16 +76,7 @@ function OutgoingForm(props: {
     // and get a response from the server if process is done
     socket.emit("ANSWERED", dataToEmit, (err: string, _done: string) => {
       if (!err) {
-        setMessageData((prevData) => {
-          const messages: MessageType[] = prevData.messages.map((message) => {
-            if (message._id === dataToEmit.messageId) {
-              message.answered = OptionPicked;
-            }
-            return message;
-          });
-          return { messages, type: "in" };
-        });
-
+        UpdateState({ answered: OptionPicked });
         const pollCoinAdded: number = message.coin;
         const coinTagName: HTMLSpanElement =
           document.querySelector(".coin-wrapper span");
@@ -87,8 +85,7 @@ function OutgoingForm(props: {
           var coin: number = parseInt(coinTagName.innerText);
 
           var count: number = 0;
-          var interval: NodeJS.Timer;
-          interval = setInterval(() => {
+          var interval: NodeJS.Timer = setInterval(() => {
             if (OptionPicked.checked) coin++;
             else coin--;
 
@@ -115,16 +112,7 @@ function OutgoingForm(props: {
 
     socket.emit("NOANSWER", dataToEmit, (err: string, done: string) => {
       if (!err) {
-        setMessageData((prevData) => {
-          const messages: MessageType[] = prevData.messages.map((message) => {
-            if (message._id === dataToEmit.messageId) {
-              message.noAnswer = true;
-            }
-            return message;
-          });
-          return { messages, type: "in" };
-        });
-
+        UpdateState({ noAnswer: true });
         const pollCoinAdded: number = message.coin;
         const coinTagName: HTMLSpanElement =
           document.querySelector(".coin-wrapper span");
@@ -156,6 +144,8 @@ function OutgoingForm(props: {
       ? " no-answer-picked before"
       : ""
   }`;
+
+  console.log({ message });
 
   return (
     <React.Fragment>
@@ -193,7 +183,7 @@ function OutgoingForm(props: {
                   </div>
                 )}
               </div>
-              <div className="text" id="question">
+              <div className="text !mr-0" id="question">
                 {message.question}
               </div>
             </div>
@@ -234,7 +224,7 @@ function OutgoingForm(props: {
             </div>
           </div>
           <span className="time">
-            <small>{time}</small>
+            <small>{format(cur, "HH:mm")}</small>
           </span>
         </div>
       </div>

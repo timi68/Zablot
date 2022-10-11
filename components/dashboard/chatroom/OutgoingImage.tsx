@@ -7,41 +7,26 @@ import { Socket } from "socket.io";
 import { MessageType } from "../../../lib/interfaces";
 import Skeleton from "@mui/material/Skeleton";
 import GroupMessage from "./Group_Message";
+import { format } from "date-fns";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { updateRoom } from "@lib/redux/roomSlice";
+import store from "@lib/redux/store";
+import omit from "lodash/omit";
 
 type PropsType = {
-  socket: Socket | null;
   message: MessageType;
   nextGoingId: boolean;
-  hrs: number | string;
-  mins: number | string;
   cur: Date;
   pre: Date | null;
   i: number;
-  messagesId: string;
-  coming: string;
-  going: string;
-  setMessageData: React.Dispatch<
-    React.SetStateAction<{
-      messages: MessageType[];
-      type: "in" | "out" | "loaded";
-    }>
-  >;
+  room_id: string | number;
 };
 
 function OutgoingImage(props: PropsType): JSX.Element {
-  const {
-    hrs,
-    mins,
-    cur,
-    pre,
-    i,
-    socket,
-    message,
-    nextGoingId,
-    setMessageData,
-  } = props;
+  const { cur, pre, i, message, nextGoingId, room_id } = props;
   const loaderRef = React.useRef<{ setValue(value: number): void }>(null);
-
+  const socket = useAppSelector((state) => state.sessionStore.socket);
+  const dispatch = useAppDispatch();
   // const Progress = (ProgressEvent: any) => {
   // 	let percentageLoaded = Math.floor(
   // 		(ProgressEvent.loaded / ProgressEvent.total) * 100
@@ -56,6 +41,30 @@ function OutgoingImage(props: PropsType): JSX.Element {
   // 	// 	})();
   // 	// }, 500);
   // };
+
+  const UpdateState = React.useCallback(
+    (field: Partial<MessageType>, type = "in") => {
+      const messages = store
+        .getState()
+        .rooms.entities[room_id].messages.map((_message) => {
+          if (_message._id === message._id) {
+            return { ..._message, ...field };
+          }
+          return _message;
+        });
+
+      dispatch(
+        updateRoom({
+          id: room_id,
+          changes: {
+            messages,
+            type,
+          },
+        })
+      );
+    },
+    [dispatch, message, room_id]
+  );
 
   React.useEffect(() => {
     if (message.upload) {
@@ -75,20 +84,20 @@ function OutgoingImage(props: PropsType): JSX.Element {
             filename: uploadImage.data[0].filename,
           };
 
-          delete message.upload, delete message.file;
+          // delete message.upload, delete message.file;
 
-          setMessageData((prevState) => {
-            const messages: MessageType[] = prevState.messages.map((m) => {
-              if (m._id === message._id) {
-                return data;
-              }
-              return m;
-            });
+          // setMessageData((prevState) => {
+          //   const messages: MessageType[] = prevState.messages.map((m) => {
+          //     if (m._id === message._id) {
+          //       return data;
+          //     }
+          //     return m;
+          //   });
 
-            return { messages, type: null };
-          });
+          //   return { messages, type: null };
+          // });
 
-          console.log({ message }, "After");
+          UpdateState({ ...omit(data, ["upload", "file"]) }, null);
 
           socket.emit("OUTGOINGMESSAGE", data, (res: { messageId: string }) => {
             console.log({ res });
@@ -111,21 +120,22 @@ function OutgoingImage(props: PropsType): JSX.Element {
         alert("The File APIs are not fully supported in this browser.");
         return;
       }
-      console.log("Getting image reading");
+
       (async () => {
         const uploadImage = await axios.get<Blob>(message.url, {
           responseType: "blob",
         });
-        console.log({ data: uploadImage.data });
-        setMessageData((prevState) => {
-          const messages: MessageType[] = prevState.messages.map((m) => {
-            if (m._id === message._id) {
-              m.blobUrl = URL.createObjectURL(uploadImage.data);
-            }
-            return m;
-          });
-          return { messages, type: null };
-        });
+        // setMessageData((prevState) => {
+        //   const messages: MessageType[] = prevState.messages.map((m) => {
+        //     if (m._id === message._id) {
+        //       m.blobUrl = URL.createObjectURL(uploadImage.data);
+        //     }
+        //     return m;
+        //   });
+        //   return { messages, type: null };
+        // });
+
+        UpdateState({ blobUrl: URL.createObjectURL(uploadImage.data) }, null);
       })();
     }
   }, []);
@@ -134,8 +144,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
     nextGoingId || i === 0 ? " adjust-mg" : ""
   } `;
 
-  const time = hrs + ":" + mins;
-  const Group = GroupMessage({ cur, pre, i });
+  const Group = GroupMessage({ cur, pre });
 
   return (
     <React.Fragment>
@@ -166,7 +175,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
           {message.upload && <Loader ref={loaderRef} />}
 
           <span className="time">
-            <small>{time}</small>
+            <small>{format(cur, "HH:mm")}</small>
           </span>
         </div>
       </div>

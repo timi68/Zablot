@@ -725,6 +725,7 @@ body {
 
           .form-message {
             max-width: 70%;
+            min-width: 150px;
             position: relative;
             width: fit-content;
             background: map-get($color, "white");
@@ -744,18 +745,17 @@ body {
               &.before::before {
                 position: absolute;
                 content: "Correct. Congrats";
-                display: grid;
-                place-items: center;
+                padding: 5px;
                 text-align: center;
                 color: rgb(255, 255, 255);
-                font-size: 11px;
-                height: 20%;
+                font-size: 10px;
+                // height: 20%;
                 bottom: 0px;
-                font-weight: 700;
+                font-weight: 400;
                 border-radius: 10px;
                 width: 100%;
                 pointer-events: none;
-                background: rgba(47, 181, 47, 0.974);
+                background: rgb(47 181 47 / 74%);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
               }
@@ -949,6 +949,8 @@ body {
             width: 100%;
             position: relative;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: flex-end;
 
             .form-message {
               &.failed.before::before {
@@ -968,14 +970,6 @@ body {
 
             .time-count {
               padding: 5px;
-            }
-
-            .message-wrapper {
-              float: right;
-            }
-
-            .form-message {
-              float: right;
             }
           }
         }

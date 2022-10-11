@@ -6,58 +6,59 @@ import { Socket } from "socket.io";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import Chip from "@mui/material/Chip";
+import { format } from "date-fns";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import store from "@lib/redux/store";
+import { updateRoom } from "@lib/redux/roomSlice";
+
+type DataType = {
+  messageId: string;
+  OptionPicked: { text: string; checked: boolean };
+};
 
 function OutgoingForm(props: {
   message: MessageType;
   nextGoingId: boolean;
-  hrs: number | string;
-  mins: number | string;
   cur: Date;
   pre: Date | null;
   i: number;
-  socket: Socket | null;
-  setMessageData: React.Dispatch<
-    React.SetStateAction<{
-      messages: MessageType[];
-      type: "in" | "out" | "loaded";
-    }>
-  >;
+  room_id: string | number;
 }) {
-  console.log(props);
+  const { nextGoingId, message, cur, pre, i, room_id } = props;
 
-  const {
-    nextGoingId,
-    message,
-    hrs,
-    mins,
-    cur,
-    pre,
-    i,
-    socket,
-    setMessageData,
-  } = props;
+  const socket = useAppSelector((state) => state.sessionStore.socket);
+
+  const dispatch = useAppDispatch();
   const FormRef = React.useRef<HTMLDivElement>(null);
+  const Group = GroupMessage({ cur, pre });
 
-  const time = hrs + ":" + mins;
-  console.log({ cur, pre });
-  const Group = GroupMessage({ cur, pre, i });
+  const UpdateState = React.useCallback(
+    (field: Partial<MessageType>) => {
+      const messages = store
+        .getState()
+        .rooms.entities[room_id].messages.map((_message) => {
+          if (_message._id === message._id) {
+            return { ..._message, ...field };
+          }
+          return _message;
+        });
 
-  type DataType = {
-    messageId: string;
-    OptionPicked: { text: string; checked: boolean };
-  };
+      dispatch(
+        updateRoom({
+          id: room_id,
+          changes: {
+            messages,
+            type: "in",
+          },
+        })
+      );
+    },
+    [dispatch, message, room_id]
+  );
 
   const _callback$Answered = React.useCallback(
     (data: DataType) => {
-      setMessageData((prevData) => {
-        const messages: MessageType[] = prevData.messages.map((message) => {
-          if (message._id === data.messageId) {
-            message.answered = data.OptionPicked;
-          }
-          return message;
-        });
-        return { messages, type: "in" };
-      });
+      UpdateState({ answered: data.OptionPicked });
 
       const pollCoinAdded: number = message.coin;
       const coinTagName: HTMLSpanElement =
@@ -80,20 +81,12 @@ function OutgoingForm(props: {
         }, 100);
       }
     },
-    [message.coin, setMessageData]
+    [UpdateState, message.coin]
   );
 
   const _callback$NoAnswer = React.useCallback(
     (data: DataType) => {
-      setMessageData((prevData) => {
-        const messages: MessageType[] = prevData.messages.map((message) => {
-          if (message._id === data.messageId) {
-            message.noAnswer = true;
-          }
-          return message;
-        });
-        return { messages, type: "in" };
-      });
+      UpdateState({ noAnswer: true });
 
       const pollCoinAdded: number = message.coin;
       const coinTagName: HTMLSpanElement =
@@ -116,7 +109,7 @@ function OutgoingForm(props: {
         }, 100);
       }
     },
-    [message.coin, setMessageData]
+    [UpdateState, message.coin]
   );
 
   React.useLayoutEffect(() => {
@@ -227,7 +220,7 @@ function OutgoingForm(props: {
             </div>
           </div>
           <span className="time">
-            <small>{time}</small>
+            <small>{format(cur, "HH:mm")}</small>
           </span>
         </div>
       </div>

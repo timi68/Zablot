@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import React from "react";
 import * as Interfaces from "../../../lib/interfaces";
 import GroupMessage from "./Group_Message";
@@ -5,19 +6,16 @@ import GroupMessage from "./Group_Message";
 function OutgoingMessage(props: {
   message: Interfaces.MessageType;
   nextGoingId: boolean;
-  hrs: number | string;
-  mins: number | string;
   cur: Date;
   pre: Date | null;
   i: number;
 }) {
-  const { nextGoingId, message, hrs, mins, cur, pre, i } = props;
+  const { nextGoingId, message, cur, pre, i } = props;
   const className = `outgoing-message${
     nextGoingId || i === 0 ? " adjust-mg" : ""
   } `;
 
-  const time = hrs + ":" + mins;
-  const Group = GroupMessage({ cur, pre, i });
+  const Group = GroupMessage({ cur, pre });
 
   return (
     <React.Fragment>
@@ -31,7 +29,7 @@ function OutgoingMessage(props: {
           <div className="plain-message">
             <div className="text">{message.message}</div>
             <span className="time">
-              <small>{time}</small>
+              <small>{format(cur, "HH:mm")}</small>
             </span>
           </div>
         </div>

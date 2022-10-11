@@ -27,37 +27,32 @@ const RoomBody: React.FC<{
     getRoom(state, room_id)
   );
   const coming = useAppSelector((state) => state.sessionStore.user._id);
-  const [loading, setLoading] = React.useState<boolean>(!loaded);
   const dispatch = useAppDispatch();
-  const [messageData, setMessageData] = React.useState<{
-    messages: Interfaces.MessageType[];
-    type?: "in" | "out" | "loaded";
-  }>({
-    messages,
-    type: "loaded",
-  });
   const bodyRef = React.useRef<HTMLDivElement>();
   const Alert = React.useRef<HTMLDivElement>();
 
   const _callback$Incoming = React.useCallback(
     (message: Interfaces.MessageType) => {
-      console.log({ message });
       if (message.coming !== user.Id) return;
-      setMessageData((prevState) => {
-        return {
-          ...prevState,
-          messages: [...prevState.messages, message],
-        };
-      });
+      const messages = store.getState().rooms.entities[room_id].messages;
+      dispatch(
+        updateRoom({
+          id: room_id,
+          changes: {
+            messages: [...messages, message],
+            type: "in",
+          },
+        })
+      );
     },
-    [user]
+    [dispatch, room_id, user]
   );
 
   const _callback$Answered = React.useCallback(
     (data: { coming: string; answer: { text: string; checked: boolean } }) => {
       if (data.coming !== user.Id) return;
     },
-    []
+    [user]
   );
 
   React.useEffect(() => {
@@ -114,11 +109,12 @@ const RoomBody: React.FC<{
           }>("/api/messages", {
             _id: user._id,
           });
+          console.log({ response: response.data });
           dispatch(
             updateRoom({
               id: room_id,
               changes: {
-                messages: response.data.Message,
+                messages: response?.data?.Message ?? [],
                 type: "loaded",
                 loaded: true,
               },
@@ -132,7 +128,7 @@ const RoomBody: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // console.log({ messages });
+  console.log({ messages });
 
   if (!loaded) {
     return (
@@ -173,15 +169,6 @@ const RoomBody: React.FC<{
         0
       </div>
       {messages.map((data, i) => {
-        const hrs: number | string =
-          new Date(data.date).getHours().toString().length > 1
-            ? new Date(data.date).getHours()
-            : "0" + new Date(data.date).getHours();
-        const mins: number | string =
-          new Date(data.date).getMinutes().toString().length > 1
-            ? new Date(data.date).getMinutes()
-            : "0" + new Date(data.date).getMinutes();
-
         const nextComingId: boolean =
           i > 0 && i < messages.length - 1
             ? messages[i + 1].coming === data.coming
@@ -202,18 +189,11 @@ const RoomBody: React.FC<{
                 return (
                   <IncomingForm
                     message={data}
-                    messagesId={user._id}
-                    going={user.Id}
-                    coming={coming}
                     key={i}
                     nextComingId={nextComingId}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
-                    setMessageData={setMessageData}
-                    i={i}
-                    socket={data.answered?.text ? null : socket}
+                    room_id={room_id}
                   />
                 );
               case "plain":
@@ -222,8 +202,6 @@ const RoomBody: React.FC<{
                     message={data}
                     key={i}
                     nextComingId={nextComingId}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
                     i={i}
@@ -233,12 +211,8 @@ const RoomBody: React.FC<{
                 return (
                   <IncomingImage
                     message={data}
-                    messagesId={user._id}
                     key={i}
                     nextComingId={nextComingId}
-                    setMessageData={setMessageData}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
                     i={i}
@@ -256,13 +230,10 @@ const RoomBody: React.FC<{
                     key={i}
                     message={data}
                     nextGoingId={nextGoingId}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
                     i={i}
-                    setMessageData={setMessageData}
-                    socket={data.answered?.text ? null : socket}
+                    room_id={room_id}
                   />
                 );
               case "plain":
@@ -271,8 +242,6 @@ const RoomBody: React.FC<{
                     key={i}
                     message={data}
                     nextGoingId={nextGoingId}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
                     i={i}
@@ -283,17 +252,11 @@ const RoomBody: React.FC<{
                   <OutgoingImage
                     key={i}
                     message={data}
-                    messagesId={user._id}
-                    going={user.Id}
-                    coming={coming}
                     nextGoingId={nextComingId}
-                    hrs={hrs}
-                    mins={mins}
                     cur={cur}
                     pre={pre}
+                    room_id={room_id}
                     i={i}
-                    setMessageData={setMessageData}
-                    socket={data.answered?.text ? null : socket}
                   />
                 );
               default:

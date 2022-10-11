@@ -148,8 +148,6 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
           upload: true,
         };
 
-        RoomBodyRef.current.setMessages(newMessage, "out");
-
         const messages = store.getState().rooms.entities[room_id].messages;
         dispatch(
           updateRoom({
@@ -248,15 +246,14 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
             </ul>
           </div>
         </div>
-        {/* <Poll
+        <Poll
           ref={PollRef}
           roomBody={RoomBodyRef}
           going={friend.Id}
-          _id={friend.Id}
+          _id={friend._id}
           coming={user._id}
-          data={room.pollData}
-          toggled={room.pollToggled}
-        /> */}
+          room_id={room_id}
+        />
       </div>
     </div>
   );

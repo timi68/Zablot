@@ -198,7 +198,24 @@ function ControlSocketActions(socket) {
     return cb(null, FriendData);
   });
 
-  socket.on("ANSWERED", async (data, callback) => {
+  /**
+   * @typedef {{
+    OptionPicked: {
+        text: string;
+        checked: boolean;
+    };
+    CorrectAnswer: {
+        text: string;
+        checked: boolean;
+    };
+    messageId: string;
+    messagesId: string;
+    going: string;
+    coming: string;
+    coin: string;
+   }} Data
+   */
+  socket.on("ANSWERED", async (/** @type {Data} */ data, callback) => {
     try {
       if (data.OptionPicked.checked) {
         if (data.coin) {
@@ -212,6 +229,21 @@ function ControlSocketActions(socket) {
           }).exec();
         }
       }
+
+      await Messages.findOneAndUpdate(
+        {
+          _id: new ObjectId(data.messagesId),
+          "Message._id": data.messageId,
+        },
+        { "Message.$.answered": data.OptionPicked }
+      ).exec();
+
+      const active = await Activities.find({ UserId: data.going });
+      active.forEach(({ SocketId }) => {
+        socket.to(SocketId).emit("ANSWERED", data);
+      });
+
+      callback(null, "Done");
     } catch (err) {
       console.log(err);
       callback({ Error: "Internal server error" });
