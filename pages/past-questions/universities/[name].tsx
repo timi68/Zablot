@@ -1,10 +1,9 @@
 import React from "react";
-import AppLayout from "../../../src/AppLayout";
+import AppLayout from "@src/AppLayout";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../../lib/interfaces";
-import FetchUser from "../../../lib/fetch_user";
+import * as Interfaces from "@lib/interfaces";
+import FetchUser from "@lib/fetch_user";
 import axios from "axios";
-import { AppContext } from "../../../lib/context";
 import { NextRouter, useRouter } from "next/router";
 import { Breadcrumbs, Button, Chip, IconButton } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,37 +12,24 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Link from "next/link";
 import { InferGetServerSidePropsType } from "next";
-import { Subjects } from "../../../utils/questions";
+import { Subjects } from "@utils/questions";
 import NavigateNextIcon from "@mui/icons-material/NavigateNextRounded";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const {
-    state: { user, socket },
-    dispatch,
-  } = React.useContext(AppContext);
+  const user = useAppSelector((state) => state.sessionStore.user);
+  const dispatch = useAppDispatch();
   const [tab, setTab] = React.useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
   const router: NextRouter = useRouter();
   const routes = router.route.split("/");
 
-  console.log({ router });
-
   React.useEffect(() => {
-    if (!user || !socket) {
-      if (props?.user) {
-        FetchUser(dispatch, enqueueSnackbar, props.user, router);
-        return;
-      }
-      axios.get("/logout").then((response) => {
-        socket?.disconnect();
-      });
-      return;
-    }
-  }, [socket, enqueueSnackbar, dispatch, props, user, router]);
-
-  React.useEffect(() => {});
+    !user && FetchUser(dispatch, enqueueSnackbar, props.user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="content-main">

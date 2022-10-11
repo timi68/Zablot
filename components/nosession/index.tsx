@@ -1,11 +1,10 @@
 import React from "react";
-import {Paper, Button, Typography} from "@mui/material";
-import {useRouter, NextRouter} from "next/router";
-import AppLayout from "../../src/AppLayout";
+import { Paper, Button, Typography } from "@mui/material";
+import { useRouter, NextRouter } from "next/router";
 
 function NoSession() {
-	const router: NextRouter = useRouter();
-	return (
+  const router: NextRouter = useRouter();
+  return (
     <Paper
       elevation={6}
       sx={{

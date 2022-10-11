@@ -16,7 +16,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import j from "jquery";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../../lib/interfaces";
+import * as Interfaces from "@lib/interfaces";
 import Cookie from "js-cookie";
 
 const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuestionInterface> =

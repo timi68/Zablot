@@ -1,25 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-css-tags */
 import React from "react";
-import Layout from "../../src/AppLayout";
-import { AppContext } from "../../lib/context";
-import NoSession from "../../components/nosession";
-import EditQuestion from "../../components/createQuiz/editQuestion";
-import CreateQuestion from "../../components/createQuiz/createQuestion";
-import UploadQuestions from "../../components/createQuiz/uploadQuestions";
-import CreatedQuestions from "../../components/createQuiz/createdQuestions";
+import Layout from "@src/AppLayout";
+import NoSession from "@comp/nosession";
+import EditQuestion from "@comp/createQuiz/editQuestion";
+import CreateQuestion from "@comp/createQuiz/createQuestion";
+import UploadQuestions from "@comp/createQuiz/uploadQuestions";
+import CreatedQuestions from "@comp/createQuiz/createdQuestions";
 import { Container, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../lib/interfaces";
-import FetchUser from "../../lib/fetch_user";
+import * as Interfaces from "@lib/interfaces";
+import FetchUser from "@lib/fetch_user";
 import { NextRouter, useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 
 function QuizCreator(props: { user: string }) {
-  const {
-    state: { loggedIn, user, socket },
-    dispatch,
-  } = React.useContext(AppContext);
+  const { loggedIn, user, socket } = useAppSelector(
+    (state) => state.sessionStore
+  );
+  const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const router: NextRouter = useRouter();
   const uploadQuestionsRef = React.useRef<HTMLDivElement & Interfaces.Handle>(
@@ -34,19 +34,8 @@ function QuizCreator(props: { user: string }) {
   // const [upload, setUpload] = useState<boolean>(false);
 
   React.useEffect(() => {
-    if (!user || !socket || !loggedIn) {
-      if (props?.user) {
-        FetchUser(dispatch, enqueueSnackbar, props.user, router);
-        return;
-      }
-      axios.get("/logout").then((response) => {
-        socket?.disconnect();
-      });
-      return;
-    }
+    !user && FetchUser(dispatch, enqueueSnackbar, props.user);
   }, []);
-
-  console.log("Mounting from create Quiz");
 
   if (loggedIn && user && socket) {
     return (

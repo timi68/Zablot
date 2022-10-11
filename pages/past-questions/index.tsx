@@ -1,14 +1,14 @@
 import React from "react";
-import AppLayout from "../../src/AppLayout";
+import AppLayout from "@src/AppLayout";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../lib/interfaces";
-import FetchUser from "../../lib/fetch_user";
+import * as Interfaces from "@lib/interfaces";
+import FetchUser from "@lib/fetch_user";
 import axios from "axios";
-import { AppContext } from "../../lib/context";
 import { NextRouter, useRouter } from "next/router";
 import { motion, AnimatePresence, AnimateSharedLayout } from "framer-motion";
-import { Olevel, Universities, Polytechniques } from "../../utils/questions";
+import { Olevel, Universities, Polytechniques } from "@utils/questions";
 import { CardActionArea } from "@mui/material";
+import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 
 const tabLabels = ["Olevel", "Universities", "Polytechniques"];
 
@@ -23,10 +23,10 @@ function getLabel(route: string): number {
 }
 
 export default function PastQuestions(props: { user: string }) {
-  const {
-    state: { user, socket },
-    dispatch,
-  } = React.useContext(AppContext);
+  const { loggedIn, user, socket } = useAppSelector(
+    (state) => state.sessionStore
+  );
+  const dispatch = useAppDispatch();
   const router: NextRouter = useRouter();
   const [tab, setTab] = React.useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
@@ -40,17 +40,9 @@ export default function PastQuestions(props: { user: string }) {
   }, [router.asPath]);
 
   React.useEffect(() => {
-    if (!user || !socket) {
-      if (props?.user) {
-        FetchUser(dispatch, enqueueSnackbar, props.user, router);
-        return;
-      }
-      axios.get("/logout").then((response) => {
-        socket?.disconnect();
-      });
-      return;
-    }
-  }, [socket, enqueueSnackbar, dispatch, props, user, router]);
+    !user && FetchUser(dispatch, enqueueSnackbar, props.user);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="content-main">
