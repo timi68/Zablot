@@ -128,8 +128,6 @@ const RoomBody: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log({ messages });
-
   if (!loaded) {
     return (
       <div className="room-body">

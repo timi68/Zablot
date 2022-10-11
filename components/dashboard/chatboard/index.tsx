@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React from "react";
-import { ModalContext } from "@lib/context";
 import { CircularProgress } from "@mui/material";
 import * as Interface from "@lib/interfaces";
 import Friends from "./Friends";
@@ -12,7 +11,6 @@ import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 const ChatBoard: React.FC = function () {
   const { user, activeFriends, socket } = useAppSelector((s) => s.sessionStore);
   const dispatch = useAppDispatch();
-  const modalSignal = React.useContext(ModalContext);
   const [openModal, setOpenModal] = React.useState<boolean>(false);
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
@@ -76,25 +74,9 @@ const ChatBoard: React.FC = function () {
     [dispatch]
   );
 
-  const openChatBoard = React.useCallback(
-    (click?: boolean) => {
-      const innerWidth = window.innerWidth < 830;
-
-      if (!innerWidth) return;
-
-      if (!openModal) j(modalSignal?.current).trigger("click").addClass("show");
-      else j(modalSignal?.current).removeClass("show");
-
-      if (click) j(modalSignal?.current).trigger("click");
-      else chatBoard.current.classList.toggle("show");
-    },
-    [modalSignal, openModal]
-  );
-
   useCustomEventListener(
     "openRoom",
     ({ user: _u }: { user: Interface.Friend }) => {
-      openChatBoard(true);
       setFriends((state) => {
         state = state.map((u) => {
           if (u.Id === _u.Id) {

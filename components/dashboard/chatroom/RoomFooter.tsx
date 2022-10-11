@@ -31,8 +31,6 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
   const SendRef = React.useRef<HTMLButtonElement>(null);
 
   const dispatch = useAppDispatch();
-
-  console.log("Footer Rendering", room_id);
   const handleChangeEvent = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ): void => {

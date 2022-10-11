@@ -7,14 +7,11 @@ import Room from "./Room";
 import { nanoid } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { addRoom, getRoomIds } from "@lib/redux/roomSlice";
-import store from "@lib/redux/store";
 
 const ChatRoom = () => {
   const rooms = useAppSelector(getRoomIds);
   const _id = useAppSelector((state) => state.sessionStore.user._id);
   const dispatch = useAppDispatch();
-
-  console.log({ rooms });
 
   useCustomEventListener(
     "openRoom",
