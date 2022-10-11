@@ -5,15 +5,13 @@ import React, {
   useCallback,
   Fragment,
   useRef,
-  useContext,
 } from "react";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "../../../lib/interfaces";
+import * as Interfaces from "@lib/interfaces";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { AppContext } from "../../../lib/context";
 import { CircularProgress } from "@mui/material";
 import { jsPDF } from "jspdf";
 import Cookie from "js-cookie";
@@ -28,6 +26,7 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
+import { useAppSelector } from "@lib/redux/store";
 
 export const variant = {
   hidden: {
@@ -166,11 +165,7 @@ function Content({ questions, setOpen }) {
     Password: "",
     QuizType: "Public",
   });
-  const {
-    state: {
-      user: { FullName },
-    },
-  } = useContext(AppContext);
+  const { FullName } = useAppSelector((state) => state.sessionStore.user);
   const Doc = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<Form<boolean>>(null);
   const [show, setShow] = useState<boolean>(false);
