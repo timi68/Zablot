@@ -1,5 +1,4 @@
 import React from "react";
-import { AppContext, ModalContext } from "@lib/context";
 import { motion, AnimatePresence } from "framer-motion";
 import j from "jquery";
 import { v4 as uuid } from "uuid";

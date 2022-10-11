@@ -5,38 +5,14 @@ import { motion } from "framer-motion";
 import { IconButton } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
-import { ModalContext, AppContext } from "@lib/context";
 import j from "jquery";
 import { CSSTransition } from "react-transition-group";
 import { useAppSelector } from "@lib/redux/store";
 
 function ProfileCard() {
   const user = useAppSelector((s) => s.sessionStore.user);
-  const modalSignal = React.useContext(ModalContext);
   const [expand, setExpand] = React.useState(false);
   const IconButtonRef = React.useRef<HTMLButtonElement>(null);
-
-  const handleClick = () => {
-    if (!expand) return;
-    setExpand(false);
-    j(modalSignal.current).removeClass("show");
-    IconButtonRef.current.classList.remove("active");
-  };
-
-  React.useEffect(() => {
-    const modal = modalSignal?.current;
-    j(modalSignal?.current).on("click", handleClick);
-    return () => {
-      j(modal).off("click", handleClick);
-    };
-  }, [expand, handleClick, modalSignal]);
-
-  const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!expand) j(modalSignal?.current).trigger("click").addClass("show");
-    else j(modalSignal?.current).removeClass("show");
-
-    IconButtonRef.current.classList.toggle("active");
-  };
 
   return (
     <div className="profile-link-wrapper">
@@ -46,7 +22,6 @@ function ProfileCard() {
         ref={IconButtonRef}
         onClick={(e) => {
           setExpand(!expand);
-          handleOpen(e);
         }}
       >
         {expand ? (

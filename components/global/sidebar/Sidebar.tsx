@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { NextRouter, useRouter } from "next/router";
-import { AppContext } from "../../../lib/context";
 import Image from "next/image";
 import Link from "next/link";
 import Dashboard from "@mui/icons-material/Dashboard";
