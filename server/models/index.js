@@ -242,24 +242,24 @@ const QuizSchema = Schema(
   }
 );
 
-const Users = mongoose.model.Users || mongoose.model("Users", UsersSchema);
+const Users = mongoose.models.Users || mongoose.model("Users", UsersSchema);
 const Activities =
-  mongoose.model.Activities || mongoose.model("Activities", ActivitiesSchema);
+  mongoose.models.Activities || mongoose.model("Activities", ActivitiesSchema);
 const Settings =
-  mongoose.model.Settings || mongoose.model("Settings", SettingSchema);
+  mongoose.models.Settings || mongoose.model("Settings", SettingSchema);
 const Friends =
-  mongoose.model.Friends || mongoose.model("Friends", FriendsSchema);
+  mongoose.models.Friends || mongoose.model("Friends", FriendsSchema);
 const Messages =
-  mongoose.model.Messages || mongoose.model("Messages", MessagesSchema);
+  mongoose.models.Messages || mongoose.model("Messages", MessagesSchema);
 const Notifications =
-  mongoose.model.Notifications ||
+  mongoose.models.Notifications ||
   mongoose.model("Notifications", NotificationSchema);
 const FriendRequests =
-  mongoose.model.FriendRequests ||
+  mongoose.models.FriendRequests ||
   mongoose.model("FriendRequests", FriendRequestsSchema);
 const Uploads =
-  mongoose.model.Uploads || mongoose.model("Uploads", UploadsSchema);
-const Quiz = mongoose.model.Quiz || mongoose.model("Quiz", QuizSchema);
+  mongoose.models.Uploads || mongoose.model("Uploads", UploadsSchema);
+const Quiz = mongoose.models.Quiz || mongoose.model("Quiz", QuizSchema);
 
 module.exports = {
   Users,
