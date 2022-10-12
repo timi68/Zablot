@@ -21,10 +21,9 @@ function OutgoingForm(props: {
   nextGoingId: boolean;
   cur: Date;
   pre: Date | null;
-  i: number;
   room_id: string | number;
 }) {
-  const { nextGoingId, message, cur, pre, i, room_id } = props;
+  const { nextGoingId, message, cur, pre, room_id } = props;
 
   const socket = useAppSelector((state) => state.sessionStore.socket);
 
@@ -228,4 +227,4 @@ function OutgoingForm(props: {
   );
 }
 
-export default OutgoingForm;
+export default React.memo(OutgoingForm);

@@ -51,6 +51,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
   const socket = useAppSelector((state) => state.sessionStore.socket);
   const PollRef = React.useRef<HTMLUListElement>(null);
 
+  console.log("Called from Polll");
   const AddOptions = (): void => {
     let option = {
       text: "",
@@ -230,7 +231,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
         <motion.div
           initial={{ opacity: 0.8 }}
           exit={{ opacity: 0.8 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 1, zIndex: 1000 }}
         >
           <motion.div
             variants={variant}
@@ -360,4 +361,4 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
 
 Poll.displayName = "Poll";
 
-export default Poll;
+export default React.memo(Poll);

@@ -5,7 +5,7 @@ import * as Interface from "@lib/interfaces";
 import Friends from "./Friends";
 import j from "jquery";
 import { useCustomEventListener } from "react-custom-events";
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 
 const ChatBoard: React.FC = function () {
@@ -22,35 +22,38 @@ const ChatBoard: React.FC = function () {
 
   const _callback$IncomingMessage = React.useCallback(
     (data: Interface.MessageType) => {
-      const id = [];
-      j(".chats-form").each((i: number, e: HTMLDivElement) => {
-        id.push(j(e).attr("id").slice(4, 12));
-      });
-
+      const roomIds = store.getState().rooms.ids;
+      console.log({ roomIds, data });
       setFriends((state) => {
         const oldState = state.filter((user) => user.Id !== data.coming);
-        state.map((user) => {
-          if (user.Id === data.coming) {
-            user.UnseenMessages = id.includes(data._id)
-              ? 0
-              : Number(user.UnseenMessages) + 1;
-            user.Last_Message = data.message;
-            user.LastPersonToSendMessage = data.coming;
-            oldState.unshift(user);
-          }
-          return;
-        });
+        let user = state.find((f) => f.Id === data.coming);
+        user = {
+          ...user,
+          UnseenMessages: roomIds.includes(data.coming)
+            ? 0
+            : Number(user.UnseenMessages) + 1,
+          Last_Message: data.message,
+          LastPersonToSendMessage: data.coming,
+        };
+        oldState.unshift(user);
 
         return oldState;
       });
+
+      if (roomIds.includes(data.coming)) {
+        CleanSeen(data._id);
+      }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
   const _callback$Status = React.useCallback((data) => {
     setFriends((state) => {
       const newState = state.map((user) => {
-        if (user.Id === data._id) user.active = data.online;
+        if (user.Id === data._id) {
+          return { ...user, active: data.online };
+        }
         return user;
       });
 
@@ -74,9 +77,22 @@ const ChatBoard: React.FC = function () {
     [dispatch]
   );
 
+  function CleanSeen(id: string) {
+    socket.emit(
+      "CLEAN_SEEN",
+      { _id: user._id, Id: id },
+      (err: string, done: string) => {
+        if (err) {
+          alert("Internal server error: restarting window now");
+        }
+      }
+    );
+  }
+
   useCustomEventListener(
     "openRoom",
     ({ user: _u }: { user: Interface.Friend }) => {
+      if (_u.UnseenMessages == 0) return;
       setFriends((state) => {
         state = state.map((u) => {
           if (u.Id === _u.Id) {
@@ -86,16 +102,7 @@ const ChatBoard: React.FC = function () {
         });
         return state;
       });
-
-      socket.emit(
-        "CLEAN_SEEN",
-        { _id: user._id, Id: _u._id },
-        (err: string, done: string) => {
-          if (err) {
-            alert("Internal server error: restarting window now");
-          }
-        }
-      );
+      CleanSeen(_u._id);
     }
   );
 
@@ -105,8 +112,11 @@ const ChatBoard: React.FC = function () {
       setFriends((prevFriends) => {
         return prevFriends.map((friend) => {
           if (friend.Id === data.id) {
-            friend.Last_Message = data.message;
-            friend.LastPersonToSendMessage = data.flow;
+            return {
+              ...friend,
+              Last_Message: data.message,
+              LastPersonToSendMessage: data.flow,
+            };
           }
           return friend;
         });

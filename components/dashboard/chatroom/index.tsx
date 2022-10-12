@@ -2,7 +2,7 @@
 /* eslint-disable react/no-unescaped-entities */
 import React from "react";
 import * as Interfaces from "@lib/interfaces";
-import { useCustomEventListener } from "react-custom-events";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import Room from "./Room";
 import { nanoid } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
@@ -16,8 +16,12 @@ const ChatRoom = () => {
   useCustomEventListener(
     "openRoom",
     ({ user, target }: { user: Interfaces.Friend; target: HTMLDivElement }) => {
+      if (rooms.includes(user.Id)) {
+        emitCustomEvent("RE_OPEN_CHAT", user.Id);
+        return;
+      }
       let roomData: Interfaces.RoomType = {
-        room_id: nanoid(),
+        room_id: user.Id,
         user,
         messages: [],
         target,

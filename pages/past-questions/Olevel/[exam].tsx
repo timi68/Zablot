@@ -15,6 +15,7 @@ import { InferGetServerSidePropsType } from "next";
 import { Subjects } from "@utils/questions";
 import NavigateNextIcon from "@mui/icons-material/NavigateNextRounded";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import getUser from "@lib/getUser";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -152,17 +153,25 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<{ exam: string }>): Promise<
   GetServerSidePropsResult<{ user: string; params: { exam: string } }>
 > {
-  const user = (req as any).session.user;
+  try {
+    // @ts-ignore
+    const user_id = req.session.user;
+    if (!user_id) throw new Error("There is no session");
 
-  const exams = ["jamb", "waec", "gce", "neco"];
-  if (!exams.includes(params.exam)) {
-    console.log("Not found");
+    const user = await getUser(user_id);
+    if (!user) throw new Error("User not found");
+
+    const exams = ["jamb", "waec", "gce", "neco"];
+    if (!exams.includes(params.exam)) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: { user: JSON.stringify(user), params },
     };
-  }
-
-  if (!user) {
+  } catch (error) {
     return {
       redirect: {
         permanent: false,
@@ -170,8 +179,4 @@ export async function getServerSideProps({
       },
     };
   }
-
-  return {
-    props: { user, params },
-  };
 }

@@ -6,16 +6,13 @@ import GroupMessage from "./Group_Message";
 function OutgoingMessage(props: {
   message: Interfaces.MessageType;
   nextGoingId: boolean;
-  cur: Date;
+  // cur: Date;
   pre: Date | null;
-  i: number;
 }) {
-  const { nextGoingId, message, cur, pre, i } = props;
-  const className = `outgoing-message${
-    nextGoingId || i === 0 ? " adjust-mg" : ""
-  } `;
+  const { nextGoingId, message, cur, pre } = props;
+  const className = `outgoing-message${nextGoingId ? " adjust-mg" : ""} `;
 
-  const Group = GroupMessage({ cur, pre });
+  const Group = GroupMessage({ cur: new Date(message.date), pre });
 
   return (
     <React.Fragment>
@@ -38,4 +35,4 @@ function OutgoingMessage(props: {
   );
 }
 
-export default OutgoingMessage;
+export default React.memo(OutgoingMessage);

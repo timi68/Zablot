@@ -9,6 +9,7 @@ import UploadScreen from "@comp/dashboard/uploadsection";
 import AppChatBoard from "@comp/dashboard/chatboard";
 import ChatRoom from "@comp/dashboard/chatroom";
 import { Users } from "@server/models";
+import getUser from "@lib/getUser";
 
 const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
   const { user, loggedIn, socket } = useAppSelector(
@@ -71,18 +72,7 @@ export async function getServerSideProps({ req, res }) {
 
     if (!user_id) throw new Error("There is no session");
 
-    const user = await Users.findById(user_id, {
-      All_Logins: 0,
-      Online: 0,
-      Last_Seen: 0,
-      Account_Creation_Date: 0,
-      DateOfBirth: 0,
-    })
-      .populate("FriendRequests")
-      .populate("Notifications")
-      .populate("Settings")
-      .populate("Friends");
-
+    const user = await getUser(user_id);
     if (!user) throw new Error("User not found");
 
     return {

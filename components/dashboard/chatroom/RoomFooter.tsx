@@ -4,7 +4,14 @@ import AttachmentOutlinedIcon from "@mui/icons-material/AttachmentOutlined";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
-import { IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/CloseRounded";
+import {
+  Box,
+  IconButton,
+  SpeedDial,
+  SpeedDialAction,
+  SpeedDialIcon,
+} from "@mui/material";
 import Poll from "@comp/dashboard/chatroom/Poll";
 import * as Interfaces from "@lib/interfaces";
 import { emitCustomEvent } from "react-custom-events";
@@ -12,6 +19,12 @@ import { updateRoom } from "@lib/redux/roomSlice";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { getRoom } from "@lib/redux/roomSlice";
 import store from "@lib/redux/store";
+
+const actions = [
+  { icon: <ImageOutlinedIcon fontSize="small" />, name: "Send image" },
+  { icon: <VideoLibraryIcon fontSize="small" />, name: "Send Video" },
+  { icon: <PollOutlinedIcon fontSize="small" />, name: "Send Poll" },
+];
 
 const RoomFooter = ({ room_id }: { room_id: string | number }) => {
   const friend = useAppSelector((state) => getRoom(state, room_id).user);
@@ -26,6 +39,8 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       pollToggled: boolean;
     };
   }>(null);
+  const [open, setOpen] = React.useState(false);
+
   const ImageFileRef = React.useRef<HTMLInputElement>(null);
   const VideoFileRef = React.useRef<HTMLButtonElement>(null);
   const SendRef = React.useRef<HTMLButtonElement>(null);
@@ -89,6 +104,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
    */
   const handleToggle: (type: "poll" | "video" | "image") => void = (type) => {
     MediaRef.current.classList.remove("active");
+    setOpen(false);
     switch (type) {
       case "poll":
         PollRef.current.toggle();
@@ -164,21 +180,56 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       };
     }
   };
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key == "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      SendRef.current.click();
+    }
+  };
+
   return (
     <div className="room-footer">
-      <div className="message-create-box input-box">
-        <div className="input-group message-box">
-          <div className="icon media-icon">
+      <div className="message-create-box input-box flex h-full">
+        <SpeedDial
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+          sx={SpeedDialCss}
+          ariaLabel="SpeedDial openIcon example"
+          icon={
+            <SpeedDialIcon
+              icon={<AttachmentOutlinedIcon fontSize="small" />}
+              openIcon={<CloseIcon fontSize="small" sx={{ mt: "1.5px" }} />}
+            />
+          }
+        >
+          {actions.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              tooltipTitle={action.name}
+              onClick={() =>
+                handleToggle(
+                  action.name.toLowerCase() as "image" | "video" | "poll"
+                )
+              }
+            />
+          ))}
+        </SpeedDial>
+        <div className="input-group message-box relative flex-grow">
+          {/* <div className="icon media-icon">
             <IconButton
               size="small"
               onClick={() => MediaRef.current.classList.add("active")}
             >
               <AttachmentOutlinedIcon fontSize="small" />
             </IconButton>
-          </div>
+          </div> */}
           <textarea
             className="text-control"
             name="message"
+            onKeyPressCapture={handleKey}
             ref={MessageBoxRef}
             onChange={handleChangeEvent}
             id="text-control message"
@@ -198,6 +249,15 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
         <div className="media-message-wrapper" ref={MediaRef}>
           <div className="multimedia-list list">
             <ul className="media-list">
+              <li className="media video toggle-video">
+                <IconButton
+                  className=" icon image-icon"
+                  onClick={() => handleToggle("image")}
+                >
+                  <ImageOutlinedIcon fontSize="small" />
+                </IconButton>
+                <label className="icon-label">Close</label>
+              </li>
               <li className="media video toggle-video">
                 <IconButton
                   className=" icon image-icon"
@@ -255,6 +315,31 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       </div>
     </div>
   );
+};
+
+const SpeedDialCss = {
+  zIndex: 10,
+  "& .MuiSpeedDial-fab": {
+    maxWidth: 36,
+    "&:hover": {
+      bgcolor: "rgb(87, 130, 137)",
+      color: "#fff",
+    },
+  },
+  "& .MuiSpeedDial-actions": {
+    pb: "39px",
+  },
+  "& .MuiSpeedDialAction-fab": {
+    width: 35,
+    height: 35,
+    my: 0.5,
+    transition: ".30 all ease-in-out",
+    bgcolor: "#ececec",
+    "&:hover": {
+      bgcolor: "rgb(87, 130, 137)",
+      color: "#fff",
+    },
+  },
 };
 
 export default RoomFooter;

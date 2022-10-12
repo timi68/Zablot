@@ -20,7 +20,7 @@ function Friends(props: props) {
     <div className="friends_chats chats_listbox" role="listbox">
       <ul className="chats-list list" role="list">
         {NotPrivateFriends?.map((user, index) => {
-          return <Chats key={index} friendId={friendId} user={user} />;
+          return <Chats key={user.Id} friendId={friendId} user={user} />;
         })}
         {!friends?.length && (
           <div className="no-friend-available">

@@ -57,31 +57,37 @@ const RoomBody: React.FC<{
 
   React.useEffect(() => {
     // setMessageData({messages: y, type: "loaded"});
+    console.log({ type, loaded });
     if (loaded) {
+      let { scrollTop, scrollHeight } = bodyRef.current;
       switch (type) {
         case "out":
         case "loaded":
-          j(bodyRef.current).animate(
-            {
-              scrollTop: bodyRef.current.scrollHeight,
-            },
-            "slow"
-          );
+          setTimeout(() => {
+            j(bodyRef.current).animate(
+              {
+                scrollTop: bodyRef.current?.scrollHeight,
+              },
+              300
+            );
+          });
           break;
         case "in":
-          let scrollTop = bodyRef.current.scrollTop;
-          let scrollHeight = bodyRef.current.scrollHeight;
-
-          if (scrollHeight - scrollTop > 200) {
+          if (scrollHeight - scrollTop > 500) {
             let downMessages = parseInt(Alert.current.innerText) + 1;
             j(Alert.current).text(downMessages).addClass("show");
+          } else {
+            bodyRef.current.scrollTo({
+              top: scrollHeight,
+              behavior: "smooth",
+            });
           }
           break;
         default:
           break;
       }
     }
-  }, [loaded, type]);
+  }, [loaded, type, messages]);
 
   React.useEffect(() => {
     // Socket handler; socket listener set when each group in created
@@ -156,12 +162,11 @@ const RoomBody: React.FC<{
         className="alert-message"
         ref={Alert}
         onClick={() => {
-          j(bodyRef.current).animate(
-            {
-              scrollTop: bodyRef.current?.scrollHeight,
-            },
-            "slow"
-          );
+          bodyRef.current.scrollTo({
+            top: bodyRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+          j(Alert.current).text(0).removeClass("show");
         }}
       >
         0
@@ -187,7 +192,7 @@ const RoomBody: React.FC<{
                 return (
                   <IncomingForm
                     message={data}
-                    key={i}
+                    key={data._id}
                     nextComingId={nextComingId}
                     cur={cur}
                     pre={pre}
@@ -198,7 +203,7 @@ const RoomBody: React.FC<{
                 return (
                   <IncomingMessage
                     message={data}
-                    key={i}
+                    key={data._id}
                     nextComingId={nextComingId}
                     cur={cur}
                     pre={pre}
@@ -209,7 +214,7 @@ const RoomBody: React.FC<{
                 return (
                   <IncomingImage
                     message={data}
-                    key={i}
+                    key={data._id}
                     nextComingId={nextComingId}
                     cur={cur}
                     pre={pre}
@@ -225,19 +230,18 @@ const RoomBody: React.FC<{
               case "Form":
                 return (
                   <OutgoingForm
-                    key={i}
+                    key={data._id}
                     message={data}
                     nextGoingId={nextGoingId}
                     cur={cur}
                     pre={pre}
-                    i={i}
                     room_id={room_id}
                   />
                 );
               case "plain":
                 return (
                   <OutgoingMessage
-                    key={i}
+                    key={data._id}
                     message={data}
                     nextGoingId={nextGoingId}
                     cur={cur}
@@ -248,7 +252,7 @@ const RoomBody: React.FC<{
               case "image":
                 return (
                   <OutgoingImage
-                    key={i}
+                    key={data._id}
                     message={data}
                     nextGoingId={nextComingId}
                     cur={cur}

@@ -9,6 +9,7 @@ import { motion, AnimatePresence, AnimateSharedLayout } from "framer-motion";
 import { Olevel, Universities, Polytechniques } from "@utils/questions";
 import { CardActionArea } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+import getUser from "@lib/getUser";
 
 const tabLabels = ["Olevel", "Universities", "Polytechniques"];
 
@@ -219,18 +220,24 @@ export default function PastQuestions(props: { user: string }) {
 }
 
 export async function getServerSideProps({ req, res }) {
-  const user = req.session.user;
-  if (!user) {
+  try {
+    const user_id = req.session.user;
+
+    if (!user_id) throw new Error("There is no session");
+
+    const user = getUser(user_id);
+    if (!user) throw new Error("User not found");
+
+    return {
+      props: { user: JSON.stringify(user) },
+    };
+  } catch (error) {
+    console.log({ error });
     return {
       redirect: {
         permanent: false,
         destination: "/login",
       },
-      props: {},
     };
   }
-
-  return {
-    props: { user },
-  };
 }

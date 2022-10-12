@@ -70,4 +70,4 @@ function Chats({ friendId, user }: chats): JSX.Element {
   );
 }
 
-export default Chats;
+export default React.memo(Chats);

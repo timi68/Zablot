@@ -8,12 +8,10 @@ function IncomingMessage(props: {
   nextComingId: boolean;
   cur: Date;
   pre: Date | null;
-  i: number;
+  // i: number;
 }) {
-  const { message, nextComingId, cur, pre, i } = props;
-  const className = `incoming-message${
-    nextComingId || i === 0 ? " adjust-mg" : ""
-  }`;
+  const { message, nextComingId, cur, pre } = props;
+  const className = `incoming-message${nextComingId ? " adjust-mg" : ""}`;
 
   const Group = GroupMessage({ cur, pre });
 
@@ -38,4 +36,4 @@ function IncomingMessage(props: {
   );
 }
 
-export default IncomingMessage;
+export default React.memo(IncomingMessage);

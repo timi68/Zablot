@@ -270,4 +270,4 @@ const Timer: React.FC<{ timer: number; PollTimeOut(): void }> = React.memo(
 );
 Timer.displayName = "Timer";
 
-export default OutgoingForm;
+export default React.memo(OutgoingForm);

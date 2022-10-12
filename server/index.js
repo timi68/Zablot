@@ -20,48 +20,75 @@ const next = require("next"),
   client = next({ dev }),
   handle = client.getRequestHandler();
 
+const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(cors());
+app.use(compressor());
+app.use("/uploads", express.static(" "));
+app.use(express.static("public"));
+
+app.set("trust proxy", Number(!dev));
+app.set("view engine", "ejs");
+
+const sessionMiddleWare = session({
+  cookie: {
+    secure: !dev,
+    maxAge: 24 * 30 * 60 * 60 * 1000,
+  },
+  secret: "zablot#",
+  saveUninitialized: false,
+  resave: false,
+});
+
+/**
+ * @typedef {{request: {session: {user: string}}}} Request
+ * @typedef {(arg0?: Error | undefined) => void} Next
+ */
+
+// convert a connect middleware to a Socket.IO middleware
+const wrap =
+  (/** @type {any} */ middleware) =>
+  (/** @type {socket.Socket & Request} */ socket, /** @type {Next} */ next) =>
+    middleware(socket.request, {}, next);
+
+app.use(sessionMiddleWare);
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.error = req.flash("error");
+  res.locals.data = req.flash("data");
+  res.locals.success = req.flash("success");
+  next();
+});
+
+// @ts-ignore
+app.use((req, res, next) => {
+  next();
+});
+
+app.use("/api", router);
+app.get("/login", (req, res) => res.render("home/sign_in"));
+app.get("/register", (req, res) => res.render("home/sign_up"));
+app.get("/", (req, res) => res.render("home/index"));
+app.get("/logout", async (req, res) => {
+  req.session.destroy(() => {
+    req.logout(
+      {
+        keepSessionInfo: true,
+      },
+      () => {
+        res.end("Done");
+      }
+    );
+  });
+});
+
+app.get("*", (req, res) => handle(req, res));
 client
   .prepare()
   .then(() => {
-    const app = express();
-    app.use(express.urlencoded({ extended: true }));
-    app.use(express.json());
-    app.use(cors());
-    app.use(compressor());
-    app.use("/uploads", express.static(" "));
-    app.use(express.static("public"));
-
-    app.set("trust proxy", Number(!dev));
-    app.set("view engine", "ejs");
-
-    const sessionMiddleWare = session({
-      cookie: {
-        secure: !dev,
-        maxAge: 24 * 30 * 60 * 60 * 1000,
-      },
-      secret: "zablot#",
-      saveUninitialized: false,
-      resave: false,
-    });
-
-    app.use(sessionMiddleWare);
-    app.use(passport.initialize());
-    app.use(passport.session());
-    app.use(flash());
-    app.use((req, res, next) => {
-      res.locals.error = req.flash("error");
-      res.locals.data = req.flash("data");
-      res.locals.success = req.flash("success");
-      next();
-    });
-
-    // @ts-ignore
-    app.use((req, res, next) => {
-      next();
-    });
-
-    app.use("/api", router);
-
     const server = app.listen(process.env.PORT || 8000, () => {
       console.log(
         "Listening on http://localhost:" + (process.env.PORT ?? 8000)
@@ -71,21 +98,7 @@ client
     // @ts-ignore
     const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
 
-    // convert a connect middleware to a Socket.IO middleware
-    const wrap =
-      (/** @type {any} */ middleware) =>
-      (
-        /** @type {socket.Socket & Request} */ socket,
-        /** @type {Next} */ next
-      ) =>
-        middleware(socket.request, {}, next);
-
     io.use(wrap(sessionMiddleWare));
-
-    /**
-     * @typedef {{request: {session: {user: string}}}} Request
-     * @typedef {(arg0?: Error | undefined) => void} Next
-     */
 
     // only allow authenticated users
     io.use(
@@ -127,25 +140,6 @@ client
         Controller(socket);
       }
     );
-
-    // @ts-ignore
-    app.get("/login", (req, res) => res.render("home/sign_in"));
-    app.get("/register", (req, res) => res.render("home/sign_up"));
-    app.get("/", (req, res) => res.render("home/index"));
-    app.get("/logout", async (req, res) => {
-      req.session.destroy(() => {
-        req.logout(
-          {
-            keepSessionInfo: true,
-          },
-          () => {
-            res.end("Done");
-          }
-        );
-      });
-    });
-
-    app.get("*", (req, res) => handle(req, res));
   })
   .catch((/** @type {{ stack: any; }} */ ex) => {
     console.log(ex.stack, "from stack");

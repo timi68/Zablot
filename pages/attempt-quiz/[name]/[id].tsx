@@ -14,6 +14,7 @@ import Link from "next/link";
 import { InferGetServerSidePropsType } from "next";
 import NavigateNextIcon from "@mui/icons-material/NavigateNextRounded";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import getUser from "@lib/getUser";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -46,9 +47,20 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext<{ exam: string }>): Promise<
   GetServerSidePropsResult<{ user: string; params: { exam: string } }>
 > {
-  const user = (req as any).session.user;
+  try {
+    // @ts-ignore
+    const user_id = req.session.user;
 
-  if (!user) {
+    if (!user_id) throw new Error("There is no session");
+
+    const user = getUser(user_id);
+    if (!user) throw new Error("User not found");
+
+    return {
+      props: { user: JSON.stringify(user), params },
+    };
+  } catch (error) {
+    console.log({ error });
     return {
       redirect: {
         permanent: false,
@@ -56,8 +68,4 @@ export async function getServerSideProps({
       },
     };
   }
-
-  return {
-    props: { user, params },
-  };
 }
