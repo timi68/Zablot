@@ -31,7 +31,7 @@ client
     app.use("/uploads", express.static(" "));
     app.use(express.static("public"));
 
-    app.set("trust proxy", Number(dev));
+    app.set("trust proxy", Number(!dev));
     app.set("view engine", "ejs");
 
     const sessionMiddleWare = session({
