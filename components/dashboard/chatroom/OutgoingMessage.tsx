@@ -9,7 +9,7 @@ function OutgoingMessage(props: {
   // cur: Date;
   pre: Date | null;
 }) {
-  const { nextGoingId, message, cur, pre } = props;
+  const { nextGoingId, message, pre } = props;
   const className = `outgoing-message${nextGoingId ? " adjust-mg" : ""} `;
 
   const Group = GroupMessage({ cur: new Date(message.date), pre });
@@ -26,7 +26,7 @@ function OutgoingMessage(props: {
           <div className="plain-message">
             <div className="text">{message.message}</div>
             <span className="time">
-              <small>{format(cur, "HH:mm")}</small>
+              <small>{format(new Date(message.date), "HH:mm")}</small>
             </span>
           </div>
         </div>
