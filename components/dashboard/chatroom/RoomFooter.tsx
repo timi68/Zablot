@@ -26,10 +26,12 @@ const actions = [
   { icon: <PollOutlinedIcon fontSize="small" />, name: "Send Poll" },
 ];
 
+type y = "send image" | "send video" | "send poll";
+
 const RoomFooter = ({ room_id }: { room_id: string | number }) => {
-  const friend = useAppSelector((state) => getRoom(state, room_id).user);
+  const friend = useAppSelector((state) => getRoom(state, room_id).friend);
   const { user, socket } = useAppSelector((state) => state.sessionStore);
-  const MessageBoxRef = React.useRef<HTMLTextAreaElement>(null);
+  const MessageBoxRef = React.useRef<HTMLSpanElement>(null);
   const RoomBodyRef = React.useRef<Interfaces.RoomBodyRefType>(null);
   const MediaRef = React.useRef<HTMLDivElement>(null);
   const PollRef = React.useRef<{
@@ -46,27 +48,16 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
   const SendRef = React.useRef<HTMLButtonElement>(null);
 
   const dispatch = useAppDispatch();
-  const handleChangeEvent = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ): void => {
-    e.preventDefault();
-
-    if (e.target.value) SendRef.current.classList.add("active");
-    else SendRef.current.classList.remove("active");
-
-    return;
-  };
-
   const sendMessage = (): void => {
-    let messageText: string = MessageBoxRef.current.value;
+    let messageText: string = MessageBoxRef.current.innerText;
 
     if (!messageText) return;
-    (MessageBoxRef.current.value = ""),
+    (MessageBoxRef.current.innerText = ""),
       SendRef.current.classList.remove("active");
 
     var newMessage: Interfaces.MessageType = {
       message: messageText,
-      date: new Date(),
+      date: Date.now(),
       coming: user._id,
       going: friend.Id,
       Format: "plain",
@@ -92,6 +83,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
           emitCustomEvent("Message", {
             id: friend.Id,
             message: messageText,
+            time: newMessage.date,
             flow: user._id,
           });
         }
@@ -102,14 +94,13 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
    * This function controls the media toggler
    *
    */
-  const handleToggle: (type: "poll" | "video" | "image") => void = (type) => {
-    MediaRef.current.classList.remove("active");
+  const handleToggle: (type: y) => void = (type) => {
     setOpen(false);
     switch (type) {
-      case "poll":
+      case "send poll":
         PollRef.current.toggle();
         break;
-      case "image":
+      case "send image":
         ImageFileRef.current.click();
       default:
         break;
@@ -152,7 +143,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
         let newMessage: Interfaces.MessageType = {
           message: "Image",
           Format: "image",
-          date: new Date(),
+          date: Date.now(),
           coming: user._id,
           going: friend.Id,
           _id: friend._id,
@@ -181,16 +172,20 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
     }
   };
 
-  const handleKey = (e: React.KeyboardEvent) => {
+  const handleKey = (e: React.KeyboardEvent<HTMLSpanElement>) => {
     if (e.key == "Enter" && !e.shiftKey) {
       e.preventDefault();
       SendRef.current.click();
+    } else {
+      // @ts-ignore
+      if (e.target.innerText) SendRef.current.classList.add("active");
+      else SendRef.current.classList.remove("active");
     }
   };
 
   return (
     <div className="room-footer">
-      <div className="message-create-box input-box flex h-full">
+      <div className="message-create-box input-box flex h-full items-end">
         <SpeedDial
           open={open}
           onOpen={() => setOpen(true)}
@@ -207,102 +202,59 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
           {actions.map((action) => (
             <SpeedDialAction
               key={action.name}
+              tooltipPlacement={"right"}
               icon={action.icon}
               tooltipTitle={action.name}
-              onClick={() =>
-                handleToggle(
-                  action.name.toLowerCase() as "image" | "video" | "poll"
-                )
-              }
+              onClick={() => handleToggle(action.name.toLowerCase() as y)}
             />
           ))}
+          <input
+            className="file-control image-file"
+            type="file"
+            name="image-file"
+            id="image-file"
+            ref={ImageFileRef}
+            accept="image/*"
+            onChange={handleFile}
+            hidden
+          />
+          <input
+            className="file-control video-file"
+            type="file"
+            accept="video/*"
+            id="40abf369-1e9video"
+            name="video-file"
+            hidden
+          />
         </SpeedDial>
         <div className="input-group message-box relative flex-grow">
-          {/* <div className="icon media-icon">
-            <IconButton
-              size="small"
-              onClick={() => MediaRef.current.classList.add("active")}
-            >
-              <AttachmentOutlinedIcon fontSize="small" />
-            </IconButton>
-          </div> */}
-          <textarea
+          <span
+            contentEditable
             className="text-control"
-            name="message"
             onKeyPressCapture={handleKey}
+            onClickCapture={(e) => {
+              let target = e.target as HTMLSpanElement;
+              if (target.innerText == "Type a message..") {
+                target.innerText = "";
+              }
+            }}
+            onBlurCapture={(e) => {
+              e.target.innerText ||= "Type a message..";
+            }}
             ref={MessageBoxRef}
-            onChange={handleChangeEvent}
             id="text-control message"
-            placeholder="Type a message.."
-          ></textarea>
-          <div className="send-btn">
-            <IconButton
-              className="btn send"
-              size="small"
-              ref={SendRef}
-              onClick={sendMessage}
-            >
-              <SendIcon className="send-icon" />
-            </IconButton>
-          </div>
+            dangerouslySetInnerHTML={{ __html: "Type a message.." }}
+          />
         </div>
-        <div className="media-message-wrapper" ref={MediaRef}>
-          <div className="multimedia-list list">
-            <ul className="media-list">
-              <li className="media video toggle-video">
-                <IconButton
-                  className=" icon image-icon"
-                  onClick={() => handleToggle("image")}
-                >
-                  <ImageOutlinedIcon fontSize="small" />
-                </IconButton>
-                <label className="icon-label">Close</label>
-              </li>
-              <li className="media video toggle-video">
-                <IconButton
-                  className=" icon image-icon"
-                  onClick={() => handleToggle("image")}
-                >
-                  <ImageOutlinedIcon fontSize="small" />
-                </IconButton>
-                <label className="icon-label">Image</label>
-                <input
-                  className="file-control image-file"
-                  type="file"
-                  name="image-file"
-                  id="image-file"
-                  ref={ImageFileRef}
-                  accept="image/*"
-                  onChange={handleFile}
-                  hidden
-                />
-              </li>
-              <li className="media image toggle-image">
-                <IconButton className="icon video-icon">
-                  <VideoLibraryIcon fontSize="small" />
-                </IconButton>
-                <label className="icon-label">Video</label>
-                <input
-                  className="file-control video-file"
-                  type="file"
-                  accept="video/*"
-                  id="40abf369-1e9video"
-                  name="video-file"
-                  hidden
-                />
-              </li>
-              <li className="media poll toggle-poll">
-                <IconButton
-                  className="icon"
-                  id="poll-icon"
-                  onClick={() => handleToggle("poll")}
-                >
-                  <PollOutlinedIcon fontSize="small" />
-                </IconButton>
-                <label className="icon-label">Poll</label>
-              </li>
-            </ul>
-          </div>
+        <div className="send-btn">
+          <IconButton
+            className="btn send"
+            size="small"
+            ref={SendRef}
+            onClick={sendMessage}
+          >
+            <SendIcon className="send-icon" />
+          </IconButton>
         </div>
         <Poll
           ref={PollRef}
@@ -318,6 +270,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
 };
 
 const SpeedDialCss = {
+  maxHeight: 40,
   zIndex: 10,
   "& .MuiSpeedDial-fab": {
     maxWidth: 36,

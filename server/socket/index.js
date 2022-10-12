@@ -52,6 +52,7 @@ function ControlSocketActions(socket) {
           Seen: false,
           Image: data.coming_image,
           Id: data.coming_id,
+          type: "reject",
         };
 
         const active = await Activities.find({
@@ -112,18 +113,29 @@ function ControlSocketActions(socket) {
   // the data and gives a callback of if there is any
   // error encountered or it is "done"
 
-  socket.on("ACCEPT_REQUEST", async (data, cb) => {
+  /**
+   * @typedef {{
+      going_id: string,
+      going_name: string,
+      going_image: string,
+      coming_id: string,
+      coming_name:string,
+      coming_image: string,
+    }} ACCEPT
+   */
+  socket.on("ACCEPT_REQUEST", async (/** @type {ACCEPT} */ data, cb) => {
     Users.findByIdAndUpdate(data.going_id, {
       $pull: { PendingRequests: data.coming_id },
     }).exec();
 
-    await FriendRequests.findByIdAndUpdate(data.coming_id, {
+    FriendRequests.findByIdAndUpdate(data.coming_id, {
       $pull: {
         requests: {
           From: data.going_id,
         },
       },
     }).exec();
+
     const newMessage = new Messages({
       _id: new ObjectId(),
       From: new ObjectId(data.coming_id),
@@ -131,6 +143,7 @@ function ControlSocketActions(socket) {
     });
 
     await newMessage.save();
+
     const friend_details = (/** @type {"c" | "g"} */ type) => {
       let check = type === "c";
       return {
@@ -142,17 +155,31 @@ function ControlSocketActions(socket) {
           UnseenMessages: 1,
           Last_Message: "You are now friends",
           IsPrivate: false,
+          time: Date.now(),
         },
       };
     };
 
-    await Friends.findByIdAndUpdate(data.going_id, {
-      $push: friend_details("c"),
-    }).exec();
-
-    await Friends.findByIdAndUpdate(data.coming_id, {
-      $push: friend_details("g"),
-    }).exec();
+    Friends.bulkWrite([
+      {
+        updateOne: {
+          filter: { _id: data.going_id },
+          update: {
+            // @ts-ignore
+            $addToSet: friend_details("c"),
+          },
+        },
+      },
+      {
+        updateOne: {
+          filter: { _id: data.coming_id },
+          update: {
+            // @ts-ignore
+            $addToSet: friend_details("g"),
+          },
+        },
+      },
+    ]);
 
     const message = {
       title: "Friend request accepted",
@@ -161,7 +188,8 @@ function ControlSocketActions(socket) {
       Date: new Date(),
       Seen: false,
       Image: data.coming_image,
-      Id: data.coming_Id,
+      Id: data.coming_id,
+      type: "accept",
     };
 
     const FriendData = {
@@ -174,6 +202,7 @@ function ControlSocketActions(socket) {
       Last_Message: "You are now friends",
       IsPrivate: false,
       IsComing: true,
+      time: Date.now(),
     };
 
     const active = await Activities.find({ UserId: data.going_id });
@@ -213,9 +242,9 @@ function ControlSocketActions(socket) {
     going: string;
     coming: string;
     coin: string;
-   }} Data
+   }} ANSWERED
    */
-  socket.on("ANSWERED", async (/** @type {Data} */ data, callback) => {
+  socket.on("ANSWERED", async (/** @type {ANSWERED} */ data, callback) => {
     try {
       if (data.OptionPicked.checked) {
         if (data.coin) {
@@ -329,21 +358,37 @@ function ControlSocketActions(socket) {
         },
       }).exec();
 
-      Friends.updateMany(
+      let $set = {
+        "friends.$.Last_Message": message.message,
+        "friends.$.time": message.date,
+        "friends.$.LastPersonToSendMessage": new ObjectId(message.coming),
+      };
+      let filter = (/** @type {string} */ _id) => ({
+        _id,
+        "friends._id": new ObjectId(message._id),
+      });
+
+      await Friends.bulkWrite([
         {
-          _id: { $in: [message.coming, message.going] },
-          "friends._id": new ObjectId(message._id),
+          updateOne: {
+            filter: filter(message.coming),
+            update: {
+              $set,
+            },
+          },
         },
         {
-          $set: {
-            "friends.$.Last_Message": message.message,
-            "friends.$.LastPersonToSendMessage": new ObjectId(message.coming),
+          updateOne: {
+            filter: filter(message.going),
+            update: {
+              $set,
+              $inc: {
+                "friends.$.UnseenMessages": 1,
+              },
+            },
           },
-          $inc: {
-            "friends.$.UnseenMessages": 1,
-          },
-        }
-      ).exec();
+        },
+      ]);
 
       const isActive = await Activities.find({ UserId: message.going });
       message._id = messageId;
@@ -362,6 +407,7 @@ function ControlSocketActions(socket) {
   });
 
   socket.on("CLEAN_SEEN", async (data, callback) => {
+    console.log({ data });
     try {
       await Friends.findOneAndUpdate(
         {

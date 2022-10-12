@@ -24,7 +24,7 @@ function OutgoingForm(props: {
     (state) => [
       state.sessionStore.user._id,
       state.sessionStore.socket,
-      getRoom(state, room_id).user,
+      getRoom(state, room_id).friend,
     ]
   );
   const dispatch = useAppDispatch();

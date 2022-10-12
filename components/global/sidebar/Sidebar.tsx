@@ -97,7 +97,7 @@ export default React.memo(function Sidebar() {
 
   return (
     <div
-      className="navigator sidebar sticky"
+      className="navigator sidebar"
       onMouseLeave={() =>
         setTimeout(() => {
           setTooltip({ ...tooltip, open: false });

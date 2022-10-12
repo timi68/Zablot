@@ -50,7 +50,7 @@ export default function MatchedUser(props: MatchedUserInterface) {
             <span>message</span>
           </button>
         )}
-        {user?.sent && (
+        {user?.sent && !user.friends && (
           <button
             className="cancel-btn btn !bg-green !bg-opacity-50 !py-2"
             onClick={(e) => {

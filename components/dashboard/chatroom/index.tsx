@@ -15,14 +15,20 @@ const ChatRoom = () => {
 
   useCustomEventListener(
     "openRoom",
-    ({ user, target }: { user: Interfaces.Friend; target: HTMLDivElement }) => {
-      if (rooms.includes(user.Id)) {
-        emitCustomEvent("RE_OPEN_CHAT", user.Id);
+    ({
+      friend,
+      target,
+    }: {
+      friend: Interfaces.Friend;
+      target: HTMLDivElement;
+    }) => {
+      if (rooms.includes(friend.Id)) {
+        emitCustomEvent("RE_OPEN_CHAT", friend.Id);
         return;
       }
       let roomData: Interfaces.RoomType = {
-        room_id: user.Id,
-        user,
+        room_id: friend.Id,
+        friend,
         messages: [],
         target,
         loaded: false,
@@ -33,9 +39,9 @@ const ChatRoom = () => {
             { text: "", checked: false },
           ],
           Format: "Form",
-          _id: user._id,
+          _id: friend._id,
           coming: _id,
-          going: user.Id,
+          going: friend.Id,
         },
         pollToggled: false,
       };

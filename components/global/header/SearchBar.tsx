@@ -31,7 +31,6 @@ const SearchBar = () => {
   const searchIcon = React.useRef<HTMLDivElement>(null);
   const Backdrop = React.useRef<HTMLDivElement>(null);
   const container = React.useRef<HTMLDivElement>(null);
-  const defaultImage = "./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg";
 
   const ReadyForSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!j(e.target).val()) return j(searchIcon.current).removeClass("ready");
@@ -92,18 +91,19 @@ const SearchBar = () => {
         Name: user.FullName,
         UserName: user.UserName,
         From: user._id,
-        Image: defaultImage,
+        Image: "",
       },
       To: id,
     };
 
     axios.post("/api/socket/friend-request", newRequest).then((response) => {
-      console.log({ response });
       setSearchData((state) => {
+        let pending = [];
         let newMatched = state.matched.map((user) => {
+          if (user._id === id) pending.push(id);
           return { ...user, sent: user._id === id };
         });
-        return { ...searchData, matched: newMatched };
+        return { ...searchData, matched: newMatched, pending };
       });
     });
   }
@@ -138,8 +138,8 @@ const SearchBar = () => {
   // instantly, this only vital for request sent and rejected
   // immediately
   const Notification = React.useCallback(
-    (data: { Id: string }) => {
-      if (searchData.matched?.length) {
+    (data: { Id: string; type: string }) => {
+      if (searchData.matched?.length && data.type === "reject") {
         setSearchData((state) => {
           let searchUpdate = state.matched.map((m) => {
             if (m._id === data.Id) {
@@ -163,13 +163,8 @@ const SearchBar = () => {
         message,
         matched: matched?.length
           ? matched.map((user) => {
-              if (user._id === friend.Id) {
-                user.sent = false;
-                user.friends = true;
-              }
               return {
                 ...user,
-                sent: !(user._id === friend.Id),
                 friends: user._id === friend.Id,
               };
             })

@@ -11,11 +11,14 @@ const Room = (props: { room_id: EntityId }) => {
 
   useCustomEventListener("RE_OPEN_CHAT", (id) => {
     if (props.room_id === id) {
+      document.querySelector(".chat-rooms-wrapper").scrollTo({
+        left: chatForm.current.offsetLeft - 20,
+        behavior: "smooth",
+      });
       j(chatForm.current).addClass("shake");
-      chatForm.current.scrollIntoView();
 
       setTimeout(() => {
-        chatForm.current.classList.remove("shake");
+        chatForm.current?.classList.remove("shake");
       }, 2000);
     }
   });

@@ -17,6 +17,7 @@ const FriendsSchema = Schema(
         UnseenMessages: Number,
         Last_Message: String,
         IsPrivate: Boolean,
+        time: Number,
       },
     ],
   },

@@ -8,49 +8,40 @@ import Stack from "@mui/material/Stack";
 import { Friend } from "@types";
 import { getRoom, removeRoom } from "@lib/redux/roomSlice";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { Avatar } from "@mui/material";
+import Image from "next/image";
+import StyledBadge from "@comp/dashboard/chatboard/StyledBadge";
+import stringToColor from "@utils/stringToColor";
+import { format } from "date-fns";
 
 type RoomHeaderPropsType = {
   room_id: string | number;
 };
 function RoomHeader({ room_id }: RoomHeaderPropsType) {
-  const target = useAppSelector((state) => getRoom(state, room_id).target);
-  const user = useAppSelector((state) => getRoom(state, room_id).user);
+  const friend = useAppSelector((state) => getRoom(state, room_id).friend);
+  const [online, setOnline] = React.useState(friend.active);
   const {
     socket,
     user: { _id },
   } = useAppSelector((state) => state.sessionStore);
   const dispatch = useAppDispatch();
   const statusRef = React.useRef<HTMLDivElement>();
-  const userImageRef = React.useRef<HTMLDivElement>();
 
   const UpdateRooms = (): void => {
     dispatch(removeRoom(room_id));
   };
+
   const _callback$Status = React.useCallback(
     (data: { _id: string; online: boolean; Last_Seen: Date }) => {
-      console.log({ data, _id, text: statusRef.current.innerHTML });
-      if (data._id === _id) {
-        statusRef.current.innerHTML = data.online
-          ? "online"
-          : `last seen ${Time(data.Last_Seen)}`;
-
-        if (data.online) {
-          userImageRef.current
-            .querySelector(".user_active_signal")
-            .classList.remove("offline");
-        } else {
-          userImageRef.current
-            .querySelector(".user_active_signal")
-            .classList.add("offline");
-        }
+      if (data._id === friend.Id) {
+        setOnline(data.online);
       }
     },
-    [_id]
+    [friend.Id]
   );
 
   React.useEffect(() => {
     socket.on("STATUS", _callback$Status);
-
     return () => {
       socket.off("STATUS", _callback$Status);
     };
@@ -59,18 +50,27 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
   return (
     <div className="room-header">
       <div className="profile">
-        <div
-          className="avatar user_image list_item"
-          ref={userImageRef}
-          dangerouslySetInnerHTML={{
-            __html: String(target.closest(".chat").children[0].innerHTML),
-          }}
-        />
+        <StyledBadge active={online}>
+          <Avatar
+            src={friend.Image}
+            sx={{
+              width: 30,
+              height: 30,
+              fontSize: "14px",
+              bgcolor: stringToColor(friend.Name),
+            }}
+          >
+            {friend.Name.split(" ")[0][0] +
+              (friend.Name.split(" ")[1]?.at(0) ?? "")}
+          </Avatar>
+        </StyledBadge>
         <div className="name">
-          <span className="textname">{user?.Name}</span>
+          <span className="textname">{friend?.Name}</span>
           <div className="active-sign">
             <div className="active-text" ref={statusRef}>
-              {user.active ? "online" : `offline`}
+              {online
+                ? "online"
+                : "Last seen at " + format(new Date(), "HH:mm")}
             </div>
           </div>
         </div>

@@ -6,12 +6,14 @@ import { useEffect, useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CSSTransition } from "react-transition-group";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { IconButton, Badge, Button } from "@mui/material";
+import { IconButton, Badge, Button, Avatar } from "@mui/material";
 import j from "jquery";
 import * as Interfaces from "../../../lib/interfaces";
 import { emitCustomEvent } from "react-custom-events";
 import { useAppSelector } from "@lib/redux/store";
 import { formatDistanceToNowStrict } from "date-fns";
+import Image from "next/image";
+import stringToColor from "@utils/stringToColor";
 
 const FriendRequests = () => {
   const { socket, user } = useAppSelector((state) => state.sessionStore);
@@ -19,6 +21,7 @@ const FriendRequests = () => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const IconButtonRef = useRef<HTMLButtonElement>(null);
   const Backdrop = useRef<HTMLDivElement>(null);
+  const [friends, setFriends] = React.useState([]);
 
   const Reject = (id: string) => {
     let data = {
@@ -30,7 +33,10 @@ const FriendRequests = () => {
     socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
       setRequests((state) => {
         return (state = state.map((req) => {
-          return { ...req, Rejected: req.From === id };
+          if (req.From === id) {
+            return { ...req, Rejected: true };
+          }
+          return req;
         }));
       });
 
@@ -59,11 +65,23 @@ const FriendRequests = () => {
         if (!err) {
           setRequests((state) => {
             return state.map((req) => {
-              return { ...req, Accepted: req.From === data.From };
+              if (req.From === data.From) {
+                return { ...req, Accepted: true };
+              }
+              return req;
             });
           });
 
-          emitCustomEvent("newFriend", { ...FriendData, Id: data.From });
+          let newFriend = {
+            ...FriendData,
+            Id: data.From,
+            Name: data.Name,
+            Image: data.Image,
+            isComing: false,
+          };
+
+          setFriends([newFriend, ...friends]);
+          emitCustomEvent("newFriend", newFriend);
         } else {
           let reload = confirm(
             "There is an error processing new friend request. Would you like to reload the page?."
@@ -88,6 +106,13 @@ const FriendRequests = () => {
       Date: new Date(),
     };
 
+    // Incase the friend_request coming in has been process b4, let's send response immediately
+    // let isFriend =
+    //   friends.findIndex((friend) => friend.Id === data.From) !== -1;
+    // if (isFriend) {
+    //   Accept(newRequest);
+    //   return;
+    // }
     // Check if new request is already existing and add new or removing any existing one
     setRequests([newRequest, ...requests.filter((r) => r.From !== data.From)]);
   };
@@ -111,7 +136,10 @@ const FriendRequests = () => {
   }, [socket]);
 
   useEffect(() => {
-    if (user) setRequests(user.FriendRequests.reverse());
+    if (user) {
+      setRequests([...user.FriendRequests].reverse());
+      setFriends(user.Friends);
+    }
   }, [user]);
 
   const CloseModal = () => {
@@ -168,9 +196,9 @@ const FriendRequests = () => {
               </div>
               <div className="requests-list">
                 <ul className="users">
-                  {requests?.map((user, index) => {
+                  {requests?.map((friend, index) => {
                     var duration = formatDistanceToNowStrict(
-                      new Date(user.Date)
+                      new Date(friend.Date)
                     );
 
                     return (
@@ -179,7 +207,7 @@ const FriendRequests = () => {
                         accept={Accept}
                         reject={Reject}
                         message={Message}
-                        user={user}
+                        friend={friend}
                         duration={duration}
                       />
                     );
@@ -201,29 +229,33 @@ const FriendRequests = () => {
 };
 
 interface RequestsInterface {
-  user: Interfaces.Requests;
+  friend: Interfaces.Requests;
   accept(user: Interfaces.Requests): void;
   reject(id: string): void;
   duration: string;
   message(id: string): void;
 }
 function Requests(props: RequestsInterface) {
-  const { user, duration, accept, reject, message } = props;
+  const { friend, duration, accept, reject, message } = props;
 
   return (
     <li className="user">
       <div className="user-profile">
-        <div className="user-image">
-          <div className="image-wrapper">
-            <img src={user.Image} alt="user-image" className="image" />
-          </div>
-        </div>
+        <Avatar
+          src={friend.Image}
+          sx={{
+            bgcolor: stringToColor(friend.Name),
+          }}
+        >
+          {friend.Name.split(" ")[0][0] +
+            (friend.Name.split(" ")[1]?.at(0) ?? "")}
+        </Avatar>
         <div className="user-name">
           <div className="name">
-            <span>{user.Name}</span>
+            <span>{friend.Name}</span>
           </div>
           <div className="username !text-xs">
-            <span>@{user.UserName}</span>
+            <span>@{friend.UserName}</span>
           </div>
           <small className="block mt-1 text-xs" style={{ fontSize: 10 }}>
             {" "}
@@ -231,26 +263,26 @@ function Requests(props: RequestsInterface) {
           </small>
         </div>
       </div>
-      {user?.Accepted && (
+      {friend?.Accepted && (
         <Button
           size="small"
           className="btn open-chat"
-          onClick={() => message(user.From)}
+          onClick={() => message(friend.From)}
         >
           Message
         </Button>
       )}
-      {user?.Rejected && (
+      {friend?.Rejected && (
         <Button size="small" className="btn rejected" disabled={true}>
           Rejected
         </Button>
       )}
-      {!user?.Accepted && !user?.Rejected && (
+      {!friend?.Accepted && !friend?.Rejected && (
         <div className="friend-reject-accept-btn btn-wrapper">
           <Button
             size="small"
             onClick={(e) => {
-              accept(user);
+              accept(friend);
             }}
             className="accept btn !bg-green text-white"
           >
@@ -259,7 +291,7 @@ function Requests(props: RequestsInterface) {
           <Button
             size="small"
             onClick={(e) => {
-              reject(user.From);
+              reject(friend.From);
             }}
             className="reject btn button !bg-gradient-to-r from-red-200"
           >

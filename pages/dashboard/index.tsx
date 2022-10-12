@@ -17,7 +17,7 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
   );
   const dispatch = useAppDispatch();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
+  console.log({ socket });
   React.useEffect(() => {
     !user && FetchUser(dispatch, enqueueSnackbar, props.user);
   }, []);

@@ -23,12 +23,12 @@ const ChatBoard: React.FC = function () {
   const _callback$IncomingMessage = React.useCallback(
     (data: Interface.MessageType) => {
       const roomIds = store.getState().rooms.ids;
-      console.log({ roomIds, data });
       setFriends((state) => {
         const oldState = state.filter((user) => user.Id !== data.coming);
         let user = state.find((f) => f.Id === data.coming);
         user = {
           ...user,
+          time: data.date,
           UnseenMessages: roomIds.includes(data.coming)
             ? 0
             : Number(user.UnseenMessages) + 1,
@@ -40,9 +40,7 @@ const ChatBoard: React.FC = function () {
         return oldState;
       });
 
-      if (roomIds.includes(data.coming)) {
-        CleanSeen(data._id);
-      }
+      if (roomIds.includes(data.coming)) CleanSeen(data._id);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -91,29 +89,30 @@ const ChatBoard: React.FC = function () {
 
   useCustomEventListener(
     "openRoom",
-    ({ user: _u }: { user: Interface.Friend }) => {
-      if (_u.UnseenMessages == 0) return;
+    ({ friend }: { friend: Interface.Friend }) => {
+      if (friend.UnseenMessages == 0) return;
       setFriends((state) => {
         state = state.map((u) => {
-          if (u.Id === _u.Id) {
+          if (u.Id === friend.Id) {
             return { ...u, UnseenMessages: 0 };
           }
           return u;
         });
         return state;
       });
-      CleanSeen(_u._id);
+      CleanSeen(friend._id);
     }
   );
 
   useCustomEventListener(
     "Message",
-    (data: { id: string; message: string; flow: string }) => {
+    (data: { id: string; message: string; flow: string; time: number }) => {
       setFriends((prevFriends) => {
         return prevFriends.map((friend) => {
           if (friend.Id === data.id) {
             return {
               ...friend,
+              time: data.time,
               Last_Message: data.message,
               LastPersonToSendMessage: data.flow,
             };

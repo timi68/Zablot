@@ -68,9 +68,13 @@
   }
 
   .message {
-    margin-top: 10px;
+    margin-block: 10px;
     font-size: map-get($fonts, "smaller");
     white-space: normal;
+
+    @include media_1049 {
+      display: none;
+    }
   }
 
   .navigators {

@@ -148,7 +148,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
       socket.emit(
         "OUTGOINGFORM",
         question,
-        (err: string, { formId, date }: { formId: string; date: Date }) => {
+        (err: string, { formId, date }: { formId: string; date: number }) => {
           console.log({ err, formId, date });
           if (!err) {
             question._id = formId;

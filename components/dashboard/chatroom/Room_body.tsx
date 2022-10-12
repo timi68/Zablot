@@ -23,7 +23,7 @@ const RoomBody: React.FC<{
   const { room_id } = props;
 
   const socket = useAppSelector((state) => state.sessionStore.socket);
-  const { messages, type, loaded, user } = useAppSelector((state) =>
+  const { messages, type, loaded, friend } = useAppSelector((state) =>
     getRoom(state, room_id)
   );
   const coming = useAppSelector((state) => state.sessionStore.user._id);
@@ -33,7 +33,7 @@ const RoomBody: React.FC<{
 
   const _callback$Incoming = React.useCallback(
     (message: Interfaces.MessageType) => {
-      if (message.coming !== user.Id) return;
+      if (message.coming !== friend.Id) return;
       const messages = store.getState().rooms.entities[room_id].messages;
       dispatch(
         updateRoom({
@@ -45,19 +45,17 @@ const RoomBody: React.FC<{
         })
       );
     },
-    [dispatch, room_id, user]
+    [dispatch, room_id, friend]
   );
 
   const _callback$Answered = React.useCallback(
     (data: { coming: string; answer: { text: string; checked: boolean } }) => {
-      if (data.coming !== user.Id) return;
+      if (data.coming !== friend.Id) return;
     },
-    [user]
+    [friend]
   );
 
   React.useEffect(() => {
-    // setMessageData({messages: y, type: "loaded"});
-    console.log({ type, loaded });
     if (loaded) {
       let { scrollTop, scrollHeight } = bodyRef.current;
       switch (type) {
@@ -91,13 +89,13 @@ const RoomBody: React.FC<{
 
   React.useEffect(() => {
     // Socket handler; socket listener set when each group in created
-    // they are also removed when user close the room
+    // they are also removed when friend close the room
     socket.on("INCOMINGMESSAGE", _callback$Incoming);
     socket.on("INCOMINGFORM", _callback$Incoming);
     socket.on("ANSWERED", _callback$Answered);
 
     return () => {
-      // All this listener will be off when the user close
+      // All this listener will be off when the friend close
       // the chat room
       socket.off("INCOMINGMESSAGE", _callback$Incoming);
       socket.off("INCOMINGFORM", _callback$Incoming);
@@ -113,7 +111,7 @@ const RoomBody: React.FC<{
             _id: string;
             Message: Interfaces.MessageType[];
           }>("/api/messages", {
-            _id: user._id,
+            _id: friend._id,
           });
           console.log({ response: response.data });
           dispatch(
@@ -186,7 +184,7 @@ const RoomBody: React.FC<{
         const pre: Date | null = i > 0 ? new Date(messages[i - 1].date) : null;
 
         switch (data.coming) {
-          case user.Id:
+          case friend.Id:
             switch (data.Format) {
               case "Form":
                 return (

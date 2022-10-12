@@ -43,6 +43,7 @@ export type Friend = {
   UnseenMessages: number;
   Last_Message: string;
   IsPrivate: boolean;
+  time: number;
 };
 
 export type Settings = [];
@@ -145,7 +146,7 @@ export type MessageType = Partial<{
     text: string;
     checked: boolean;
   }[];
-  date: Date;
+  date: number;
   answered: Partial<{ text: string; checked: boolean }>;
   coin: number;
   timer: number;
@@ -158,7 +159,7 @@ export type MessageType = Partial<{
 
 export type RoomType = {
   room_id: string;
-  user: Friend;
+  friend: Friend;
   messages: MessageType[];
   loaded: boolean;
   pollToggled?: boolean;
