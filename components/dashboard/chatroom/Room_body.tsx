@@ -207,7 +207,7 @@ const RoomBody: React.FC<{
                     nextComingId={nextComingId}
                     cur={cur}
                     pre={pre}
-                    i={i}
+                    // i={i}
                   />
                 );
               case "image":
@@ -244,9 +244,8 @@ const RoomBody: React.FC<{
                     key={data._id}
                     message={data}
                     nextGoingId={nextGoingId}
-                    cur={cur}
                     pre={pre}
-                    i={i}
+                    // i={i}
                   />
                 );
               case "image":
