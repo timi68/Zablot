@@ -1,8 +1,6 @@
 import React from "react";
 import Chats from "./Chats";
-import * as Interface from "../../../lib/interfaces";
-import Image from "next/image";
-import CardActionArea from "@mui/material/CardActionArea";
+import * as Interface from "@lib/interfaces";
 /*
  * @param {{friends: Object[]}} props
  * @returns
