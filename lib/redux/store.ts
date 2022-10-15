@@ -1,7 +1,8 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import UserContext from "./userSlice";
-import RoomActions from "./roomSlice";
+import RoomActions, { updateRoom } from "./roomSlice";
+import { U } from "@types";
 
 // Create the root reducer separately so we can extract the RootState type
 const rootReducer = combineReducers({
@@ -25,5 +26,31 @@ export type AppDispatch = AppStore["dispatch"];
 // Use throughout your app instead of plain `useDispatch` and `useSelector`
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+
+export const UpdateState: U<typeof useAppDispatch> = (
+  field,
+  dispatch,
+  room_id,
+  messageId
+) => {
+  const messages = setupStore
+    .getState()
+    .rooms.entities[room_id].messages.map((_message) => {
+      if (_message._id === messageId) {
+        return { ..._message, ...field };
+      }
+      return _message;
+    });
+
+  dispatch(
+    updateRoom({
+      id: room_id,
+      changes: {
+        messages,
+        type: "in",
+      },
+    })
+  );
+};
 
 export default setupStore;

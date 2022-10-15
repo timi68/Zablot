@@ -9,9 +9,13 @@ import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 
 const ChatBoard: React.FC = function () {
-  const { user, activeFriends, socket } = useAppSelector((s) => s.sessionStore);
+  const { user, activeFriends, socket, device } = useAppSelector(
+    (s) => s.sessionStore
+  );
   const dispatch = useAppDispatch();
-  const [openModal, setOpenModal] = React.useState<boolean>(false);
+  const [openModal, setOpenModal] = React.useState<boolean>(
+    !["mobile", "tablet"].includes(device)
+  );
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
   const chatBoard = React.useRef<HTMLDivElement>(null);
@@ -132,6 +136,10 @@ const ChatBoard: React.FC = function () {
     [friends]
   );
 
+  useCustomEventListener("toggle", (dest: string) => {
+    setOpenModal(dest == "c");
+  });
+
   React.useEffect(() => {
     if (user) setFriends(user.Friends);
   }, [user]);
@@ -160,27 +168,33 @@ const ChatBoard: React.FC = function () {
     socket,
   ]);
 
+  React.useEffect(() => {
+    setOpenModal(!["mobile", "tablet"].includes(device));
+  }, [device]);
+
   return (
-    <div className="chats-container chat-board" ref={chatBoard}>
-      <div className="chat-wrapper">
-        <div className="chats-header">
-          <div className="title">Chats</div>
-        </div>
-        <div className="chats-body">
-          {loading ? (
-            <>
-              <div className="loader">
-                <CircularProgress sx={{ color: "grey" }} />
-              </div>
-            </>
-          ) : (
-            <>
-              <Friends friendId={user._id} friends={friends} />
-            </>
-          )}
+    openModal && (
+      <div className="chats-container chat-board" ref={chatBoard}>
+        <div className="chat-wrapper">
+          <div className="chats-header">
+            <div className="title">Chats</div>
+          </div>
+          <div className="chats-body p-3">
+            {loading ? (
+              <>
+                <div className="loader">
+                  <CircularProgress sx={{ color: "grey" }} />
+                </div>
+              </>
+            ) : (
+              <>
+                <Friends friendId={user._id} friends={friends} />
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    )
   );
 };
 

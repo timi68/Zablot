@@ -154,6 +154,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
             question._id = formId;
             question.date = date;
 
+            console.log({ question });
             const messages =
               store.getState().rooms.entities[props.room_id].messages;
             dispatch(
@@ -176,6 +177,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
     setOpen(false);
     setQuestion((state) => {
       return {
+        ...state,
         question: "",
         options: [
           { index: 0, text: "", checked: false },

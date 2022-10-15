@@ -11,7 +11,7 @@ $borderColor: #d7cdcd;
 
 .chats-container {
   background: #ebebeb;
-  padding: 10px;
+  padding-bottom: 10px;
   height: calc(100vh - 75px);
   margin-top: 5px;
   width: 320px;
@@ -25,69 +25,18 @@ $borderColor: #d7cdcd;
   }
 
   @include media_830 {
-    z-index: 100;
     position: fixed;
-    top: 69px;
-    right: 10px;
-    overflow: hidden;
-    border-radius: 10px;
-    box-shadow: $shadow;
-    pointer-events: none;
-    opacity: 0;
-    height: calc(100vh - 80px);
-
-    &.show {
-      opacity: 1;
-      pointer-events: initial;
-    }
-
-    @include toggle("open");
-    .open {
-      left: -10px;
-      border-radius: 5px 0px 0px 5px;
-
-      &::before {
-        left: 5px;
-      }
-      &::after {
-        left: 14px;
-      }
-    }
-
-    &.show .open {
-      left: 300px;
-      top: 0;
-      border-radius: 0px;
-      box-shadow: $shadow;
-      height: 40px;
-      background: map-get($map: $color, $key: "grey");
-
-      &::before,
-      &::after {
-        top: 40%;
-        left: 50%;
-        height: 25%;
-        background: map-get($map: $color, $key: "lightgrey");
-      }
-      &::before {
-        transform: rotateZ(145deg);
-      }
-      &::after {
-        transform: rotateZ(-145deg);
-      }
-    }
-  }
-
-  @include media_399 {
-    top: 60px;
+    top: 0px;
     border-radius: 0;
     box-shadow: none;
-    right: 0;
     left: 0;
     width: 100vw;
     max-height: 100vh;
-    height: calc(100vh - 60px);
+    height: 100vh;
+    z-index: 100;
+    padding-bottom: 60px;
   }
+
   .loader {
     height: 100%;
     width: 320px;
@@ -106,13 +55,22 @@ $borderColor: #d7cdcd;
     position: sticky;
     top: 0;
     margin-bottom: 10px;
+    padding: 10px;
     border-bottom: thin solid #c8c8c8;
 
     .title {
       font-size: map-get($fonts, "small");
       font-weight: 500;
-      padding: 10px;
       text-align: center;
+    }
+
+    @include media_649 {
+      border: none;
+      box-shadow: $shadow;
+
+      .title {
+        text-align: left;
+      }
     }
   }
 

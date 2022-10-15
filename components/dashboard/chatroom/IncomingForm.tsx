@@ -1,58 +1,30 @@
 import React from "react";
-import { RoomType, MessageType } from "../../../lib/interfaces";
-import GroupMessage from "./Group_Message";
+import { RoomType, MessageType, Friend } from "@types";
+import GroupMessage from "@lib/Group_Message";
 import { Socket } from "socket.io";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import Chip from "@mui/material/Chip";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { format } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { getRoom } from "@lib/redux/roomSlice";
-import { updateRoom } from "@lib/redux/roomSlice";
-import store from "@lib/redux/store";
+import { UpdateState } from "@lib/redux/store";
+import { isEqual } from "lodash";
+import { emitCustomEvent } from "react-custom-events";
+import { feedback } from "./OutgoingForm";
 
-function OutgoingForm(props: {
+function IncomingForm(props: {
   room_id: string | number;
+  friend: Friend;
   message: MessageType;
-  nextComingId: boolean;
-  cur: Date;
   pre: Date | null;
 }) {
-  const { room_id, nextComingId, message, cur, pre } = props;
-
-  const [coming, socket, { _id: messagesId, Id: going }] = useAppSelector(
-    (state) => [
-      state.sessionStore.user._id,
-      state.sessionStore.socket,
-      getRoom(state, room_id).friend,
-    ]
-  );
+  const { room_id, friend, message, pre } = props;
+  const { _id: coming, socket } = useAppSelector((state) => state.sessionStore);
+  const { _id: messagesId, Id: going } = friend;
   const dispatch = useAppDispatch();
-  const className = `incoming-message incoming-form ${
-    nextComingId ? "adjust-mg" : ""
-  }`;
+  const className = `incoming-message incoming-form`;
 
-  const Group = GroupMessage({ cur, pre });
-  const UpdateState = (field: Partial<MessageType>) => {
-    const messages = store
-      .getState()
-      .rooms.entities[room_id].messages.map((_message) => {
-        if (_message._id === message._id) {
-          return { ..._message, ...field };
-        }
-        return _message;
-      });
-
-    dispatch(
-      updateRoom({
-        id: room_id,
-        changes: {
-          messages,
-          type: "in",
-        },
-      })
-    );
-  };
+  const Group = GroupMessage({ cur: new Date(message.date), pre });
 
   /**
    *
@@ -76,27 +48,10 @@ function OutgoingForm(props: {
     // and get a response from the server if process is done
     socket.emit("ANSWERED", dataToEmit, (err: string, _done: string) => {
       if (!err) {
-        UpdateState({ answered: OptionPicked });
-        const pollCoinAdded: number = message.coin;
-        const coinTagName: HTMLSpanElement =
-          document.querySelector(".coin-wrapper span");
+        UpdateState({ answered: OptionPicked }, dispatch, room_id, message._id);
 
-        if (pollCoinAdded) {
-          var coin: number = parseInt(coinTagName.innerText);
-
-          var count: number = 0;
-          var interval: NodeJS.Timer = setInterval(() => {
-            if (OptionPicked.checked) coin++;
-            else coin--;
-
-            coinTagName.innerText = coin as unknown as string;
-            count++;
-
-            if (count == pollCoinAdded) {
-              clearInterval(interval);
-            }
-          }, 100);
-        }
+        let action = isEqual(OptionPicked, CorrectAnswer) ? "add" : "less";
+        emitCustomEvent("coin", { num: message.coin, action });
       }
     });
   };
@@ -110,42 +65,15 @@ function OutgoingForm(props: {
       coin: message.coin,
     };
 
-    socket.emit("NOANSWER", dataToEmit, (err: string, done: string) => {
+    socket.emit("NOANSWER", dataToEmit, (err: string) => {
       if (!err) {
-        UpdateState({ noAnswer: true });
-        const pollCoinAdded: number = message.coin;
-        const coinTagName: HTMLSpanElement =
-          document.querySelector(".coin-wrapper span");
-
-        if (pollCoinAdded) {
-          var coin: number = parseInt(coinTagName.innerText);
-
-          var count: number = 0;
-          var interval: NodeJS.Timer;
-          interval = setInterval(() => {
-            coin--;
-
-            coinTagName.innerText = coin as unknown as string;
-            count++;
-
-            if (count == pollCoinAdded) {
-              clearInterval(interval);
-            }
-          }, 100);
-        }
+        UpdateState({ noAnswer: true }, dispatch, room_id, message._id);
+        emitCustomEvent("coin", { num: message.coin, action: "less" });
       }
     });
   };
 
-  const formMessageClass = `form-message poll question${
-    (Boolean(message?.answered) &&
-      (message.answered?.checked ? " correct before" : " failed before")) ??
-    message?.noAnswer
-      ? " no-answer-picked before"
-      : ""
-  }`;
-
-  console.log({ message });
+  const formMessageClass = `form-message poll question`;
 
   return (
     <React.Fragment>
@@ -160,30 +88,22 @@ function OutgoingForm(props: {
             <div className="poll-question">
               <div className="poll-question-header">
                 {Boolean(message.timer) &&
-                  (!Boolean(message?.answered) ? (
+                  (!message?.answered && !message?.noAnswer ? (
                     <Timer timer={message.timer} PollTimeOut={PollTimeOut} />
                   ) : (
-                    <div className="timer">
-                      <Chip
-                        className="time-count"
-                        avatar={<AccessTimeOutlinedIcon fontSize="small" />}
-                        label={message.timer + "s"}
-                        variant="filled"
-                      />
+                    <div className="timer flex items-center gap-1">
+                      <AccessTimeOutlinedIcon fontSize={"small"} />
+                      <span className="text-sm">{message.timer + "s"}</span>
                     </div>
                   ))}
                 {Boolean(message.coin) && (
-                  <div className="coin-added">
-                    <Chip
-                      className="time-count"
-                      avatar={<MonetizationOnIcon fontSize="small" />}
-                      label={message.coin}
-                      variant="filled"
-                    />
+                  <div className="flex items-center gap-1">
+                    <MonetizationOnIcon fontSize="small" />
+                    <span className="text-sm">{message.coin}</span>
                   </div>
                 )}
               </div>
-              <div className="text !mr-0" id="question">
+              <div className="text !mr-0 !p-2 capitalize" id="question">
                 {message.question}
               </div>
             </div>
@@ -207,14 +127,20 @@ function OutgoingForm(props: {
                           name={option.text}
                           id="option"
                           className="option"
-                          readOnly={message.answered?.text ? true : false}
+                          readOnly={
+                            message.answered?.text || message.noAnswer
+                              ? true
+                              : false
+                          }
                           checked={message?.answered?.text === option.text}
                           onChange={() =>
-                            message.answered?.text ? null : AnswerChecked(index)
+                            message.answered?.text || message.noAnswer
+                              ? null
+                              : AnswerChecked(index)
                           }
                         />
                       </div>
-                      <div className="option-text label">
+                      <div className="option-text capitalize label">
                         <label>{option.text}</label>
                       </div>
                     </li>
@@ -223,9 +149,25 @@ function OutgoingForm(props: {
               </ul>
             </div>
           </div>
-          <span className="time">
-            <small>{format(cur, "HH:mm")}</small>
+          <span
+            className={
+              "time" +
+              (message?.answered || message?.noAnswer
+                ? " !text-white"
+                : " text-gray-700")
+            }
+          >
+            <small>{format(new Date(message.date), "HH:mm")}</small>
           </span>
+          <div className="feedback">
+            {Boolean(message?.answered)
+              ? message.answered?.checked
+                ? feedback.correct
+                : feedback.failed
+              : message?.noAnswer
+              ? feedback.none
+              : ""}
+          </div>
         </div>
       </div>
     </React.Fragment>
@@ -257,17 +199,13 @@ const Timer: React.FC<{ timer: number; PollTimeOut(): void }> = React.memo(
       };
     }, [time, PollTimeOut]);
     return (
-      <div className="timer">
-        <Chip
-          className="time-count"
-          avatar={<AccessTimeOutlinedIcon fontSize="small" />}
-          label={time + "s"}
-          variant="filled"
-        />
+      <div className="timer flex items-center gap-1">
+        <AccessTimeOutlinedIcon fontSize={"small"} />
+        <span className="text-sm">{time + "s"}</span>
       </div>
     );
   }
 );
 Timer.displayName = "Timer";
 
-export default React.memo(OutgoingForm);
+export default React.memo(IncomingForm);

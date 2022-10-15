@@ -6,13 +6,13 @@ import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Stack from "@mui/material/Stack";
 import { Friend } from "@types";
-import { getRoom, removeRoom } from "@lib/redux/roomSlice";
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { getRoom } from "@lib/redux/roomSlice";
+import { useAppSelector } from "@lib/redux/store";
 import { Avatar } from "@mui/material";
-import Image from "next/image";
 import StyledBadge from "@comp/dashboard/chatboard/StyledBadge";
 import stringToColor from "@utils/stringToColor";
 import { format } from "date-fns";
+import { emitCustomEvent } from "react-custom-events";
 
 type RoomHeaderPropsType = {
   room_id: string | number;
@@ -24,11 +24,10 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
     socket,
     user: { _id },
   } = useAppSelector((state) => state.sessionStore);
-  const dispatch = useAppDispatch();
   const statusRef = React.useRef<HTMLDivElement>();
 
   const UpdateRooms = (): void => {
-    dispatch(removeRoom(room_id));
+    emitCustomEvent("removeRoom", room_id);
   };
 
   const _callback$Status = React.useCallback(

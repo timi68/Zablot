@@ -20,6 +20,8 @@ import DynamicFormRoundedIcon from "@mui/icons-material/DynamicFormRounded";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useAppSelector } from "@lib/redux/store";
+import { Avatar, Skeleton } from "@mui/material";
+import stringToColor from "@utils/stringToColor";
 
 const links = [
   { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
@@ -56,7 +58,7 @@ type Tooltip = {
 };
 
 export default React.memo(function Sidebar() {
-  const { user, active } = useAppSelector((state) => state.sessionStore);
+  const user = useAppSelector((state) => state.sessionStore.user);
   const sidebar: React.MutableRefObject<HTMLDivElement> =
     React.useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = React.useState<Tooltip>({
@@ -133,18 +135,36 @@ export default React.memo(function Sidebar() {
         <div className="preview-profile">
           <div className="user-image-name-wrapper">
             <div className="user-image">
-              <Image
-                src="/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-                alt="/"
-                width={35}
-                height={35}
-                priority={true}
-                className="image"
-              />
+              {user ? (
+                <Avatar
+                  src={user.Image.profile}
+                  variant="rounded"
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    fontSize: "1rem",
+                    bgcolor: stringToColor(user.FullName),
+                  }}
+                >
+                  {user.FullName.split(" ")[0][0] +
+                    (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                </Avatar>
+              ) : (
+                <Skeleton className="w-8 h-9" />
+              )}
             </div>
-            <div className="name-wrap">
-              <div className="name">{user?.FullName}</div>
-              <div className="username">@{user?.UserName}</div>
+            <div className="name-wrap flex-grow">
+              {user ? (
+                <>
+                  <div className="name">{user?.FullName}</div>
+                  <div className="username">@{user?.UserName}</div>
+                </>
+              ) : (
+                <>
+                  <Skeleton className="w-full h-5" />
+                  <Skeleton className="w-9/12 h-5" />
+                </>
+              )}
             </div>
           </div>
         </div>

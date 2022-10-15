@@ -10,6 +10,7 @@ const initialState: stateInterface = {
   user: null,
   mode: "light",
   active: null,
+  device: "mobile",
   session: {
     USER_ID: null,
     SOCKET_ID: null,
@@ -23,7 +24,9 @@ const AppContext = createSlice({
     USER: (state: stateInterface, actions: PayloadAction<User>) => {
       state.user = actions.payload;
       state.loggedIn = true;
-      return;
+
+      let w = window.innerWidth;
+      state.device = w < 500 ? "mobile" : w < 900 ? "tablet" : "desktop";
     },
     SOCKET: (
       state: stateInterface,
@@ -43,8 +46,12 @@ const AppContext = createSlice({
     ) => {
       state.activeFriends = actions.payload;
     },
+    RESIZE: (state, actions: PayloadAction<typeof initialState["device"]>) => {
+      state.device = actions.payload;
+    },
   },
 });
 
-export const { USER, SESSION, SOCKET, ACTIVE_FRIENDS } = AppContext.actions;
+export const { USER, SESSION, SOCKET, ACTIVE_FRIENDS, RESIZE } =
+  AppContext.actions;
 export default AppContext.reducer;

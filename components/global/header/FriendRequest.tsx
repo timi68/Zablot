@@ -8,20 +8,31 @@ import { CSSTransition } from "react-transition-group";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { IconButton, Badge, Button, Avatar } from "@mui/material";
 import j from "jquery";
-import * as Interfaces from "../../../lib/interfaces";
-import { emitCustomEvent } from "react-custom-events";
+import * as Interfaces from "@lib/interfaces";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import { useAppSelector } from "@lib/redux/store";
 import { formatDistanceToNowStrict } from "date-fns";
-import Image from "next/image";
 import stringToColor from "@utils/stringToColor";
+import { useRouter } from "next/router";
 
 const FriendRequests = () => {
-  const { socket, user } = useAppSelector((state) => state.sessionStore);
+  const { socket, user, device } = useAppSelector(
+    (state) => state.sessionStore
+  );
   const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const IconButtonRef = useRef<HTMLButtonElement>(null);
   const Backdrop = useRef<HTMLDivElement>(null);
   const [friends, setFriends] = React.useState([]);
+  const router = useRouter();
+
+  // React.useEffect(() => {
+  //   if (router.asPath.indexOf("friend-request") != -1) {
+  //     setOpenModal(true);
+  //   } else {
+  //     setOpenModal(false);
+  //   }
+  // }, [router]);
 
   const Reject = (id: string) => {
     let data = {
@@ -123,7 +134,7 @@ const FriendRequests = () => {
     });
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (socket) {
       socket.on("FRIENDSHIP_DEMAND", FRIENDSHIP_DEMAND);
       socket.on("REMOVE_REQUEST", REMOVE_REQUEST);
@@ -144,87 +155,89 @@ const FriendRequests = () => {
 
   const CloseModal = () => {
     setOpenModal(false);
-    IconButtonRef.current.classList.remove("active");
     setRequests(requests.filter((r) => !r.Accepted));
+    emitCustomEvent("off");
   };
 
-  const handleOpen = () => {
-    IconButtonRef.current.classList.toggle("active");
-    setOpenModal(true);
-  };
+  useCustomEventListener("toggle", (dest: string) => {
+    setOpenModal(dest == "f");
+  });
 
   const CaptureClick = (e: React.MouseEvent) => {
     e.target === Backdrop.current && CloseModal();
   };
+
+  const isNotDesktop = ["mobile", "tablet"].includes(device);
+  const M = isNotDesktop ? "div" : motion.div;
+  const MProp = isNotDesktop
+    ? {
+        className:
+          "!fixed !top-0 !left-0 z-50 h-screen friend-requests-wrapper w-screen",
+      }
+    : {
+        initial: { scale: 0.8 },
+        animate: { scale: 1 },
+        exit: { scale: 0.7 },
+      };
+
+  const A = isNotDesktop ? React.Fragment : AnimatePresence;
+  const AProp = isNotDesktop ? {} : { exitBeforeEnter: true, initial: false };
+
   return (
-    <div className="friendrequest-wrapper">
-      <Badge color="secondary" badgeContent={requests.length} showZero>
-        <IconButton className="open" ref={IconButtonRef} onClick={handleOpen}>
-          <PersonAddIcon fontSize="small" />
-        </IconButton>
-      </Badge>
-      <AnimatePresence exitBeforeEnter={true} initial={false}>
-        {openModal && (
-          <motion.div
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="requests-backdrop"
+    <A {...AProp}>
+      {openModal && (
+        <>
+          <div
+            className="h-screen fixed w-screen top-0 left-0 z-10"
             ref={Backdrop}
             onClickCapture={CaptureClick}
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.7, visibility: "hidden" }}
-              className="requests-box"
-            >
-              <div className="requests-header">
-                <div className="title">Friend Requests</div>
-                <motion.button
-                  className="close-modal modal"
-                  onClick={CloseModal}
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{
-                    scale: 1.1,
-                    backgroundColor: "rgb(53,163,180)",
-                    color: "rgb(255,255,255)",
-                  }}
-                >
-                  <span>Close</span>
-                </motion.button>
-              </div>
-              <div className="requests-list">
-                <ul className="users">
-                  {requests?.map((friend, index) => {
-                    var duration = formatDistanceToNowStrict(
-                      new Date(friend.Date)
-                    );
+          />
+          <M className="friend-requests-wrapper" {...MProp}>
+            <div className="requests-header transition-all top-0 shadow-lg sticky flex justify-center bg-inherit py-2.5 px-5">
+              <div className="title">Friend Requests</div>
+              <motion.button
+                className="close-modal"
+                onClick={CloseModal}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{
+                  scale: 1.1,
+                  backgroundColor: "rgb(53,163,180)",
+                  color: "rgb(255,255,255)",
+                }}
+              >
+                <span>Close</span>
+              </motion.button>
+            </div>
+            <div className="requests-list">
+              <ul className="users">
+                {requests?.map((friend, index) => {
+                  var duration = formatDistanceToNowStrict(
+                    new Date(friend.Date)
+                  );
 
-                    return (
-                      <Requests
-                        key={index}
-                        accept={Accept}
-                        reject={Reject}
-                        message={Message}
-                        friend={friend}
-                        duration={duration}
-                      />
-                    );
-                  })}
-                  {!Boolean(requests?.length) && (
-                    <div className="no_request !text-sm">
-                      <h6>There is no request available</h6>
-                    </div>
-                  )}
-                </ul>
-              </div>
-              <PeopleYouMightKnow />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                  return (
+                    <Requests
+                      key={index}
+                      accept={Accept}
+                      reject={Reject}
+                      message={Message}
+                      friend={friend}
+                      duration={duration}
+                    />
+                  );
+                })}
+                {!Boolean(requests?.length) && (
+                  <div className="no_request !text-sm">
+                    <h6>There is no request available</h6>
+                  </div>
+                )}
+              </ul>
+            </div>
+            <PeopleYouMightKnow />
+          </M>
+        </>
+      )}
+    </A>
   );
 };
 
@@ -239,8 +252,8 @@ function Requests(props: RequestsInterface) {
   const { friend, duration, accept, reject, message } = props;
 
   return (
-    <li className="user">
-      <div className="user-profile">
+    <li className="user flex justify-between">
+      <div className="flex">
         <Avatar
           src={friend.Image}
           sx={{

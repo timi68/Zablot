@@ -1,5 +1,4 @@
 // @ts-check
-
 const {
   Activities,
   Users,
@@ -14,8 +13,7 @@ const { Socket } = require("socket.io");
 
 // FriendRequests.findByIdAndUpdate = promisify(FriendRequests.findByIdAndUpdate)
 /**
- *
- * @param {Socket & {request: { session: {user: string}} }} socket
+ * @param {import("../types").ModSocket} socket
  */
 function ControlSocketActions(socket) {
   socket.on(
@@ -427,22 +425,26 @@ function ControlSocketActions(socket) {
     }
   });
 
-  socket.on("disconnect", () => {
-    Activities.findOneAndDelete({ SocketId: socket.id }, async (err) => {
-      if (!err) {
-        let user = socket.request.session.user ?? null;
-        console.log("One user is Disconnected ===>", user);
-        await Users.findByIdAndUpdate(user, {
-          Online: false,
-          Last_Seen: new Date(),
-        }).exec();
-        socket.broadcast.emit("STATUS", {
-          _id: user,
-          online: false,
-          Last_Seen: new Date(),
-        });
-      }
-    });
+  socket.on("disconnect", handleDisconnect.bind(null, socket));
+}
+
+/**
+ *
+ * @param {import("../types").ModSocket} socket
+ */
+function handleDisconnect(socket) {
+  Activities.findOneAndDelete({ SocketId: socket.id });
+  let user = socket.request.session.user ?? null;
+  console.log("One user is Disconnected ===>", user);
+  Users.findByIdAndUpdate(user, {
+    Online: false,
+    Last_Seen: new Date(),
+  }).exec();
+
+  socket.broadcast.emit("STATUS", {
+    _id: user,
+    online: false,
+    Last_Seen: new Date(),
   });
 }
 
@@ -477,5 +479,6 @@ async function AddNotification(id, message, emit, sid, socket) {
     return;
   }
 }
+//so the program will not close instantly
 
 module.exports = ControlSocketActions;

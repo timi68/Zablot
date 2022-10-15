@@ -53,13 +53,15 @@ const ChatRoom = () => {
   );
 
   return (
-    <div className="chat-rooms-container">
-      <div className="chat-rooms-wrapper">
-        {rooms?.map((room, i) => {
-          return <Room key={room} room_id={room} />;
-        })}
+    Boolean(rooms.length) && (
+      <div className="chat-rooms-container">
+        <div className="chat-rooms-wrapper">
+          {rooms?.map((room, i) => {
+            return <Room key={room} room_id={room} />;
+          })}
+        </div>
       </div>
-    </div>
+    )
   );
 };
 

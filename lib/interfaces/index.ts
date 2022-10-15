@@ -16,6 +16,7 @@ export type stateInterface = {
   session?: Session;
   activeFriends?: string[];
   active: string;
+  device: "mobile" | "tablet" | "desktop";
 };
 export interface actionInterface {
   type: ActionType;
@@ -180,3 +181,10 @@ export type RoomBodyRefType = {
   setMessages(message: MessageType, type: "out" | "in" | "loaded"): void;
   getMessages(): MessageType[];
 };
+
+export type U<T extends (...args: any) => any> = (
+  field: Partial<MessageType>,
+  dispatch: ReturnType<T>,
+  room_id: string | number,
+  messageId: string
+) => void;

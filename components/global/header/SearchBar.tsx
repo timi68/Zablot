@@ -17,7 +17,9 @@ interface SearchInterface {
 }
 
 const SearchBar = () => {
-  const { socket, user } = useAppSelector((state) => state.sessionStore);
+  const { socket, user, device } = useAppSelector(
+    (state) => state.sessionStore
+  );
   const [searchData, setSearchData] = React.useState<SearchInterface>({
     matched: [],
     pending: [],
@@ -207,61 +209,56 @@ const SearchBar = () => {
 
   // New Friend Event Listener
   useCustomEventListener("newFriend", NewFriend, [friends, searchData]);
+  useCustomEventListener(
+    "toggle",
+    (dest: string) => {
+      setOpen(dest == "s");
+    },
+    [searchBar]
+  );
 
   React.useEffect(() => {
     if (open) {
       setTimeout(() => {
-        searchBar.current.focus();
+        searchBar.current?.focus();
       }, 200);
     }
   }, [open]);
 
+  const isNotDesktop = ["mobile", "tablet"].includes(device);
+  const M = isNotDesktop ? "div" : motion.div;
+  const MProp = isNotDesktop
+    ? {
+        className:
+          "!fixed !top-0 !left-0 z-50 !h-screen search-results fetched matched !w-screen rounded-none",
+      }
+    : {
+        initial: { scale: 0.8 },
+        animate: { scale: 1 },
+        exit: { scale: 0.7 },
+      };
+
+  const B = isNotDesktop ? React.Fragment : motion.div;
+  const BProp = isNotDesktop
+    ? {}
+    : {
+        onClickCapture: CaptureClick,
+        initial: { opacity: 0.8 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        className: "search-backdrop",
+        ref: Backdrop,
+      };
+
+  const A = isNotDesktop ? React.Fragment : AnimatePresence;
+  const AProp = isNotDesktop ? {} : { exitBeforeEnter: true, initial: false };
+
   return (
-    <div className="search-container" ref={container}>
-      <div
-        className="search-text-box"
-        id="search"
-        onClick={() => setOpen(true)}
-      >
-        <div className="search-form dummy">
-          <div className="search-icon" role="search">
-            <SearchIcon fontSize="small" />
-          </div>
-          <div className="form-control">
-            <input
-              type="search"
-              role="searchbox"
-              aria-autocomplete="none"
-              ref={searchBar}
-              onChange={ReadyForSearch}
-              className="text-control text-sm p-0"
-              id="text-control"
-              placeholder="Search a friend.."
-              autoComplete="off"
-            />
-          </div>
-        </div>
-      </div>
-      <AnimatePresence initial={false} exitBeforeEnter={true}>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="search-backdrop"
-            ref={Backdrop}
-            onClickCapture={CaptureClick}
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{
-                scale: 0.7,
-                visibility: "hidden",
-                transitionDuration: "100ms",
-              }}
-              className="search-results fetched matched"
-            >
+    <A {...AProp}>
+      {open && (
+        <div className="search-container" ref={container}>
+          <B {...BProp}>
+            <M className="search-results fetched matched" {...MProp}>
               <div className="search-matched-wrapper">
                 <motion.div
                   initial={{ scale: 0.7 }}
@@ -352,11 +349,11 @@ const SearchBar = () => {
                   )}
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            </M>
+          </B>
+        </div>
+      )}
+    </A>
   );
 };
 

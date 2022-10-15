@@ -12,39 +12,57 @@ import CommentIcon from "@mui/icons-material/CommentRounded";
 import ShareIcon from "@mui/icons-material/ShareRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import Link from "next/link";
+import { Avatar } from "@mui/material";
+import { useAppSelector } from "@lib/redux/store";
+import stringToColor from "@utils/stringToColor";
 
 const stories = [];
 
 function UploadScreen() {
+  const user = useAppSelector((state) => state.sessionStore.user);
+
   return (
     <div>
-      <div className="social-wrapper">
-        <div className="active-feeds">
-          <div className="feeds-title title">
-            <span>Stories</span>
-          </div>
-          <div className="feeds-container">
-            <ul className="feeds-list">
-              {[...(new Array(5).keys() as unknown as number[])].map(
-                (index) => {
-                  return (
-                    <li className="feeds" key={index}>
-                      <div className="front-feed">
-                        <img
-                          src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-                          className="feed-image"
-                          alt=""
-                        />
-                      </div>
-                      <div className="status-title">
-                        <span className="owner-name">Abigail</span>
-                      </div>
-                    </li>
-                  );
-                }
-              )}
-            </ul>
-          </div>
+      <div className="social-wrapper py-3">
+        <div className="feeds-container">
+          <ul className="feeds-list flex p-2 gap-3 w-full overflow-auto scroll-m-10">
+            {user && (
+              <li className="feed grid place-items-center">
+                <Avatar
+                  src={user.Image.profile}
+                  className="h-16 w-16"
+                  alt={user.FullName}
+                  sx={{
+                    bgcolor: stringToColor(user.FullName),
+                  }}
+                >
+                  {user.FullName.split(" ")[0][0] +
+                    (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                </Avatar>
+                <div className="status-label">
+                  <span className="!font-['Nunito'] text-sm text-center font-bold">
+                    You
+                  </span>
+                </div>
+              </li>
+            )}
+            {[...(new Array(5).keys() as unknown as number[])].map((index) => {
+              return (
+                <li className="feed grid place-items-center" key={index}>
+                  <Avatar
+                    className="h-16 w-16"
+                    src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
+                    alt="Status from the owner"
+                  />
+                  <div className="status-label">
+                    <span className="!font-['Nunito'] text-sm text-center font-bold">
+                      Abigail
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
         <div className="upload create-post">
           <div className="form-group">
@@ -82,18 +100,14 @@ function UploadScreen() {
               <div className="post-wrapper">
                 <div className="post-content">
                   <div className="uploader-wrap">
-                    <div className="user-image">
-                      <img
-                        src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-                        alt=""
-                        className="image"
-                      />
-                    </div>
+                    <Avatar
+                      src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
+                      alt="John Oderinde Post"
+                    >
+                      JH
+                    </Avatar>
                     <div className="name">
-                      <div
-                        className="username text"
-                        style={{ fontWeight: 600, fontSize: "1.1em" }}
-                      >
+                      <div className="username text-sm font-bold !font-['Nunito']">
                         Oderinde James Oluwatimileyin
                       </div>
                     </div>
@@ -106,7 +120,7 @@ function UploadScreen() {
                             <img
                               src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
                               alt=""
-                              className="image"
+                              className="image w-full"
                             />
                           </div>
                         </div>

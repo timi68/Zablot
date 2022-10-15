@@ -1,19 +1,16 @@
-import React, { useReducer, useEffect } from "react";
-import { useSocket } from "../socket";
-import cookie from "js-cookie";
-import AppLayout from "../../src/AppLayout";
+import React from "react";
+import { useSocket } from "@lib/socket";
+import AppLayout from "@comp/layout";
 import { SnackbarProvider } from "notistack";
 import { AnimatePresence } from "framer-motion";
-import io from "socket.io-client";
-import { SOCKET } from "../redux/userSlice";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { SOCKET } from "@lib/redux/userSlice";
+import { useAppDispatch } from "@lib/redux/store";
 
 function AppContextProvider({ children }) {
   const dispatch = useAppDispatch();
-  // const loggedIn = useAppSelector((state) => state.sessionStore.loggedIn);
   const socket = useSocket("/", true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     dispatch(SOCKET({ socket }));
   }, [dispatch, socket]);
 

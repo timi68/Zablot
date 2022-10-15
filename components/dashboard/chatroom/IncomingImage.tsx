@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Socket } from "socket.io-client";
 import { MessageType } from "../../../lib/interfaces";
 import Image from "next/image";
-import GroupMessage from "./Group_Message";
+import GroupMessage from "../../../lib/Group_Message";
 import Skeleton from "@mui/material/Skeleton";
 import { format } from "date-fns";
 

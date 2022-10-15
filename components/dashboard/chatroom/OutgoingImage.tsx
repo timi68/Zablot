@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Socket } from "socket.io";
 import { MessageType } from "../../../lib/interfaces";
 import Skeleton from "@mui/material/Skeleton";
-import GroupMessage from "./Group_Message";
+import GroupMessage from "../../../lib/Group_Message";
 import { format } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { updateRoom } from "@lib/redux/roomSlice";

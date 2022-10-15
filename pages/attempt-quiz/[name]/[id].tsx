@@ -1,5 +1,4 @@
 import React from "react";
-import AppLayout from "@src/AppLayout";
 import { useSnackbar } from "notistack";
 import * as Interfaces from "@lib/interfaces";
 import FetchUser from "@lib/fetch_user";

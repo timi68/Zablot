@@ -1,7 +1,5 @@
 import React from "react";
-import * as Interfaces from "../../../lib/interfaces";
-import IncomingMessage from "./IncomingMessage";
-import OutgoingMessage from "./OutgoingMessage";
+import * as Interfaces from "@types";
 import j from "jquery";
 import { Socket } from "socket.io";
 import axios from "axios";
@@ -10,10 +8,9 @@ import OutgoingForm from "./OutgoingForm";
 import IncomingForm from "./IncomingForm";
 import IncomingImage from "./IncomingImage";
 import OutgoingImage from "./OutgoingImage";
-import { emitCustomEvent } from "react-custom-events";
 import { getRoom, updateRoom } from "@lib/redux/roomSlice";
 import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { loadDefaultErrorComponents } from "next/dist/server/load-components";
+import Message from "./Message";
 
 const RoomBody: React.FC<{
   room_id: string | number;
@@ -26,7 +23,6 @@ const RoomBody: React.FC<{
   const { messages, type, loaded, friend } = useAppSelector((state) =>
     getRoom(state, room_id)
   );
-  const coming = useAppSelector((state) => state.sessionStore.user._id);
   const dispatch = useAppDispatch();
   const bodyRef = React.useRef<HTMLDivElement>();
   const Alert = React.useRef<HTMLDivElement>();
@@ -113,17 +109,18 @@ const RoomBody: React.FC<{
           }>("/api/messages", {
             _id: friend._id,
           });
-          console.log({ response: response.data });
-          dispatch(
-            updateRoom({
-              id: room_id,
-              changes: {
-                messages: response?.data?.Message ?? [],
-                type: "loaded",
-                loaded: true,
-              },
-            })
-          );
+          setTimeout(() => {
+            dispatch(
+              updateRoom({
+                id: room_id,
+                changes: {
+                  messages: response?.data?.Message ?? [],
+                  type: "loaded",
+                  loaded: true,
+                },
+              })
+            );
+          }, 300);
         } catch (error) {
           console.log({ error });
         }
@@ -149,6 +146,7 @@ const RoomBody: React.FC<{
     );
   }
 
+  console.log({ messages });
   return (
     <div className="room-body" ref={bodyRef}>
       <div className="welcome-message">
@@ -169,99 +167,18 @@ const RoomBody: React.FC<{
       >
         0
       </div>
-      {messages.map((data, i) => {
-        const nextComingId: boolean =
-          i > 0 && i < messages.length - 1
-            ? messages[i + 1].coming === data.coming
-            : false;
-
-        const nextGoingId =
-          i > 0 && i < messages.length - 1
-            ? messages[i + 1].going === data.going
-            : false;
-
-        const cur: Date = new Date(data.date);
-        const pre: Date | null = i > 0 ? new Date(messages[i - 1].date) : null;
-
-        switch (data.coming) {
-          case friend.Id:
-            switch (data.Format) {
-              case "Form":
-                return (
-                  <IncomingForm
-                    message={data}
-                    key={data._id}
-                    nextComingId={nextComingId}
-                    cur={cur}
-                    pre={pre}
-                    room_id={room_id}
-                  />
-                );
-              case "plain":
-                return (
-                  <IncomingMessage
-                    message={data}
-                    key={data._id}
-                    nextComingId={nextComingId}
-                    cur={cur}
-                    pre={pre}
-                    // i={i}
-                  />
-                );
-              case "image":
-                return (
-                  <IncomingImage
-                    message={data}
-                    key={data._id}
-                    nextComingId={nextComingId}
-                    cur={cur}
-                    pre={pre}
-                    i={i}
-                  />
-                );
-              default:
-                return;
-            }
-
-          default:
-            switch (data.Format) {
-              case "Form":
-                return (
-                  <OutgoingForm
-                    key={data._id}
-                    message={data}
-                    nextGoingId={nextGoingId}
-                    cur={cur}
-                    pre={pre}
-                    room_id={room_id}
-                  />
-                );
-              case "plain":
-                return (
-                  <OutgoingMessage
-                    key={data._id}
-                    message={data}
-                    nextGoingId={nextGoingId}
-                    pre={pre}
-                    // i={i}
-                  />
-                );
-              case "image":
-                return (
-                  <OutgoingImage
-                    key={data._id}
-                    message={data}
-                    nextGoingId={nextComingId}
-                    cur={cur}
-                    pre={pre}
-                    room_id={room_id}
-                    i={i}
-                  />
-                );
-              default:
-                return;
-            }
-        }
+      {messages.map((message, i) => {
+        return (
+          <Assign
+            key={message._id}
+            room_id={room_id}
+            message_id={message._id}
+            message={message}
+            friend={friend}
+            next={true}
+            pre={messages[i - 1]?.date}
+          />
+        );
       })}
 
       {!messages.length && (
@@ -272,5 +189,79 @@ const RoomBody: React.FC<{
     </div>
   );
 };
+
+type AssignProps = {
+  room_id: string | number;
+  message_id: string;
+  message: Interfaces.MessageType;
+  friend: Interfaces.Friend;
+  next?: boolean;
+  pre: number;
+};
+
+const Assign = React.memo<AssignProps>(
+  ({ next = true, message, friend, pre, room_id }) => {
+    console.log("Assigned");
+    let type: "in" | "out" = message.coming == friend.Id ? "in" : "out";
+
+    if (message.Format == "plain") {
+      return <Message type={type} message={message} pre={new Date(pre)} />;
+    }
+
+    switch (message.coming) {
+      case friend.Id:
+        switch (message.Format) {
+          case "Form":
+            return (
+              <IncomingForm
+                friend={friend}
+                message={message}
+                pre={new Date(pre)}
+                room_id={room_id}
+              />
+            );
+          case "image":
+            return (
+              <IncomingImage
+                message={message}
+                nextComingId={next}
+                cur={new Date(message.date)}
+                pre={new Date(pre)}
+                i={1}
+              />
+            );
+          default:
+            return;
+        }
+
+      default:
+        switch (message.Format) {
+          case "Form":
+            return (
+              <OutgoingForm
+                message={message}
+                pre={new Date(pre)}
+                room_id={room_id}
+              />
+            );
+          case "image":
+            return (
+              <OutgoingImage
+                message={message}
+                nextGoingId={next}
+                cur={new Date(message.date)}
+                pre={new Date(pre)}
+                room_id={room_id}
+                i={1}
+              />
+            );
+          default:
+            return;
+        }
+    }
+  }
+);
+
+Assign.displayName = "Assign";
 
 export default RoomBody;

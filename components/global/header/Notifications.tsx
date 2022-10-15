@@ -5,37 +5,30 @@ import React from "react";
 import { v4 as uuid } from "uuid";
 import j from "jquery";
 import GroupNotification from "../../../utils/GroupNotifications";
-import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import { CSSTransition } from "react-transition-group";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge, IconButton } from "@mui/material";
 import { useSnackbar } from "notistack";
 import * as Interfaces from "@lib/interfaces";
 import { useAppSelector } from "@lib/redux/store";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 
 function Notifications() {
-  const { socket, user } = useAppSelector((s) => s.sessionStore);
+  const { socket, user, device } = useAppSelector((s) => s.sessionStore);
   const [openModal, setOpenModal] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
     Interfaces.Notifications[0][]
   >(user?.Notifications || []);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const IconButtonRef = React.useRef<HTMLButtonElement>(null);
   const Backdrop = React.useRef<HTMLDivElement>(null);
 
-  const CloseModal = () => {
-    setOpenModal(false);
-    IconButtonRef.current.classList.remove("active");
-  };
-
-  const handleOpen = () => {
-    IconButtonRef.current.classList.toggle("active");
-    setOpenModal(true);
-  };
+  useCustomEventListener("toggle", (dest: string) => {
+    setOpenModal(dest == "n");
+  });
 
   const CaptureClick = (e: React.MouseEvent) => {
-    var target = e.target === Backdrop.current;
-    if (target) CloseModal();
+    e.target === Backdrop.current &&
+      (setOpenModal(false), emitCustomEvent("off"));
   };
 
   React.useEffect(() => {
@@ -69,78 +62,80 @@ function Notifications() {
     };
   }, [socket]);
 
+  const isNotDesktop = ["mobile", "tablet"].includes(device);
+  const M = isNotDesktop ? "div" : motion.div;
+  const MProp = isNotDesktop
+    ? {
+        className:
+          "!fixed !top-0 !left-0 z-50 h-screen notifications-wrapper w-screen",
+      }
+    : {
+        initial: { scale: 0.8 },
+        animate: { scale: 1 },
+        exit: { scale: 0.7 },
+      };
+
+  const A = isNotDesktop ? React.Fragment : AnimatePresence;
+  const AProp = isNotDesktop ? {} : { exitBeforeEnter: true, initial: false };
+
   return (
-    <div className="notifications-wrapper">
-      <Badge color="default" badgeContent={0} showZero>
-        <IconButton className="open" ref={IconButtonRef} onClick={handleOpen}>
-          <NotificationsActiveIcon fontSize="small" />
-        </IconButton>
-      </Badge>
-      <AnimatePresence>
-        {openModal && (
-          <motion.div
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="notifications-backdrop"
+    <A {...AProp}>
+      {openModal && (
+        <>
+          <div
+            className="backdrop w-screen h-screen z-50 top-0 left-0 opacity-0 fixed"
             ref={Backdrop}
             onClick={CaptureClick}
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.7, visibility: "hidden" }}
-              className="notifications-box"
-            >
-              <div className="notifications-header">
-                <div className="title font-bold">Notifications</div>
-                <motion.button
-                  className="close-modal modal"
-                  onClick={CloseModal}
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{
-                    scale: 1.1,
-                    backgroundColor: "rgb(53,163,180)",
-                    color: "rgb(255,255,255)",
-                  }}
-                >
-                  <span>Close</span>
-                </motion.button>
-              </div>
-              <div className="notifications-body">
-                <div className="current">
-                  {notifications?.length ? (
-                    <div className="notifications-list">
-                      {notifications.map((data, i) => {
-                        var current = notifications[i].Date;
-                        var previous = i > 0 ? notifications[i - 1].Date : "";
+          />
+          <M className="notifications-wrapper" {...MProp}>
+            <div className="notifications-header">
+              <div className="title font-bold">Notifications</div>
+              <motion.button
+                className="close-modal modal"
+                onClick={() => (setOpenModal(false), emitCustomEvent("off"))}
+                whileTap={{ scale: 0.9 }}
+                whileHover={{
+                  scale: 1.1,
+                  backgroundColor: "rgb(53,163,180)",
+                  color: "rgb(255,255,255)",
+                }}
+              >
+                <span>Close</span>
+              </motion.button>
+            </div>
+            <div className="notifications-body">
+              <div className="current">
+                {notifications?.length ? (
+                  <div className="notifications-list">
+                    {notifications.map((data, i) => {
+                      var current = notifications[i].Date;
+                      var previous = i > 0 ? notifications[i - 1].Date : "";
 
-                        var key = uuid();
-                        return (
-                          <NotificationsPaper
-                            key={key}
-                            data={data}
-                            current={current}
-                            previous={previous}
-                            index={i}
-                          />
-                        );
-                      })}
+                      var key = uuid();
+                      return (
+                        <NotificationsPaper
+                          key={key}
+                          data={data}
+                          current={current}
+                          previous={previous}
+                          index={i}
+                        />
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="empty_notification">
+                    <div className="empty-text">
+                      <p className="text">No Notification Available</p>
                     </div>
-                  ) : (
-                    <div className="empty_notification">
-                      <div className="empty-text">
-                        <p className="text">No Notification Available</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            </div>
+          </M>
+        </>
+      )}
+    </A>
   );
 }
 

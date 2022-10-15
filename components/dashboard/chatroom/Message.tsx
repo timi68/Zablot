@@ -1,17 +1,18 @@
-import { format } from "date-fns";
 import React from "react";
-import * as Interfaces from "../../../lib/interfaces";
-import GroupMessage from "./Group_Message";
+import { format } from "date-fns";
+import GroupMessage from "@lib/Group_Message";
+import { MessageType } from "@lib/interfaces";
 
-function OutgoingMessage(props: {
-  message: Interfaces.MessageType;
-  nextGoingId: boolean;
-  // cur: Date;
-  pre: Date | null;
-}) {
-  const { nextGoingId, message, pre } = props;
-  const className = `outgoing-message${nextGoingId ? " adjust-mg" : ""} `;
+interface MessageElement {
+  type: "in" | "out";
+  message: MessageType;
+  pre: Date;
+}
 
+function Message(props: MessageElement) {
+  const { type, message, pre } = props;
+
+  let className = type == "in" ? "incoming-message" : "outgoing-message";
   const Group = GroupMessage({ cur: new Date(message.date), pre });
 
   return (
@@ -35,4 +36,4 @@ function OutgoingMessage(props: {
   );
 }
 
-export default React.memo(OutgoingMessage);
+export default React.memo(Message);

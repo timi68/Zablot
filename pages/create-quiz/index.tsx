@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-css-tags */
 import React from "react";
-import Layout from "@src/AppLayout";
 import NoSession from "@comp/nosession";
 import EditQuestion from "@comp/createQuiz/editQuestion";
 import CreateQuestion from "@comp/createQuiz/createQuestion";
