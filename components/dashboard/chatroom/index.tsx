@@ -7,6 +7,7 @@ import Room from "./Room";
 import { nanoid } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { addRoom, getRoomIds } from "@lib/redux/roomSlice";
+import { AnimateSharedLayout, motion } from "framer-motion";
 
 const ChatRoom = () => {
   const rooms = useAppSelector(getRoomIds);
@@ -55,11 +56,13 @@ const ChatRoom = () => {
   return (
     Boolean(rooms.length) && (
       <div className="chat-rooms-container">
-        <div className="chat-rooms-wrapper">
-          {rooms?.map((room, i) => {
-            return <Room key={room} room_id={room} />;
-          })}
-        </div>
+        <AnimateSharedLayout>
+          <motion.div layout className="chat-rooms-wrapper">
+            {rooms?.map((room, i) => {
+              return <Room key={room} room_id={room} />;
+            })}
+          </motion.div>
+        </AnimateSharedLayout>
       </div>
     )
   );

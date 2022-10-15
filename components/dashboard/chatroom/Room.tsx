@@ -49,6 +49,7 @@ const Room = (props: { room_id: EntityId }) => {
     <AnimatePresence onExitComplete={() => dispatch(removeRoom(props.room_id))}>
       {!mount && (
         <motion.div
+          layout
           transition={transition}
           {...variant}
           className="chats-form"

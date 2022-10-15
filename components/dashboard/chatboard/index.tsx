@@ -168,10 +168,6 @@ const ChatBoard: React.FC = function () {
     socket,
   ]);
 
-  React.useEffect(() => {
-    setOpenModal(!["mobile", "tablet"].includes(device));
-  }, [device]);
-
   return (
     openModal && (
       <div className="chats-container chat-board" ref={chatBoard}>
