@@ -20,6 +20,7 @@ import { Users } from "@server/models";
 import getUser from "@lib/getUser";
 import Coin from "@comp/coin";
 import stringToColor from "@utils/stringToColor";
+import { emitCustomEvent } from "react-custom-events";
 
 const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
   const { user, loggedIn, socket } = useAppSelector(
@@ -63,7 +64,10 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
               </Typography>
               <div className="wrap">
                 <Coin />
-                <IconButton className="open ml-3">
+                <IconButton
+                  className="open ml-3"
+                  onClick={() => emitCustomEvent("side")}
+                >
                   <Avatar
                     src={user.Image.profile}
                     sx={{

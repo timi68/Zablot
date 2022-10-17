@@ -13,6 +13,10 @@
   &.active {
     background-color: #7baeb2 !important;
     color: #fff;
+
+    svg {
+      fill: white;
+    }
   }
 
   &:hover {

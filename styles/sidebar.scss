@@ -9,15 +9,11 @@
   position: relative;
   transition: all 0.2s ease-out;
   max-height: 100vh;
-  overflow: hidden;
+  // overflow: hidden;
   padding: 0px 0px 20px;
 
   &::-webkit-scrollbar {
     width: 0px;
-  }
-
-  .open {
-    display: none;
   }
 
   .preview-profile {
@@ -29,10 +25,6 @@
     background: #ececec;
     z-index: 10;
     padding-inline: 15px;
-
-    @include media_1049 {
-      display: none;
-    }
 
     .user-image-name-wrapper {
       display: flex;
@@ -69,10 +61,6 @@
     margin-block: 10px;
     font-size: map-get($fonts, "smaller");
     white-space: normal;
-
-    @include media_1049 {
-      display: none;
-    }
   }
 
   .navigators {
@@ -83,6 +71,10 @@
     transition: all 0.2s ease-out;
     height: calc(100vh - 78px);
     overflow: auto;
+
+    &.visible {
+      overflow: visible;
+    }
 
     &::-webkit-scrollbar {
       width: 0;
@@ -97,55 +89,59 @@
 
     .links-list {
       list-style: none;
-
       li {
-        height: 50px;
-        display: grid;
+        margin-bottom: 16px;
+      }
+      a {
+        height: 40px;
         transition: $transition;
         position: relative;
+        display: flex;
+        cursor: pointer;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 30px;
+        width: 100%;
+        border-radius: 10px;
+        flex-wrap: nowrap;
+        text-decoration: none;
+        color: inherit;
 
-        a {
-          transition: $transition;
-          display: flex;
-          cursor: pointer;
-          align-items: center;
-          justify-content: flex-start;
-          gap: 30px;
-          width: 100%;
-          border-radius: 10px;
-          flex-wrap: nowrap;
-          text-decoration: none;
-          color: inherit;
-
-          .icon-wrap {
-            height: 24px;
-            .svg {
-              width: 24px;
-              height: inherit;
-              fill: #56565c;
-            }
-          }
-
-          .link .link-title {
-            font-size: 0.9em;
-            font-weight: 500;
-            color: #56565c;
-          }
+        .svg {
+          width: 24px;
+          position: relative;
+          z-index: 10;
+          height: inherit;
+          fill: #56565c;
         }
+
+        .link-title {
+          font-size: 0.9em;
+          position: relative;
+          z-index: 10;
+          font-weight: 500;
+          color: #56565c;
+        }
+
+        &::before {
+          content: "";
+          width: 130%;
+          height: 100%;
+          position: absolute;
+          transition: all 200ms ease-in-out;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
         &:hover,
         &.active {
-          place-items: center;
-          a {
-            width: max-content;
-            background: map-get($map: $color, $key: "white");
-            padding: 10px 20px;
-            box-shadow: $shadow;
+          &::before {
+            background: white;
           }
-          .link .link-title {
+          .link-title {
             color: map-get($map: $color, $key: "green");
-            text-transform: uppercase;
           }
-          .icon-wrap .svg {
+          .svg {
             fill: map-get($map: $color, $key: "green");
           }
         }
@@ -153,125 +149,86 @@
     }
   }
 
-  @include media_1049 {
-    width: 50px;
-    padding: 13px 10px 20px;
-    min-width: 50px;
+  &.tablet {
+    width: 60px;
+    &:not(.show) {
+      min-width: 60px;
 
-    .open {
-      display: grid;
-      left: 50%;
-      transform: translateX(-56%);
-    }
-    .nav-tooltip {
-      background-color: #fff;
-      padding: 10px;
-      box-shadow: $shadow;
-      color: map-get($color, "green");
-      font-size: 0.8em;
-      font-weight: 500;
-      z-index: 100;
+      .navigators {
+        height: 100vh;
+        padding: 0;
+        margin: 0;
 
-      &::before {
-        content: "";
-        width: 10px;
-        height: 10px;
-        transform: rotateZ(45deg) translateY(-50%);
-        left: -8px;
-        top: 50%;
-        background: #fff;
-        position: absolute;
+        a {
+          justify-content: center;
+          z-index: 100;
+          background-color: whitesmoke;
+          width: 40px;
+
+          margin: auto;
+          box-shadow: $shadow;
+          position: relative;
+          z-index: 99999;
+
+          .link {
+            display: none;
+          }
+
+          &:hover {
+            width: 100%;
+            background-color: white;
+            border-radius: 0;
+            box-shadow: 0px 0px 0px grey;
+          }
+        }
       }
+    }
+
+    .message,
+    .preview-profile {
+      display: none;
     }
 
     &.show {
-      position: absolute;
       width: 300px;
       z-index: 100;
 
-      .open {
-        float: right;
-        left: initial;
-        transform: none;
-      }
-
-      .link {
+      .message,
+      .preview-profile {
         display: block;
       }
 
-      li:hover,
-      &.active {
-        place-items: center !important;
-        a {
-          width: max-content !important;
-          padding: 10px 20px !important;
-          margin: auto !important;
-        }
-      }
-
-      .nav-tooltip {
-        display: none !important;
-      }
-    }
-
-    &.show .preview-profile {
-      display: block;
-    }
-
-    li {
       a {
-        height: max-content;
-        margin: auto;
-      }
-      &:hover,
-      &.active {
-        display: block;
-        place-items: center !important;
-        a {
-          width: fit-content !important;
-          height: max-content !important;
-          padding: 5px !important;
-          margin: auto !important;
-          margin-left: -4px !important;
+        width: 100%;
+        .link {
           display: block;
         }
       }
 
-      .link {
-        display: none;
-      }
-    }
-
-    &.show {
-      li.active {
-        a {
-          width: max-content !important;
-          padding: 10px 20px !important;
-          margin-left: auto !important;
-        }
+      .preview-profile {
+        display: block;
       }
     }
   }
 
-  @include media_499 {
-    width: 200px;
-    position: absolute;
-    left: -200px;
+  &.mobile {
+    width: 100vw;
+    position: fixed;
+    height: 100vh;
+    left: -100vw;
+    padding: 0;
+    top: 0;
+    z-index: 9999999999999999;
+    background-color: lightgrey;
+    &.show {
+      left: 0;
+      .open {
+        display: block;
+      }
+    }
 
     &.show {
       left: 0px;
-    }
-    @include toggle("open");
-    .open {
-      border-radius: 0 5px 5px 0;
-      right: -10px;
-
-      &::before {
-        left: 14px;
-      }
-      &::after {
-        left: 7px;
-      }
     }
   }
 }

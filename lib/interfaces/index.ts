@@ -146,6 +146,7 @@ export type MessageType = Partial<{
   options: {
     text: string;
     checked: boolean;
+    key?: string;
   }[];
   date: number;
   answered: Partial<{ text: string; checked: boolean }>;

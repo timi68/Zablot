@@ -19,6 +19,7 @@ import { updateRoom } from "@lib/redux/roomSlice";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { getRoom } from "@lib/redux/roomSlice";
 import store from "@lib/redux/store";
+import j from "jquery";
 
 const actions = [
   { icon: <ImageOutlinedIcon fontSize="small" />, name: "Send image" },
@@ -30,8 +31,10 @@ type y = "send image" | "send video" | "send poll";
 
 const RoomFooter = ({ room_id }: { room_id: string | number }) => {
   const friend = useAppSelector((state) => getRoom(state, room_id).friend);
-  const { user, socket } = useAppSelector((state) => state.sessionStore);
-  const MessageBoxRef = React.useRef<HTMLSpanElement>(null);
+  const { user, socket, device } = useAppSelector(
+    (state) => state.sessionStore
+  );
+  const MessageBoxRef = React.useRef<HTMLTextAreaElement>(null);
   const RoomBodyRef = React.useRef<Interfaces.RoomBodyRefType>(null);
   const MediaRef = React.useRef<HTMLDivElement>(null);
   const PollRef = React.useRef<{
@@ -49,11 +52,12 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
 
   const dispatch = useAppDispatch();
   const sendMessage = (): void => {
-    let messageText: string = MessageBoxRef.current.innerText;
+    let messageText: string = MessageBoxRef.current.value;
 
     if (!messageText) return;
-    (MessageBoxRef.current.innerText = ""),
-      SendRef.current.classList.remove("active");
+
+    j(SendRef.current).removeClass("active");
+    j(MessageBoxRef.current).val("").trigger("focus");
 
     var newMessage: Interfaces.MessageType = {
       message: messageText,
@@ -172,14 +176,14 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
     }
   };
 
-  const handleKey = (e: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (e.key == "Enter" && !e.shiftKey) {
+  const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (
+      e.key == "Enter" &&
+      !e.shiftKey &&
+      !["mobile", "tablet"].includes(device)
+    ) {
       e.preventDefault();
       SendRef.current.click();
-    } else {
-      // @ts-ignore
-      if (e.target.innerText) SendRef.current.classList.add("active");
-      else SendRef.current.classList.remove("active");
     }
   };
 
@@ -228,34 +232,29 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
           />
         </SpeedDial>
         <div className="input-group message-box relative flex-grow">
-          <span
-            contentEditable
+          <textarea
+            placeholder="Type a message..."
             className="text-control"
             onKeyPressCapture={handleKey}
-            onClickCapture={(e) => {
-              let target = e.target as HTMLSpanElement;
-              if (target.innerText == "Type a message..") {
-                target.innerText = "";
-              }
-            }}
-            onBlurCapture={(e) => {
-              e.target.innerText ||= "Type a message..";
+            onChange={({ target: element }) => {
+              element.style.height = "5px";
+              element.style.height = element.scrollHeight + "px";
+
+              if (element.value) SendRef.current.classList.add("active");
+              else SendRef.current.classList.remove("active");
             }}
             ref={MessageBoxRef}
             id="text-control message"
-            dangerouslySetInnerHTML={{ __html: "Type a message.." }}
           />
         </div>
-        <div className="send-btn">
-          <IconButton
-            className="btn send"
-            size="small"
-            ref={SendRef}
-            onClick={sendMessage}
-          >
-            <SendIcon className="send-icon" />
-          </IconButton>
-        </div>
+        <IconButton
+          className="btn send send-btn"
+          size="small"
+          ref={SendRef}
+          onClick={sendMessage}
+        >
+          <SendIcon className="h-[18px] w-[18px] ml-1" color="inherit" />
+        </IconButton>
         <Poll
           ref={PollRef}
           roomBody={RoomBodyRef}

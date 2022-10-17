@@ -156,18 +156,6 @@
   // border-radius: 10px;
   background: map-get($color, "lightergrey");
 
-  // @media (max-width: 600px) {
-  // 	top: 65px;
-  // }
-
-  // @include media_549() {
-  // 	height: calc(100vh - 65px);
-  // 	width: 100vw;
-  // 	right: 0;
-  // 	border-radius: 0;
-  // 	box-shadow: none;
-  // }
-
   &::-webkit-scrollbar {
     appearance: none;
     width: 7px;

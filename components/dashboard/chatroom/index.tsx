@@ -57,7 +57,7 @@ const ChatRoom = () => {
     Boolean(rooms.length) && (
       <div className="chat-rooms-container">
         <AnimateSharedLayout>
-          <motion.div layout className="chat-rooms-wrapper">
+          <motion.div className="chat-rooms-wrapper">
             {rooms?.map((room, i) => {
               return <Room key={room} room_id={room} />;
             })}

@@ -14,7 +14,7 @@ const ChatBoard: React.FC = function () {
   );
   const dispatch = useAppDispatch();
   const [openModal, setOpenModal] = React.useState<boolean>(
-    !["mobile", "tablet"].includes(device)
+    !["mobile"].includes(device)
   );
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
@@ -170,7 +170,7 @@ const ChatBoard: React.FC = function () {
 
   return (
     openModal && (
-      <div className="chats-container chat-board" ref={chatBoard}>
+      <div className={"chats-container chat-board " + device} ref={chatBoard}>
         <div className="chat-wrapper">
           <div className="chats-header">
             <div className="title">Chats</div>

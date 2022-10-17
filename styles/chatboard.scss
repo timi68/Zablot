@@ -24,7 +24,7 @@ $borderColor: #d7cdcd;
     width: 0px;
   }
 
-  @include media_830 {
+  &.mobile {
     position: fixed;
     top: 0px;
     border-radius: 0;

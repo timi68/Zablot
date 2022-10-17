@@ -62,7 +62,7 @@ function Notifications() {
     };
   }, [socket]);
 
-  const isNotDesktop = ["mobile", "tablet"].includes(device);
+  const isNotDesktop = ["mobile"].includes(device);
   const M = isNotDesktop ? "div" : motion.div;
   const MProp = isNotDesktop
     ? {

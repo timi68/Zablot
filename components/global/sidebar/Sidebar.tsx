@@ -11,45 +11,25 @@ import ReportIcon from "@mui/icons-material/Report";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
 import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
-import PeopleIcon from "@mui/icons-material/People";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import QuestionMarkOutlinedIcon from "@mui/icons-material/QuestionMarkOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 import IconButton from "@mui/material/IconButton";
 import DynamicFormRoundedIcon from "@mui/icons-material/DynamicFormRounded";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import axios from "axios";
 import { useAppSelector } from "@lib/redux/store";
 import { Avatar, Skeleton } from "@mui/material";
 import stringToColor from "@utils/stringToColor";
-
-const links = [
-  { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
-  { title: "Create Quiz", icon: CreateQuiz, url: "/create-quiz" },
-  {
-    title: "Past Questions",
-    icon: DynamicFormRoundedIcon,
-    url: "/past-questions",
-  },
-  {
-    title: "Attempt Quiz",
-    icon: QuestionMarkOutlinedIcon,
-    url: "/attempt-quiz",
-  },
-  {
-    title: "Get Coin",
-    icon: MonetizationOnOutlinedIcon,
-    url: "/get-coin",
-  },
-  { title: "Logout", icon: LogoutOutlinedIcon, url: "#" },
-];
-
-const link2 = [
-  { title: "Share Idea", icon: PsychologyOutlinedIcon, url: "#" },
-  { title: "Share Web", icon: ShareOutlinedIcon, url: "#" },
-  { title: "Contribute", icon: AllInclusiveIcon, url: "#" },
-  { title: "Report", icon: ReportIcon, url: "#" },
-];
+import { useCustomEventListener } from "react-custom-events";
+import j from "jquery";
 
 type Tooltip = {
   title: string;
@@ -58,7 +38,7 @@ type Tooltip = {
 };
 
 export default React.memo(function Sidebar() {
-  const user = useAppSelector((state) => state.sessionStore.user);
+  const { user, device } = useAppSelector((state) => state.sessionStore);
   const sidebar: React.MutableRefObject<HTMLDivElement> =
     React.useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = React.useState<Tooltip>({
@@ -66,13 +46,13 @@ export default React.memo(function Sidebar() {
     title: "",
     top: 0,
   });
+  const [show, setShow] = React.useState(false);
   const router: NextRouter = useRouter();
+  const x = useMotionValue(0);
+  const [left, setLeft] = React.useState<string | number>(0);
 
   const openSidebar = () => {
-    const bar = sidebar.current;
-    if (!bar.classList.contains("show"))
-      document.querySelector(".show")?.classList.remove("show");
-    bar.classList.toggle("show");
+    setShow(!show);
   };
 
   const MouseEnter = (e: React.MouseEvent) => {
@@ -80,14 +60,14 @@ export default React.memo(function Sidebar() {
 
     if (width > 1000) return;
 
-    var target = (e.target as HTMLElement).closest("li");
-    var parent = target.offsetParent;
-    var title = target.dataset.title;
-    var offsetTop = target.offsetTop;
+    var title = j(e.target).closest("li").attr("data-title");
+    var offsetTop = j(e.target).prop("offsetTop") as number;
 
-    setTimeout(() => {
-      setTooltip({ open: true, title, top: offsetTop + 6 - parent.scrollTop });
-    }, 100);
+    setTooltip({
+      open: true,
+      title,
+      top: offsetTop - j(".navigators").scrollTop(),
+    });
   };
 
   const logOut = async () => {
@@ -97,9 +77,11 @@ export default React.memo(function Sidebar() {
     return router.replace("/login");
   };
 
+  useCustomEventListener("side", openSidebar);
+
   return (
-    <div
-      className="navigator sidebar"
+    <motion.div
+      className={"navigator sidebar " + device + (show ? " show" : "")}
       onMouseLeave={() =>
         setTimeout(() => {
           setTooltip({ ...tooltip, open: false });
@@ -107,32 +89,37 @@ export default React.memo(function Sidebar() {
       }
       ref={sidebar}
     >
-      <IconButton className="open" onClick={openSidebar}>
-        <MenuRoundedIcon />
-      </IconButton>
-      <AnimatePresence exitBeforeEnter={true} initial={false}>
-        {tooltip.open && (
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{
-              scale: 1,
-            }}
-            className="nav-tooltip"
-            style={{
-              position: "fixed",
-              top: tooltip.top,
-              left: 60,
-              background: "#fff",
-              padding: "10px",
-              borderRadius: 10,
-            }}
-          >
-            <span className="title">{tooltip.title}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="navigator-wrapper">
-        <div className="preview-profile">
+      {device === "mobile" && (
+        <IconButton
+          size="small"
+          className="open absolute right-2 top-5 grid items-center z-[20] p-0 pb-[1px]"
+          onClick={openSidebar}
+        >
+          <ChevronLeftRoundedIcon className="rotate-[180deg] transition-all" />
+        </IconButton>
+      )}
+      {!show && (
+        <AnimatePresence mode={"sync"}>
+          {tooltip.open && (
+            <motion.div
+              initial={{ x: -20, background: "whitesmoke" }}
+              animate={{
+                x: 0,
+                background: "white",
+                color: "#369298",
+                borderRadius: "0 10px 10px 0",
+              }}
+              transition={{ type: "just" }}
+              className={`fixed z-[999] text-sm font-semibold shadow-lg w-[130px] h-[40px] left-[60px] bg-white grid items-center`}
+              style={{ top: tooltip.top }}
+            >
+              <span className="title">{tooltip.title}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+      <motion.div layout className="navigator-wrapper">
+        <motion.div className="preview-profile">
           <div className="user-image-name-wrapper">
             <div className="user-image">
               {user ? (
@@ -167,42 +154,63 @@ export default React.memo(function Sidebar() {
               )}
             </div>
           </div>
-        </div>
-        <div className="links-container navigators">
-          <div className="message-from-zablot">
+        </motion.div>
+        <motion.div className="links-container navigators">
+          <motion.div className="message-from-zablot">
             <div className="message">
               Good day TJ, hope you are having a nice day
             </div>
-          </div>
+          </motion.div>
           <div className="group-1 face-1 links-wrapper">
             <ul className="links-list">
+              {device == "tablet" && (
+                <IconButton
+                  size="small"
+                  onClick={openSidebar}
+                  style={{ position: show ? "absolute" : "relative" }}
+                  className="mb-10 ml-5 top-5 p-0 pt-[1px] right-2 z-20 h-[25px] w-[25px] grid place-items-center bg-white shadow-lg"
+                >
+                  <ChevronLeftRoundedIcon
+                    fontSize="small"
+                    style={{
+                      transform: `rotate(${show ? "0deg" : "180deg"})`,
+                    }}
+                    className="transition-all"
+                  />
+                </IconButton>
+              )}
               {links.map((data, index) => {
                 return (
-                  <li
+                  <motion.li
                     key={index}
-                    onMouseEnter={MouseEnter}
-                    onMouseLeave={() => setTooltip({ ...tooltip, open: false })}
                     data-title={data.title}
-                    className={
-                      data.url === router.route
-                        ? "link-wrap active"
-                        : "link-wrap"
-                    }
+                    className="link-wrap"
                   >
                     <Link href={data.url} passHref>
                       <a
+                        onMouseEnter={MouseEnter}
+                        onMouseLeave={() =>
+                          setTooltip({ ...tooltip, open: false })
+                        }
                         href="#"
+                        className={
+                          router.asPath.includes(data.url) ? "active" : ""
+                        }
                         onClick={data.title !== "Logout" ? null : logOut}
                       >
                         <div className="icon-wrap">
                           <data.icon fontSize="small" className="svg" />
                         </div>
-                        <div className="link">
-                          <div className="link-title">{data.title}</div>
-                        </div>
+                        {!show && device === "tablet" ? (
+                          ""
+                        ) : (
+                          <div className="link">
+                            <div className="link-title">{data.title}</div>
+                          </div>
+                        )}
                       </a>
                     </Link>
-                  </li>
+                  </motion.li>
                 );
               })}
             </ul>
@@ -232,8 +240,36 @@ export default React.memo(function Sidebar() {
               })}
             </ul>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 });
+
+const links = [
+  { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
+  { title: "Create Quiz", icon: CreateQuiz, url: "/create-quiz" },
+  {
+    title: "Past Questions",
+    icon: DynamicFormRoundedIcon,
+    url: "/past-questions",
+  },
+  {
+    title: "Attempt Quiz",
+    icon: QuestionMarkOutlinedIcon,
+    url: "/attempt-quiz",
+  },
+  {
+    title: "Get Coin",
+    icon: MonetizationOnOutlinedIcon,
+    url: "/get-coin",
+  },
+  { title: "Logout", icon: LogoutOutlinedIcon, url: "#" },
+];
+
+const link2 = [
+  { title: "Share Idea", icon: PsychologyOutlinedIcon, url: "#" },
+  { title: "Share Web", icon: ShareOutlinedIcon, url: "#" },
+  { title: "Contribute", icon: AllInclusiveIcon, url: "#" },
+  { title: "Report", icon: ReportIcon, url: "#" },
+];
