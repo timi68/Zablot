@@ -136,12 +136,20 @@ const ChatBoard: React.FC = function () {
     [friends]
   );
 
-  useCustomEventListener("toggle", (dest: string) => {
-    setOpenModal(dest == "c");
-  });
+  useCustomEventListener(
+    "toggle",
+    (dest: string) => {
+      console.log({ dest });
+      if (device === "mobile") {
+        setOpenModal(dest == "c");
+      }
+    },
+    [device]
+  );
 
   React.useEffect(() => {
     if (user) setFriends(user.Friends);
+    console.log("User has change");
   }, [user]);
 
   React.useEffect(() => {
@@ -170,7 +178,7 @@ const ChatBoard: React.FC = function () {
 
   return (
     openModal && (
-      <div className={"chats-container chat-board " + device} ref={chatBoard}>
+      <div className={"chats-container chat-board" + device} ref={chatBoard}>
         <div className="chat-wrapper">
           <div className="chats-header">
             <div className="title">Chats</div>

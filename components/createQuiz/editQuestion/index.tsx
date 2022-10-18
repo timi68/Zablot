@@ -60,7 +60,7 @@ const EditQuestion = forwardRef((props: createInterfaceProps, ref) => {
 
   return (
     <div className="edit-question">
-      <AnimatePresence exitBeforeEnter={true} initial={false}>
+      <AnimatePresence mode="wait" initial={false}>
         {open && (
           <Content
             questionToEdit={questionToEdit}

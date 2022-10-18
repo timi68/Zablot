@@ -251,10 +251,9 @@ const SearchBar = () => {
       };
 
   const A = isNotDesktop ? React.Fragment : AnimatePresence;
-  const AProp = isNotDesktop ? {} : { exitBeforeEnter: true, initial: false };
 
   return (
-    <A {...AProp}>
+    <A>
       {open && (
         <div className="search-container" ref={container}>
           <B {...BProp}>

@@ -80,7 +80,7 @@ export default React.memo(function Sidebar() {
   useCustomEventListener("side", openSidebar);
 
   return (
-    <motion.div
+    <div
       className={"navigator sidebar " + device + (show ? " show" : "")}
       onMouseLeave={() =>
         setTimeout(() => {
@@ -118,7 +118,7 @@ export default React.memo(function Sidebar() {
           )}
         </AnimatePresence>
       )}
-      <motion.div layout className="navigator-wrapper">
+      <motion.div layout={device == "tablet"} className="navigator-wrapper">
         <motion.div className="preview-profile">
           <div className="user-image-name-wrapper">
             <div className="user-image">
@@ -242,7 +242,7 @@ export default React.memo(function Sidebar() {
           </div>
         </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 });
 

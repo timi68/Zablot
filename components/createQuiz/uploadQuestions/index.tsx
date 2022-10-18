@@ -124,11 +124,7 @@ const UploadQuestions = forwardRef((props, ref) => {
   );
   return (
     <div className="upload-question">
-      <AnimatePresence
-        exitBeforeEnter={true}
-        initial={false}
-        onExitComplete={() => null}
-      >
+      <AnimatePresence mode="wait" initial={false} onExitComplete={() => null}>
         {open && (
           <motion.div
             initial={{ opacity: 0.8 }}

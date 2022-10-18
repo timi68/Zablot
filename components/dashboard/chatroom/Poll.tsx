@@ -252,11 +252,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
   );
 
   return (
-    <AnimatePresence
-      exitBeforeEnter={true}
-      initial={false}
-      onExitComplete={() => null}
-    >
+    <AnimatePresence mode="wait" onExitComplete={() => null}>
       {open && (
         <>
           <div

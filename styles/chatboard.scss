@@ -37,6 +37,13 @@ $borderColor: #d7cdcd;
     padding-bottom: 60px;
   }
 
+  &.tablet {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+  }
+
   .loader {
     height: 100%;
     width: 320px;

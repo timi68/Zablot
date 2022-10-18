@@ -15,7 +15,7 @@ function AppContextProvider({ children }) {
   }, [dispatch, socket]);
 
   return (
-    <AnimatePresence exitBeforeEnter>
+    <AnimatePresence mode="wait">
       <SnackbarProvider maxSnack={3} dense>
         <AppLayout>{children}</AppLayout>
       </SnackbarProvider>

@@ -269,7 +269,7 @@ const CreatedQuestions: React.ForwardRefExoticComponent<Interfaces.CreatedQuesti
               </div>
             </div>
           </div>
-          <AnimatePresence initial={false} exitBeforeEnter={true}>
+          <AnimatePresence mode="wait">
             {!open && (
               <motion.div
                 initial={{ width: "max-content", scale: 0.2 }}

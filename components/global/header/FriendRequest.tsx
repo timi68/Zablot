@@ -181,10 +181,9 @@ const FriendRequests = () => {
       };
 
   const A = isNotDesktop ? React.Fragment : AnimatePresence;
-  const AProp = isNotDesktop ? {} : { exitBeforeEnter: true, initial: false };
 
   return (
-    <A {...AProp}>
+    <A>
       {openModal && (
         <>
           <div
