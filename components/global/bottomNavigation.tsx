@@ -19,7 +19,7 @@ const MobileNavigation = () => {
   const router = useRouter();
 
   useCustomEventListener("off", () => {
-    setExpand("");
+    setExpand("/");
   });
 
   React.useEffect(() => {

@@ -48,8 +48,6 @@ export default React.memo(function Sidebar() {
   });
   const [show, setShow] = React.useState(false);
   const router: NextRouter = useRouter();
-  const x = useMotionValue(0);
-  const [left, setLeft] = React.useState<string | number>(0);
 
   const openSidebar = () => {
     setShow(!show);
@@ -66,7 +64,7 @@ export default React.memo(function Sidebar() {
     setTooltip({
       open: true,
       title,
-      top: offsetTop - j(".navigators").scrollTop(),
+      top: offsetTop - j(".navigators").prop("scrollTop"),
     });
   };
 
@@ -81,7 +79,9 @@ export default React.memo(function Sidebar() {
 
   return (
     <div
-      className={"navigator sidebar " + device + (show ? " show" : "")}
+      className={
+        "navigator max-w-[300px] sidebar " + device + (show ? " show" : "")
+      }
       onMouseLeave={() =>
         setTimeout(() => {
           setTooltip({ ...tooltip, open: false });
@@ -92,7 +92,7 @@ export default React.memo(function Sidebar() {
       {device === "mobile" && (
         <IconButton
           size="small"
-          className="open absolute right-2 top-5 grid items-center z-[20] p-0 pb-[1px]"
+          className="open absolute rotate-[180deg] right-2 top-5 grid items-center z-[20] p-0 pb-[1px]"
           onClick={openSidebar}
         >
           <ChevronLeftRoundedIcon className="rotate-[180deg] transition-all" />
@@ -119,128 +119,174 @@ export default React.memo(function Sidebar() {
         </AnimatePresence>
       )}
       <motion.div layout={device == "tablet"} className="navigator-wrapper">
-        <motion.div className="preview-profile">
-          <div className="user-image-name-wrapper">
-            <div className="user-image">
-              {user ? (
-                <Avatar
-                  src={user.Image.profile}
-                  variant="rounded"
-                  sx={{
-                    width: 30,
-                    height: 30,
-                    fontSize: "1rem",
-                    bgcolor: stringToColor(user.FullName),
-                  }}
-                >
-                  {user.FullName.split(" ")[0][0] +
-                    (user.FullName.split(" ")[1]?.at(0) ?? "")}
-                </Avatar>
-              ) : (
-                <Skeleton className="w-8 h-9" />
-              )}
+        <AnimatePresence>
+          {!show && device === "tablet" ? (
+            ""
+          ) : (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ width: 0, scale: 0 }}
+              className="preview-profile"
+            >
+              <div className="user-image-name-wrapper">
+                <div className="user-image">
+                  {user ? (
+                    <Avatar
+                      src={user.Image.profile}
+                      variant="rounded"
+                      sx={{
+                        width: 30,
+                        height: 30,
+                        fontSize: "1rem",
+                        bgcolor: stringToColor(user.FullName),
+                      }}
+                    >
+                      {user.FullName.split(" ")[0][0] +
+                        (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                    </Avatar>
+                  ) : (
+                    <Skeleton className="w-8 h-9" />
+                  )}
+                </div>
+                <div className="name-wrap flex-grow">
+                  {user ? (
+                    <>
+                      <div className="name">{user?.FullName}</div>
+                      <div className="username">@{user?.UserName}</div>
+                    </>
+                  ) : (
+                    <>
+                      <Skeleton className="w-full h-5" />
+                      <Skeleton className="w-9/12 h-5" />
+                    </>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          <motion.div className="links-container navigators">
+            {!show && device === "tablet" ? (
+              ""
+            ) : (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ width: 0, scale: 0 }}
+                className="message-from-zablot"
+              >
+                <div className="message">
+                  Good day TJ, hope you are having a nice day
+                </div>
+              </motion.div>
+            )}
+            <div className="group-1 face-1 links-wrapper">
+              <ul className="links-list">
+                {device == "tablet" && (
+                  <IconButton
+                    size="small"
+                    onClick={openSidebar}
+                    style={{ position: show ? "absolute" : "relative" }}
+                    className="mb-10 ml-5 top-5 p-0 pt-[1px] right-2 z-20 h-[25px] w-[25px] grid place-items-center bg-white shadow-lg"
+                  >
+                    <ChevronLeftRoundedIcon
+                      fontSize="small"
+                      style={{
+                        transform: `rotate(${show ? "0deg" : "180deg"})`,
+                      }}
+                      className="transition-all"
+                    />
+                  </IconButton>
+                )}
+                {links.map((data, index) => {
+                  return (
+                    <motion.li
+                      key={index}
+                      data-title={data.title}
+                      className="link-wrap"
+                    >
+                      <Link href={data.url} passHref>
+                        <a
+                          onMouseEnter={MouseEnter}
+                          onMouseLeave={() =>
+                            setTooltip({ ...tooltip, open: false })
+                          }
+                          href="#"
+                          className={
+                            device +
+                            (router.asPath.includes(data.url) ? " active" : "")
+                          }
+                          onClick={data.title !== "Logout" ? null : logOut}
+                        >
+                          <div className="icon-wrap">
+                            <data.icon fontSize="small" className="svg" />
+                          </div>
+                          {!show && device === "tablet" ? (
+                            ""
+                          ) : (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              exit={{ width: 0, scale: 0 }}
+                              className="link"
+                            >
+                              <div className="link-title">{data.title}</div>
+                            </motion.div>
+                          )}
+                        </a>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </ul>
             </div>
-            <div className="name-wrap flex-grow">
-              {user ? (
-                <>
-                  <div className="name">{user?.FullName}</div>
-                  <div className="username">@{user?.UserName}</div>
-                </>
-              ) : (
-                <>
-                  <Skeleton className="w-full h-5" />
-                  <Skeleton className="w-9/12 h-5" />
-                </>
-              )}
-            </div>
-          </div>
-        </motion.div>
-        <motion.div className="links-container navigators">
-          <motion.div className="message-from-zablot">
-            <div className="message">
-              Good day TJ, hope you are having a nice day
+            <div className="group-2 face-2 links-wrapper">
+              <ul className="links-list">
+                {link2.map((data, index) => {
+                  return (
+                    <li
+                      key={index}
+                      onMouseEnter={MouseEnter}
+                      onMouseLeave={() =>
+                        setTooltip({ ...tooltip, open: false })
+                      }
+                      data-title={data.title}
+                      className="link-wrap"
+                    >
+                      <Link href={data.url} passHref>
+                        <a
+                          href="#"
+                          className={
+                            device +
+                            (router.asPath.includes(data.url) ? " active" : "")
+                          }
+                        >
+                          <div className="icon-wrap">
+                            <data.icon className="svg" />
+                          </div>
+                          {!show && device === "tablet" ? (
+                            ""
+                          ) : (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              exit={{ width: 0, scale: 0 }}
+                              className="link"
+                            >
+                              <div className="link-title">{data.title}</div>
+                            </motion.div>
+                          )}
+                        </a>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           </motion.div>
-          <div className="group-1 face-1 links-wrapper">
-            <ul className="links-list">
-              {device == "tablet" && (
-                <IconButton
-                  size="small"
-                  onClick={openSidebar}
-                  style={{ position: show ? "absolute" : "relative" }}
-                  className="mb-10 ml-5 top-5 p-0 pt-[1px] right-2 z-20 h-[25px] w-[25px] grid place-items-center bg-white shadow-lg"
-                >
-                  <ChevronLeftRoundedIcon
-                    fontSize="small"
-                    style={{
-                      transform: `rotate(${show ? "0deg" : "180deg"})`,
-                    }}
-                    className="transition-all"
-                  />
-                </IconButton>
-              )}
-              {links.map((data, index) => {
-                return (
-                  <motion.li
-                    key={index}
-                    data-title={data.title}
-                    className="link-wrap"
-                  >
-                    <Link href={data.url} passHref>
-                      <a
-                        onMouseEnter={MouseEnter}
-                        onMouseLeave={() =>
-                          setTooltip({ ...tooltip, open: false })
-                        }
-                        href="#"
-                        className={
-                          router.asPath.includes(data.url) ? "active" : ""
-                        }
-                        onClick={data.title !== "Logout" ? null : logOut}
-                      >
-                        <div className="icon-wrap">
-                          <data.icon fontSize="small" className="svg" />
-                        </div>
-                        {!show && device === "tablet" ? (
-                          ""
-                        ) : (
-                          <div className="link">
-                            <div className="link-title">{data.title}</div>
-                          </div>
-                        )}
-                      </a>
-                    </Link>
-                  </motion.li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="group-2 face-2 links-wrapper">
-            <ul className="links-list">
-              {link2.map((data, index) => {
-                return (
-                  <li
-                    key={index}
-                    onMouseEnter={MouseEnter}
-                    onMouseLeave={() => setTooltip({ ...tooltip, open: false })}
-                    data-title={data.title}
-                  >
-                    <Link href={data.url} passHref>
-                      <a href="#">
-                        <div className="icon-wrap">
-                          <data.icon className="svg" />
-                        </div>
-                        <div className="link">
-                          <div className="link-title">{data.title}</div>
-                        </div>
-                      </a>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </motion.div>
+        </AnimatePresence>
       </motion.div>
     </div>
   );
@@ -248,23 +294,22 @@ export default React.memo(function Sidebar() {
 
 const links = [
   { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
-  { title: "Create Quiz", icon: CreateQuiz, url: "/create-quiz" },
+  {
+    title: "Quiz",
+    icon: CreateQuiz,
+    url: "/quiz",
+  },
   {
     title: "Past Questions",
     icon: DynamicFormRoundedIcon,
     url: "/past-questions",
   },
   {
-    title: "Attempt Quiz",
-    icon: QuestionMarkOutlinedIcon,
-    url: "/attempt-quiz",
-  },
-  {
     title: "Get Coin",
     icon: MonetizationOnOutlinedIcon,
     url: "/get-coin",
   },
-  { title: "Logout", icon: LogoutOutlinedIcon, url: "#" },
+  { title: "Logout", icon: LogoutOutlinedIcon, url: "/logout" },
 ];
 
 const link2 = [

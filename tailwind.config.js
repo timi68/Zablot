@@ -2,6 +2,9 @@ const { join } = require("path");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  corePlugins: {
+    preflight: false,
+  },
   important: true,
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",

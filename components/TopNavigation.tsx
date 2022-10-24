@@ -7,11 +7,14 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import SearchIcon from "@mui/icons-material/Search";
+import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
+import { useAppSelector } from "@lib/redux/store";
 
 const TopNavigation = () => {
   const [expand, setExpand] = React.useState("");
+  const device = useAppSelector((state) => state.sessionStore.device);
 
-  const handleClick = (name: "n" | "f" | "p" | "s") => {
+  const handleClick = (name: "n" | "f" | "p" | "s" | "c") => {
     emitCustomEvent("toggle", name);
     setExpand(name);
   };
@@ -46,6 +49,16 @@ const TopNavigation = () => {
         </div>
       </div>
       <Coin />
+      {device == "tablet" && (
+        <Badge color="secondary" showZero>
+          <IconButton
+            className={className("c")}
+            onClick={() => handleClick("c")}
+          >
+            <ChatRoundedIcon fontSize="small" />
+          </IconButton>
+        </Badge>
+      )}
       <Badge color="secondary" showZero>
         <IconButton className={className("f")} onClick={() => handleClick("f")}>
           <PersonAddIcon fontSize="small" />

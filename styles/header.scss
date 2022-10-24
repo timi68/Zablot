@@ -141,6 +141,19 @@
     @include media_649 {
       width: 100%;
     }
+
+    &:is(.dummy) {
+      cursor: pointer;
+
+      @include media_max800 {
+        width: 40px;
+        justify-content: center;
+
+        .form-control {
+          display: none;
+        }
+      }
+    }
   }
 
   .search-icon {
@@ -148,6 +161,7 @@
     width: 35px;
     display: grid;
     place-items: center;
+    transition: $transition;
 
     @include media_830 {
       padding: 0;
@@ -166,9 +180,9 @@
     flex-grow: 1;
     padding-block: 5px;
 
-    // @include media_399() {
-    //   width: 150px;
-    // }
+    @include media_399() {
+      width: 150px;
+    }
 
     .text-control {
       height: inherit;

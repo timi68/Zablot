@@ -9,12 +9,14 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { IconButton } from "@mui/material";
 import * as Interfaces from "@lib/interfaces";
 import j from "jquery";
-import Option from "./Option";
+import Option from "../../Option";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { propsToClassKey } from "@mui/styles";
 import { updateRoom } from "@lib/redux/roomSlice";
 import store from "@lib/redux/store";
 import { nanoid } from "@reduxjs/toolkit";
+import makeController from "@lib/client/question";
+import { useSnackbar } from "notistack";
 
 const variant = {
   hidden: {
@@ -55,65 +57,11 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
     coming: props.coming,
     going: props.going,
   });
+  const { enqueueSnackbar } = useSnackbar();
   const socket = useAppSelector((state) => state.sessionStore.socket);
   const PollRef = React.useRef<HTMLUListElement>(null);
   const Backdrop = React.useRef<HTMLDivElement>(null);
-
-  const AddOptions = React.useCallback((): void => {
-    let option = {
-      text: "",
-      checked: false,
-      key: nanoid(),
-    };
-    setQuestion((oldState): Interfaces.MessageType => {
-      // removing isNew from old options to trigger the correct animation
-      const options: Interfaces.MessageType["options"] = [
-        ...oldState.options,
-        ...[option],
-      ];
-      return { ...oldState, options };
-    });
-  }, []);
-
-  const HandleQuestionTextChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLElement>) => {
-      const target = e.target as HTMLInputElement;
-      setQuestion((question) => ({ ...question, question: target.value }));
-    },
-    []
-  );
-
-  const HandleOptionTextChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLElement>, key: string) => {
-      const target = e.target as HTMLInputElement;
-      setQuestion((oldState) => {
-        const options: Interfaces.MessageType["options"] = oldState.options.map(
-          (option, index) => {
-            if (option.key === key) option.text = target.value;
-            return option;
-          }
-        );
-        const newState = { ...oldState, options };
-        return newState;
-      });
-    },
-    []
-  );
-
-  const HandleAnswerChecked = React.useCallback((key: string) => {
-    setQuestion((oldState) => {
-      const options: Interfaces.MessageType["options"] = oldState.options.map(
-        (option, index) => {
-          option.checked = false;
-
-          if (option.key === key) option.checked = true;
-          return option;
-        }
-      );
-      const newState = { ...oldState, options };
-      return newState;
-    });
-  }, []);
+  const controller = makeController("poll", enqueueSnackbar, setQuestion);
 
   const AdditionalOptions = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,96 +80,37 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
     []
   );
 
-  const RemoveOption = React.useCallback((key: string) => {
-    setQuestion((oldState) => {
-      if (oldState.options.length < 3) {
-        alert("Sorry the Mininum option is 2 error");
-        return oldState;
-      }
-      const newOptions: Interfaces.MessageType["options"] =
-        oldState.options.filter((_option, index) => _option.key !== key);
-      const newState = { ...oldState, options: newOptions };
-      return newState;
-    });
-  }, []);
-
-  const SetDefaultState = React.useCallback(() => {
-    setOpen(false);
-    setQuestion((state) => {
-      return {
-        ...state,
-        question: "",
-        options: [
-          { index: 0, text: "", checked: false, key: nanoid() },
-          { index: 1, text: "", checked: false, key: nanoid() },
-        ],
-      };
-    });
-  }, []);
-
-  const SubmitQuestion = React.useCallback(() => {
-    if (!Boolean(question.question)) {
-      alert("Add Question Please error");
-      return;
-    }
-
-    let notEmptyOption = 0;
-    let EmptyOption = 0;
-    let isAnyOptionChecked = false;
-    question.options.map((option) => {
-      if (option.text) notEmptyOption++;
-      else EmptyOption++;
-      if (option.checked) isAnyOptionChecked = true;
-    });
-
-    if (notEmptyOption < 2) alert("Sorry the minimum option is 2");
-    else if (EmptyOption > 0) alert("Please remove empty options");
-    else if (!isAnyOptionChecked)
-      alert("Sorry you need to check the correct option");
-    else {
-      socket.emit(
-        "OUTGOINGFORM",
-        question,
-        (err: string, { formId, date }: { formId: string; date: number }) => {
-          console.log({ err, formId, date });
-          if (!err) {
-            question._id = formId;
-            question.date = date;
-
-            console.log({ question });
-            const messages =
-              store.getState().rooms.entities[props.room_id].messages;
-            dispatch(
-              updateRoom({
-                id: props.room_id,
-                changes: {
-                  messages: [...messages, question],
-                  type: "out",
-                },
-              })
-            );
-            SetDefaultState();
-          }
+  const SendPoll = React.useCallback(() => {
+    socket.emit(
+      "OUTGOINGFORM",
+      question,
+      (err: string, { formId, date }: { formId: string; date: number }) => {
+        if (!err) {
+          question._id = formId;
+          question.date = date;
+          const messages =
+            store.getState().rooms.entities[props.room_id].messages;
+          dispatch(
+            updateRoom({
+              id: props.room_id,
+              changes: {
+                messages: [...messages, question],
+                type: "out",
+              },
+            })
+          );
+          setOpen(false);
         }
-      );
-    }
-  }, [SetDefaultState, dispatch, props.room_id, question, socket]);
+      }
+    );
+  }, [dispatch, props.room_id, question, socket]);
 
   React.useImperativeHandle(
     ref,
     () => ({
-      toggle(hide?: boolean) {
-        if (hide) setOpen(false);
-        else setOpen(true);
-      },
-      getPollData(): {
-        pollData: Interfaces.RoomType["pollData"];
-        pollToggled: boolean;
-      } {
-        return { pollData: question, pollToggled: open };
-      },
+      toggle: () => setOpen(true),
     }),
-    [open, question]
+    []
   );
 
   React.useEffect(() => {
@@ -251,6 +140,8 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
     [open]
   );
 
+  if (!controller) return;
+
   return (
     <AnimatePresence mode="wait" onExitComplete={() => null}>
       {open && (
@@ -277,15 +168,21 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
                 <div className="title">
                   <div className="text">Poll</div>
                 </div>
-                <div className="discard-wrap" onClick={SetDefaultState}>
-                  <div className="text">
-                    <span>Discard</span>
-                  </div>
+                <div
+                  className="discard-wrap shadow-xl"
+                  onClick={() => {
+                    controller.setDefault.call(controller), setOpen(false);
+                  }}
+                >
+                  <span>Discard</span>
                 </div>
-                <div className="create-wrap" onClick={SubmitQuestion}>
-                  <div className="text">
-                    <span>Create</span>
-                  </div>
+                <div
+                  className="create-wrap bg-green text-white"
+                  onClick={() =>
+                    controller.submitQuestion.call(controller, SendPoll)
+                  }
+                >
+                  <span>Create</span>
                 </div>
               </div>
               <div className="poll-body">
@@ -298,7 +195,9 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
                       className="text-control"
                       id="question"
                       name="question"
-                      onChange={HandleQuestionTextChange}
+                      onChange={(e) =>
+                        controller.questionChange.call(controller, e)
+                      }
                       placeholder="Enter your question.."
                     ></textarea>
                   </div>
@@ -311,7 +210,7 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
                     {question.options.length < 4 && (
                       <IconButton
                         className="add-options add"
-                        onClick={AddOptions}
+                        onClick={() => controller.AddOptions.call(controller)}
                       >
                         <AddRoundedIcon fontSize="small" />
                       </IconButton>
@@ -324,9 +223,18 @@ const Poll = React.forwardRef((props: PropsType, ref) => {
                           <Option
                             key={option.key}
                             option={option}
-                            HandleAnswerChecked={HandleAnswerChecked}
-                            HandleOptionTextChange={HandleOptionTextChange}
-                            RemoveOption={RemoveOption}
+                            HandleAnswerChecked={(key: string) =>
+                              controller.answerChecked.call(controller, key)
+                            }
+                            HandleOptionTextChange={(
+                              e: React.ChangeEvent<HTMLTextAreaElement>,
+                              key: string
+                            ) =>
+                              controller.optionChange.call(controller, e, key)
+                            }
+                            RemoveOption={(key: string) =>
+                              controller.removeOption.call(controller, key)
+                            }
                           />
                         );
                       })}

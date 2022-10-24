@@ -71,6 +71,9 @@ body {
   }
 }
 
+.ant-picker-ok button:not(:disabled) {
+  background-color: #1890ff !important;
+}
 .wrapper {
   height: 100vh;
   overflow: hidden;
@@ -101,6 +104,7 @@ body {
 
     @media screen and (max-width: 600px) {
       height: calc(100vh - 60px);
+      display: block;
     }
 
     @include media_1049() {
@@ -1083,19 +1087,13 @@ body {
                   gap: 5px;
                   margin-bottom: 10px;
 
-                  .option {
-                    position: relative;
-
-                    .text-box {
-                      height: 100%;
-                    }
+                  .text-box {
+                    height: 100%;
                   }
 
                   #answer {
-                    -webkit-appearance: none;
-                    position: absolute;
-                    left: 0;
-                    top: 0;
+                    appearance: none;
+                    position: relative;
                     height: 100%;
                     width: 25px;
                     border: 1.5px groove;
@@ -1119,25 +1117,10 @@ body {
                     }
                   }
                 }
-                .remove-option {
-                  background: map-get($map: $color, $key: "lightgrey");
-                  border-radius: 0px;
-                  display: grid;
-                  cursor: pointer;
-                  place-items: center;
-                  width: 25px;
-                  height: 100%;
-                  position: absolute;
-                  right: 0;
-                  top: 0;
-                }
                 .text-control {
-                  height: 100%;
-                  width: 100%;
-                  resize: none;
-                  font-size: smaller;
-                  padding: 5px 5px 5px 27px;
-                  border-radius: 10px 50px 50px 10px;
+                  &::-webkit-scrollbar {
+                    appearance: none;
+                  }
 
                   &.empty {
                     box-shadow: 0px 0px 3px rgb(255, 0, 0);

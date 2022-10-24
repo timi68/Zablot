@@ -1,11 +1,11 @@
 import type { Socket } from "socket.io";
 
-export enum ActionType {
-  SESSION = "SESSION",
-  CLIENTSOCKET = "CLIENTSOCKET",
-  REFRESH = "REFRESH",
-  FETCHED = "FETCHED",
-}
+// export enum ActionType {
+//   SESSION = "SESSION",
+//   CLIENTSOCKET = "CLIENTSOCKET",
+//   REFRESH = "REFRESH",
+//   FETCHED = "FETCHED",
+// }
 
 export type stateInterface = {
   [x: string]: any;
@@ -13,15 +13,10 @@ export type stateInterface = {
   socket: null | Socket;
   user?: null | User;
   mode?: string;
-  session?: Session;
   activeFriends?: string[];
   active: string;
   device: "mobile" | "tablet" | "desktop";
 };
-export interface actionInterface {
-  type: ActionType;
-  payload: object;
-}
 
 export type Notifications = [
   {
@@ -77,38 +72,16 @@ export type User = {
   PendingRequests: string[];
 };
 
-export interface context {
-  state: { socket: Socket | null };
-  dispatch: React.Dispatch<actionInterface>;
-}
-
-export type Session = {
-  USER_ID: string;
-  SOCKET_ID: string;
-};
-
-export interface Handle {
-  setQuestions?(newQuestions: Question, questionId?: number): void;
-  updateQuestions?(question_id: number, question_details: Question): void;
-  setOpen?(questions?: Question[]): void;
-  setQuestionToEdit?(question_id: number, question_details?: Question): void;
-}
-
 export type Option = {
   text: string;
-  isNew?: boolean;
+  key: string;
   checked: boolean;
 };
 
 export interface Question {
   question: string;
   options: Option[];
-}
-
-export interface CreatedQuestionInterface {
-  edit: { current: Handle };
-  ref: React.ForwardedRef<any>;
-  upload: { current: Handle };
+  key: string;
 }
 
 export interface State {
@@ -126,14 +99,6 @@ export type Matched = {
   friends?: boolean;
 };
 
-export type Ref = { current: { UpdateFriends(friend: Friend): void } };
-export type AppChatBoardType = {
-  UpdateFriends(friend: Friend): void;
-  SetLastMessage(id: string, message: string, flow: string): void;
-  toggle(): void;
-  getModalState(): boolean;
-};
-
 export type MessageType = Partial<{
   _id: string;
   Format: "Form" | "plain" | "image";
@@ -143,11 +108,7 @@ export type MessageType = Partial<{
   coming: string;
   filename: string;
   question: string;
-  options: {
-    text: string;
-    checked: boolean;
-    key?: string;
-  }[];
+  options: Option[];
   date: number;
   answered: Partial<{ text: string; checked: boolean }>;
   coin: number;
@@ -170,22 +131,24 @@ export type RoomType = {
   type?: "in" | "out" | "loaded";
 };
 
-export type RoomProps = {
-  ref: React.RefObject<{ getProps(): RoomType } | null>[];
-  roomData: RoomType;
-  setRooms: React.Dispatch<React.SetStateAction<RoomType[]>>;
-  roomsRef: React.RefObject<{ getProps(): RoomType } | null>[];
-  index: number;
-};
-
-export type RoomBodyRefType = {
-  setMessages(message: MessageType, type: "out" | "in" | "loaded"): void;
-  getMessages(): MessageType[];
-};
-
 export type U<T extends (...args: any) => any> = (
   field: Partial<MessageType>,
   dispatch: ReturnType<T>,
   room_id: string | number,
   messageId: string
 ) => void;
+
+export type Quiz = {
+  _id: string;
+  title: string;
+  description: string;
+  range?: string[];
+  duration: number[];
+  visibility: string;
+  owner: {
+    name: string;
+    _id: string;
+    reputation: number;
+    image: string;
+  };
+};

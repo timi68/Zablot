@@ -27,6 +27,7 @@ import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import SearchIcon from "@mui/icons-material/Search";
 import Header from "./global/header";
+import CreatedQuestion from "@comp/quiz/createdQuestion";
 
 interface PropsInterface {
   children: React.ReactNode;
@@ -55,6 +56,8 @@ export default React.memo(function AppLayout(props: PropsInterface) {
               className="main"
             >
               {children}
+
+              <CreatedQuestion />
             </Container>
           </div>
         </div>

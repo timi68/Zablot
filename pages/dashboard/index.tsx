@@ -94,20 +94,6 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
         <AppChatBoard />
       </React.Fragment>
     );
-  } else if (props?.user) {
-    return (
-      <Container
-        sx={{
-          width: "100vw",
-          height: "100vh",
-          display: "grid",
-          placeItems: "center",
-        }}
-      >
-        <CircularProgress />
-        Loading...
-      </Container>
-    );
   } else {
     return <NoSession />;
   }

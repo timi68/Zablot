@@ -177,10 +177,10 @@ const FriendRequests = () => {
     : {
         initial: { scale: 0.8 },
         animate: { scale: 1 },
-        exit: { scale: 0.7 },
+        exit: { scale: 0.7, opacity: 0 },
       };
 
-  const A = isNotDesktop ? React.Fragment : AnimatePresence;
+  const A = isNotDesktop ? "div" : AnimatePresence;
 
   return (
     <A>
@@ -192,7 +192,7 @@ const FriendRequests = () => {
             onClickCapture={CaptureClick}
           />
           <M className="friend-requests-wrapper" {...MProp}>
-            <div className="requests-header transition-all top-0 shadow-lg sticky flex justify-center bg-inherit py-2.5 px-5">
+            <div className="requests-header transition-all top-0 shadow-lg sticky flex justify-between bg-inherit py-2.5 px-5">
               <div className="title">Friend Requests</div>
               <motion.button
                 className="close-modal"

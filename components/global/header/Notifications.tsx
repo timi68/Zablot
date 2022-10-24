@@ -72,7 +72,7 @@ function Notifications() {
     : {
         initial: { scale: 0.8 },
         animate: { scale: 1 },
-        exit: { scale: 0.7 },
+        exit: { scale: 0.7, opacity: 0 },
       };
 
   const A = isNotDesktop ? React.Fragment : AnimatePresence;

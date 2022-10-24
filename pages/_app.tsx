@@ -8,6 +8,7 @@ import AppContextProvider from "@lib/context/appContext";
 import { AppProps } from "next/app";
 
 // styles
+import "antd/dist/antd.css";
 import "nprogress/nprogress.css";
 import "../styles/header.scss";
 import "../styles/sidebar.scss";

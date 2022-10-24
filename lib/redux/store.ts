@@ -1,6 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import UserContext from "./userSlice";
+import QuestionActions from "./questionSlice";
 import RoomActions, { updateRoom } from "./roomSlice";
 import { U } from "@types";
 
@@ -8,6 +9,7 @@ import { U } from "@types";
 const rootReducer = combineReducers({
   sessionStore: UserContext,
   rooms: RoomActions,
+  questions: QuestionActions,
 });
 
 export const setupStore = configureStore({

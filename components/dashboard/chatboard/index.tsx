@@ -1,24 +1,26 @@
 import Image from "next/image";
 import React from "react";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, IconButton } from "@mui/material";
 import * as Interface from "@lib/interfaces";
 import Friends from "./Friends";
 import j from "jquery";
-import { useCustomEventListener } from "react-custom-events";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
+import { motion, AnimatePresence } from "framer-motion";
+import ArrowBack from "@mui/icons-material/ArrowBackIos";
+import SearchIcon from "@mui/icons-material/Search";
 
 const ChatBoard: React.FC = function () {
   const { user, activeFriends, socket, device } = useAppSelector(
     (s) => s.sessionStore
   );
   const dispatch = useAppDispatch();
-  const [openModal, setOpenModal] = React.useState<boolean>(
-    !["mobile"].includes(device)
-  );
+  const [openModal, setOpenModal] = React.useState<boolean>(false);
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
   const chatBoard = React.useRef<HTMLDivElement>(null);
+  const Backdrop = React.useRef<HTMLDivElement>(null);
 
   const NewFriend = React.useCallback((data: Interface.Friend) => {
     setFriends((friends) => [data, ...friends]);
@@ -139,18 +141,18 @@ const ChatBoard: React.FC = function () {
   useCustomEventListener(
     "toggle",
     (dest: string) => {
-      console.log({ dest });
-      if (device === "mobile") {
-        setOpenModal(dest == "c");
-      }
+      setOpenModal(dest == "c");
     },
     [device]
   );
 
   React.useEffect(() => {
     if (user) setFriends(user.Friends);
-    console.log("User has change");
   }, [user]);
+
+  // React.useEffect(() => {
+  //   if (user) setFriends(user.Friends);
+  // }, [device]);
 
   React.useEffect(() => {
     if (socket) {
@@ -176,29 +178,97 @@ const ChatBoard: React.FC = function () {
     socket,
   ]);
 
+  const CaptureClick = (e: React.MouseEvent) => {
+    e.target === Backdrop.current &&
+      (setOpenModal(false), emitCustomEvent("off"));
+  };
+
+  let V = {
+    mobile: "left",
+    tablet: "scale",
+  };
+  const isTablet = device !== "desktop";
+  const M = !isTablet ? "div" : motion.div;
+  const A = AnimatePresence;
+  const MProp = !isTablet
+    ? {}
+    : {
+        initial: { [V[device]]: device == "mobile" ? "50vw" : 0.8 },
+        animate: { [V[device]]: device == "mobile" ? "0vw" : 1 },
+        exit: {
+          [V[device]]: device == "mobile" ? "100vw" : 0.7,
+          opacity: 0,
+        },
+        className: "absolute h-100 top-0 right-0 w-[340px]",
+      };
+
   return (
-    openModal && (
-      <div className={"chats-container chat-board" + device} ref={chatBoard}>
-        <div className="chat-wrapper">
-          <div className="chats-header">
-            <div className="title">Chats</div>
-          </div>
-          <div className="chats-body p-3">
-            {loading ? (
-              <>
-                <div className="loader">
-                  <CircularProgress sx={{ color: "grey" }} />
+    <A>
+      {(openModal || device === "desktop") && (
+        <>
+          {isTablet && (
+            <div
+              className="h-screen fixed w-screen top-0 left-0 z-10"
+              ref={Backdrop}
+              onClickCapture={CaptureClick}
+            />
+          )}
+          <M
+            {...MProp}
+            className={"chats-container chat-board " + device}
+            ref={chatBoard}
+          >
+            <div className="chat-wrapper">
+              <div className="chats-header flex items-center gap-1 flex-nowrap">
+                {device === "mobile" && (
+                  <IconButton
+                    onClick={() => {
+                      setOpenModal(false);
+                      emitCustomEvent("off");
+                    }}
+                  >
+                    <ArrowBack />
+                  </IconButton>
+                )}
+                <div className="text-lg font-bold flex-grow">Chats</div>
+                <div className="ml-3 search-container " id="search">
+                  <div className="border border-solid h-[35px] w-[35px] justify-center border-gray-500 rounded-3xl flex items-center">
+                    <SearchIcon
+                      fontSize="small"
+                      className="search-icon h-6 w-6"
+                    />
+                    {/* <div className="form-control flex-grow">
+                      <input
+                        type="search"
+                        role="searchbox"
+                        aria-autocomplete="none"
+                        className="text-control bg-transparent text-sm p-2 "
+                        id="text-control"
+                        placeholder="Search a friend.."
+                        autoComplete="off"
+                      />
+                    </div> */}
+                  </div>
                 </div>
-              </>
-            ) : (
-              <>
-                <Friends friendId={user._id} friends={friends} />
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    )
+              </div>
+              <div className="chats-body p-3">
+                {loading ? (
+                  <>
+                    <div className="loader">
+                      <CircularProgress sx={{ color: "grey" }} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Friends friendId={user._id} friends={friends} />
+                  </>
+                )}
+              </div>
+            </div>
+          </M>
+        </>
+      )}
+    </A>
   );
 };
 
