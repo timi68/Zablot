@@ -6,7 +6,7 @@ export default function GroupMessage({
 }: {
   cur: Date;
   pre: Date;
-}): Date | "Today" | "Yesterday" | string | null | void {
+}): React.ReactNode {
   var currentDate: number = cur.getDate();
   var previousDate: number = pre?.getDate();
 

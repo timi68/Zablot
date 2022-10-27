@@ -55,7 +55,7 @@ function IncomingImage(props: PropsType) {
         </div>
       )}
       <div className={className}>
-        <div className="media-wrapper">
+        <div className="media-wrappkser">
           {url && (
             <div className="media image-file">
               <img src={url} alt={message.filename} className="image" />

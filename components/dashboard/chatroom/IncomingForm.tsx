@@ -79,7 +79,7 @@ function IncomingForm(props: {
     <React.Fragment>
       {Group && (
         <div className="group">
-          <span>{Group}</span>
+          <span>{Group as string}</span>
         </div>
       )}
       <div className={className} id={message._id.slice(4, 12)}>
