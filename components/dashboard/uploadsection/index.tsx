@@ -67,7 +67,22 @@ function UploadScreen() {
                   </div>
                   <div className="status-label">
                     <span className="!font-['Nunito'] text-xs text-center">
-                      Abigail
+                      {
+                        [
+                          "Tolu",
+                          "Adeben",
+                          "Sandra",
+                          "Abigail",
+                          "Fife",
+                          "Jeje",
+                          "Jagun",
+                          "Razaq",
+                          "Grace",
+                          "Ayomi",
+                          "CEO",
+                          "Sanni",
+                        ][Math.floor(Math.random() * 12) + 1]
+                      }
                     </span>
                   </div>
                 </li>

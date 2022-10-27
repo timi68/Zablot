@@ -49,7 +49,7 @@ const MobileNavigation = () => {
   const className = (n: string) => "open" + (n === expand ? " active" : "");
 
   return (
-    <Box className="mobile sm:hidden z-[99999] nav fixed bottom-0 left-0 w-screen py-2 border border-gray-300 border-solid">
+    <Box className="mobile sm:hidden z-[99999] bg-lightgrey nav fixed bottom-0 left-0 w-screen py-2 border border-gray-300 border-solid">
       {/* <Divider className="mb-4" /> */}
       <div className="flex justify-around items-center">
         {nav.map((button) => (
