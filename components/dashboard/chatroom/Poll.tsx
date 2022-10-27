@@ -36,7 +36,6 @@ const variant = {
 };
 
 type PropsType = {
-  roomBody: React.RefObject<Interfaces.RoomBodyRefType>;
   coming: string;
   _id: string;
   going: string;

@@ -35,14 +35,9 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
     (state) => state.sessionStore
   );
   const MessageBoxRef = React.useRef<HTMLTextAreaElement>(null);
-  const RoomBodyRef = React.useRef<Interfaces.RoomBodyRefType>(null);
   const MediaRef = React.useRef<HTMLDivElement>(null);
   const PollRef = React.useRef<{
     toggle(hide?: boolean): void;
-    getPollData(): {
-      pollData: Interfaces.RoomType["pollData"];
-      pollToggled: boolean;
-    };
   }>(null);
   const [open, setOpen] = React.useState(false);
 
@@ -257,7 +252,6 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
         </IconButton>
         <Poll
           ref={PollRef}
-          roomBody={RoomBodyRef}
           going={friend.Id}
           _id={friend._id}
           coming={user._id}
