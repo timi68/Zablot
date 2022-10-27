@@ -13,7 +13,7 @@ import getUser from "@lib/getUser";
 import Link from "next/link";
 import Quiz from "@comp/quiz/quiz";
 import View from "@comp/quiz/View";
-import { Quizzes } from "./quizzes";
+import { Quizzes } from "@lib/quizzes";
 
 export default function PastQuestions(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);
