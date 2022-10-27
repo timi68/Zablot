@@ -31,20 +31,7 @@ const ChatRoom = () => {
         room_id: friend.Id,
         friend,
         messages: [],
-        target,
         loaded: false,
-        pollData: {
-          question: "",
-          options: [
-            { text: "", checked: false },
-            { text: "", checked: false },
-          ],
-          Format: "Form",
-          _id: friend._id,
-          coming: _id,
-          going: friend.Id,
-        },
-        pollToggled: false,
       };
       dispatch(addRoom(roomData));
       // setRooms((prev): Interfaces.RoomType[] => {

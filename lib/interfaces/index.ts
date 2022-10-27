@@ -125,9 +125,6 @@ export type RoomType = {
   friend: Friend;
   messages: MessageType[];
   loaded: boolean;
-  pollToggled?: boolean;
-  pollData?: MessageType;
-  target: HTMLElement;
   type?: "in" | "out" | "loaded";
 };
 
