@@ -20,8 +20,8 @@ function View({ quizzes, view }: { quizzes: Quiz[]; view: string }) {
         exit={{ opacity: 0, transition: { duration: 0.15 } }}
         transition={{ duration: 0.2, delay: 0.15 }}
         style={{ pointerEvents: "auto" }}
-        className="w-screen fixed left-0 top-0 bottom-0 bg-black bg-opacity-40"
-        onClick={() => router.back()}
+        className="cursor-pointer w-screen fixed left-0 top-0 bottom-0 bg-black bg-opacity-40"
+        onClick={() => router.push("/quiz/attempt")}
       />
       <motion.div
         className="quiz card relative z-[10] shadow-lg rounded-lg overflow-hidden bg-gray-200 max-w-[700px] mx-auto my-[50px]"

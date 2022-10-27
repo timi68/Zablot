@@ -132,8 +132,6 @@ body {
       position: relative;
       height: 100%;
       overflow: auto scroll;
-      max-width: 500px;
-      margin: auto;
 
       @include media_499 {
         overflow: initial;
@@ -141,6 +139,11 @@ body {
 
       &::-webkit-scrollbar {
         width: 0px;
+      }
+
+      .social-wrapper {
+        max-width: 500px;
+        margin: auto;
       }
 
       .feeds-list {
@@ -199,116 +202,11 @@ body {
         }
       }
 
-      .posts-container {
-        padding: 10px;
-
-        .post {
-          // background: map-get($map: $color, $key: "lowgrey");
-          width: 100%;
-          margin: auto;
-          margin-bottom: 10px;
-          box-shadow: 0px 0px 3px rgb(0 0 0 / 25%);
-          padding: 10px 0px 20px;
-          // border-radius: 20px;
-
-          @include media_399 {
-            width: 100%;
-          }
-        }
-        .post-content {
-          position: relative;
-
-          .uploader-wrap {
-            display: flex;
-            flex-wrap: nowrap;
-            align-items: center;
-            padding: 10px;
-            gap: 5px;
-            margin-bottom: 0.5em;
-          }
-        }
-      }
-
       .general {
         list-style: none;
       }
 
-      .feedback {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        padding: 2px 10px;
-
-        .replys {
-          text-align: center;
-          background: #fff;
-          padding: 3px;
-          border-radius: 50px;
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          justify-content: center;
-          flex-grow: 1;
-
-          .count {
-            font-weight: 600;
-          }
-        }
-
-        .shares-counts svg {
-          transform: rotateY(180deg);
-        }
-      }
-
-      .post-attributes {
-        background-color: #cfcfcf;
-        margin-top: 0.5em;
-        border-radius: 5px;
-        margin-inline: 10px;
-        padding: 10px;
-
-        .tags-container {
-          display: inline-flex;
-          font-size: 0.8em;
-        }
-
-        .caption-container {
-          font-size: 0.8em;
-          margin-top: 5px;
-
-          .caption-text {
-            font-weight: 500;
-            color: #363636;
-          }
-        }
-
-        .caption-label,
-        .tag-label {
-          font-weight: 500;
-          color: #369298;
-        }
-
-        .tags,
-        .mentions {
-          text-decoration: none;
-          color: #865711;
-        }
-      }
-      .fast-comment-box {
-        margin-top: 5px;
-        padding-inline: 10px;
-      }
-
       .recent-comment {
-        font-size: map-get($map: $fonts, $key: "smaller");
-        display: flex;
-        flex-wrap: wrap;
-        margin-bottom: 10px;
-        align-items: center;
-        background-color: #fff;
-        border-radius: 5px;
-        padding: 10px;
-
         .user {
           display: flex;
           align-items: center;
@@ -330,64 +228,15 @@ body {
 
       .comment-create-box {
         position: relative;
+        border: 1px solid gray;
 
         .text-control {
-          width: 100%;
+          flex-grow: 1;
+          background-color: transparent;
           height: 35px;
-          padding: 8px 35px 8px;
           border: none;
-          border-radius: 5px;
-          background: map-get($map: $color, $key: "white");
           resize: none;
-          font-family: "Segoe UI";
-        }
-
-        .input-group {
-          display: grid;
-
-          .media-icon {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 5px;
-          }
-          .send-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            right: 5px;
-
-            .btn {
-              background: transparent;
-            }
-          }
-
-          svg {
-            fill: map-get($map: $color, $key: "skyblue");
-            width: 20px;
-            height: 20px;
-          }
-        }
-
-        .media-comment-wrapper {
-          position: absolute;
-          background: map-get($map: $color, $key: "white");
-          left: 15px;
-          top: 50%;
-          border-radius: 5px;
-          transform: translateY(-50%);
-          width: 50%;
-          clip-path: circle(0.4% at 0 100%);
-
-          &.show {
-            clip-path: circle(70.7% at 50% 50%);
-          }
-
-          .media-list {
-            display: flex;
-            justify-content: space-between;
-            list-style: none;
-          }
+          font-family: Nunito;
         }
       }
     }

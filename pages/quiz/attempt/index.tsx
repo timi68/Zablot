@@ -37,8 +37,8 @@ export default function PastQuestions(props: { user: string }) {
   };
 
   return (
-    <div className="attempt-quiz-wrapper h-full overflow-auto">
-      <div className="flex justify-between w-full p-3 rounded-lg h-max items-center gap-3">
+    <div className="attempt-quiz-wrapper p-3 h-full overflow-auto flex-grow">
+      <div className="flex flex-wrap py-3 justify-between w-full rounded-lg h-max items-center gap-3">
         <div className="text flex-shrink">
           <div className="primary text-2xl mb-2 font-extrabold font-[nunito]">
             Checkout Prepared Quiz

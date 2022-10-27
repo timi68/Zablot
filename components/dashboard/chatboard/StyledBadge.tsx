@@ -31,7 +31,9 @@ const Styled = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const StyledBadge: React.FC<{ active: boolean }> = (props) => {
+const StyledBadge: React.FC<{ active: boolean; children: React.ReactNode }> = (
+  props
+) => {
   return props.active ? (
     <Styled
       overlap="circular"

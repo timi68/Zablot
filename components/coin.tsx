@@ -17,7 +17,7 @@ function Coin() {
   return (
     <Chip
       label="500"
-      className="coin-wrapper"
+      className="coin-wrapper bg-white shadow-lg"
       icon={<MonetizationOnIcon fontSize="small" />}
     />
   );

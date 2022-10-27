@@ -47,14 +47,14 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
   }, [_callback$Status, socket]);
 
   return (
-    <div className="room-header">
+    <div className="room-header py-2 h-auto">
       <div className="profile">
         <StyledBadge active={online}>
           <Avatar
             src={friend.Image}
             sx={{
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               fontSize: "14px",
               bgcolor: stringToColor(friend.Name),
             }}
@@ -64,7 +64,7 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
           </Avatar>
         </StyledBadge>
         <div className="name">
-          <span className="textname">{friend?.Name}</span>
+          <span className="text-base font-semibold">{friend?.Name}</span>
           <div className="active-sign">
             <div className="active-text" ref={statusRef}>
               {online

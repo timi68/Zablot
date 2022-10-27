@@ -1,37 +1,80 @@
 import React from "react";
 import { useSnackbar } from "notistack";
-import * as Interfaces from "@types";
+import { Question } from "@types";
 import FetchUser from "@lib/fetch_user";
 import axios from "axios";
 import { NextRouter, useRouter } from "next/router";
-import { Avatar, Breadcrumbs, Button, Chip, IconButton } from "@mui/material";
+import { Avatar, Button, Card, Stack } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { CardActionArea } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Link from "next/link";
 import { InferGetServerSidePropsType } from "next";
-import NavigateNextIcon from "@mui/icons-material/NavigateNextRounded";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import getUser from "@lib/getUser";
-import { Divider } from "antd";
+import { Questions } from "@lib/questions";
+import AttemptQuestion from "@comp/quiz/attemptQuestion";
+import lodash from "lodash";
+import Cookies from "js-cookie";
+import moment from "moment";
+import BoardControl from "@comp/quiz/attempt/boardControl";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) {
-  const { loggedIn, user, socket } = useAppSelector(
-    (state) => state.sessionStore
-  );
-  const [tab, setTab] = React.useState<number>(0);
+  const user = useAppSelector((state) => state.sessionStore.user);
+  const [page, setPage] = React.useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
   const router: NextRouter = useRouter();
-  const routes = router.route.split("/");
   const dispatch = useAppDispatch();
+  const [questions, setQuestions] = React.useState<Question[]>(
+    Questions ?? (JSON.parse(Cookies.get("attempting") ?? "[]") as Question[])
+  );
+  const [counter, setCounter] = React.useState({
+    answered: [],
+    not_answered: questions.map((q) => q.key),
+    not_viewed: questions.map((q) => q.key),
+  });
 
   React.useEffect(() => {
     !user && FetchUser(dispatch, enqueueSnackbar, props.user);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    let s = new Set(counter.answered);
+    let n = new Set(counter.not_answered);
+
+    let key = questions[page].key;
+    let answered = questions[page].options.some((opt) => opt.checked);
+    let not_answered = answered
+      ? lodash.pull(counter.not_answered, key)
+      : Array.from(n.add(key));
+    let not_viewed = lodash.pull(counter.not_viewed, key);
+
+    setCounter({
+      answered: answered
+        ? Array.from<string>(s.add(key))
+        : lodash.pull(counter.answered, key),
+      not_answered,
+      not_viewed,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, questions]);
+
+  React.useEffect(() => {
+    Cookies.remove("attempting");
+    Cookies.set("attempting", JSON.stringify(questions), {
+      expires: moment().add(2, "hours").toDate(),
+    });
+  }, [questions]);
+
+  const Finish = () => {
+    console.log(questions);
+  };
+
+  if (!user) return <></>;
 
   return (
     <div className="start-quiz-wrapper h-full overflow-auto p-3 flex-grow">
@@ -41,43 +84,18 @@ export default function PastQuestions(
           <div className="owner text-xs font-medium">by Timi James</div>
         </div>
         <div className="monitor flex gap-3 items-center">
-          <span className="time-count text-lg font-bold text-amber-900">
-            23:00
-          </span>
-          <Avatar src="" alt="cam capture" />
+          <Avatar variant="rounded" src="" alt="cam capture" />
         </div>
       </div>
-      <div className="flex gap-4 justify-between">
-        <div className="question-wrap flex-grow max-w-[600px]">
-          <div className="page bg-white p-2 mb-2 rounded-lg font-semibold">
-            Question 1
-          </div>
-          <div className="question text">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Explicabo,
-            optio sapiente. Praesentium! ?
-          </div>
-          <Divider />
-          <ul className="options-wrap grid gap-2">
-            {Array.from(new Array(4)).map((key) => {
-              return (
-                <motion.li
-                  whileHover={{ scale: 1.03, x: 10 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="form-group list-none"
-                  key={key}
-                >
-                  <Button
-                    color="inherit"
-                    id={key}
-                    className="option font-normal text-xs capitalize bg-lightgrey p-3 rounded-lg w-full justify-start"
-                  >
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    Explicabo, optio sapiente
-                  </Button>
-                </motion.li>
-              );
-            })}
-          </ul>
+      <div className="sm:flex gap-4 justify-between">
+        <div className="question-wrap flex-grow max-w-[600px">
+          <AnimatePresence>
+            <AttemptQuestion
+              questions={questions}
+              page={page}
+              setQuestions={setQuestions}
+            />
+          </AnimatePresence>
           <div className="button-group my-5">
             <div className="flex justify-between">
               <motion.div
@@ -88,7 +106,9 @@ export default function PastQuestions(
                 <Button
                   variant="contained"
                   color="inherit"
-                  className="bg-transparent text-green border-green border border-solid text-xs rounded-lg"
+                  className="disabled:invisible bg-transparent text-green border-green border border-solid text-xs rounded-lg"
+                  onClick={() => setPage(page - 1)}
+                  disabled={!page}
                 >
                   Previous
                 </Button>
@@ -101,48 +121,58 @@ export default function PastQuestions(
                 <Button
                   variant="contained"
                   color="inherit"
-                  className="bg-green text-white text-xs rounded-lg"
+                  className="bg-green text-white text-xs rounded-lg disabled:invisible"
+                  onClick={() =>
+                    page === Questions.length - 1 ? Finish() : setPage(page + 1)
+                  }
                 >
-                  Next
+                  {page === Questions.length - 1 ? "Submit" : "Next"}
                 </Button>
               </motion.div>
             </div>
           </div>
         </div>
-        <div className="p-3 quiz-board-control bg-lightgrey min-h-[350px] mb-3">
-          <ul className="gap-2 flex flex-wrap w-[380px] ">
-            {Array.from(new Array(50)).map((_, key) => {
-              return (
-                <motion.li
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="form-group list-none"
-                  key={key}
-                >
-                  <Button
-                    color="inherit"
-                    className="bg-white w-[30px] text-xs font-bold p-2 h-max min-w-[30px] rounded-lg shadow-lg"
-                  >
-                    {key + 1}
-                  </Button>
-                </motion.li>
-              );
-            })}
-          </ul>
-          <motion.div
-            whileHover={{ scale: 1.03, y: 5 }}
-            whileTap={{ scale: 0.9 }}
-            className="my-10"
-          >
-            <Button
-              color="primary"
-              variant="contained"
-              className="bg-green text-white rounded-lg p-2 w-full"
-            >
-              Submit & Finish Quiz
-            </Button>
-          </motion.div>
-        </div>
+
+        <BoardControl
+          page={page}
+          setPage={setPage}
+          counter={counter}
+          questions={questions}
+        />
+      </div>
+      <div className="counter p-5 mt-4 bg-white text-center shadow-lg rounded-lg">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          flexWrap="wrap"
+          spacing={5}
+          justifyContent="space-between"
+          divider={<div>|</div>}
+        >
+          <div id="answered" className="answered">
+            <label htmlFor="answered" className="font-medium">
+              Answered
+            </label>
+            <div className="count font-semibold text-lg">
+              {counter.answered.length}
+            </div>
+          </div>
+          <div id="not-answered" className="not-answered">
+            <label htmlFor="not-answered" className="font-medium">
+              Not Answered
+            </label>
+            <div className="count font-semibold text-lg">
+              {counter.not_answered.length}
+            </div>
+          </div>
+          <div id="not-viewed" className="not-viewed">
+            <label htmlFor="answered" className="font-medium">
+              Not Viewed
+            </label>
+            <div className="count font-semibold text-lg">
+              {counter.not_viewed.length}
+            </div>
+          </div>
+        </Stack>
       </div>
     </div>
   );
@@ -160,14 +190,13 @@ export async function getServerSideProps({
     const user_id = req.session.user;
     if (!user_id) throw new Error("There is no session");
 
-    const user = getUser(user_id);
+    const user = await getUser(user_id);
     if (!user) throw new Error("User not found");
 
     return {
       props: { user: JSON.stringify(user), params: params as { exam: string } },
     };
   } catch (error) {
-    console.log({ error });
     return {
       redirect: {
         permanent: false,
