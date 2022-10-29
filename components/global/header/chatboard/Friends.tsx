@@ -23,7 +23,7 @@ function Friends(props: props) {
         {!friends?.length && (
           <div className="no-friend-available">
             <div className="text">
-              <span>You dont have any friend</span>
+              <span>You do not have any friend</span>
             </div>
           </div>
         )}

@@ -26,7 +26,7 @@
   }
 
   .preview-profile {
-    padding-block: 15px 13px;
+    padding-block: 15px;
     transition: $transition;
     white-space: nowrap;
     position: sticky;
@@ -100,6 +100,7 @@
       list-style: none;
       li {
         margin-bottom: 16px;
+        transition: $transition;
       }
       a {
         height: 40px;
@@ -167,18 +168,17 @@
 
         li {
           max-width: 60px;
+          margin-bottom: 25px;
         }
 
         a {
           justify-content: center;
-          z-index: 100;
           background-color: whitesmoke;
           width: 40px;
           max-width: 60px;
           margin: auto;
           box-shadow: $shadow;
           position: relative;
-          z-index: 99999;
 
           &.active {
             background: white;
@@ -260,7 +260,7 @@
     left: -100vw;
     padding: 0;
     top: 0;
-    z-index: 9999999999999999;
+    z-index: 99999999999;
     background-color: lightgrey;
     &.show {
       left: 0;

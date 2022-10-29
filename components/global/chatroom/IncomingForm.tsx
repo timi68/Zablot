@@ -92,18 +92,25 @@ function IncomingForm(props: {
                     <Timer timer={message.timer} PollTimeOut={PollTimeOut} />
                   ) : (
                     <div className="timer flex items-center gap-1">
-                      <AccessTimeOutlinedIcon fontSize={"small"} />
-                      <span className="text-sm">{message.timer + "s"}</span>
+                      <AccessTimeOutlinedIcon className="h-4 w-4" />
+                      <span className="text-xs font-semibold">
+                        {message.timer + "s"}
+                      </span>
                     </div>
                   ))}
                 {Boolean(message.coin) && (
                   <div className="flex items-center gap-1">
-                    <MonetizationOnIcon fontSize="small" />
-                    <span className="text-sm">{message.coin}</span>
+                    <MonetizationOnIcon className="h-4 w-4" />
+                    <span className="text-xs font-semibold">
+                      {message.coin}
+                    </span>
                   </div>
                 )}
               </div>
-              <div className="text !mr-0 !p-2 capitalize" id="question">
+              <div
+                className="p-1 text-xs font-medium bg-lightgrey"
+                id="question"
+              >
                 {message.question}
               </div>
             </div>
@@ -201,7 +208,7 @@ const Timer: React.FC<{ timer: number; PollTimeOut(): void }> = React.memo(
     return (
       <div className="timer flex items-center gap-1">
         <AccessTimeOutlinedIcon fontSize={"small"} />
-        <span className="text-sm">{time + "s"}</span>
+        <span className="text-xs font-semibold">{time + "s"}</span>
       </div>
     );
   }

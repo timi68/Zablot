@@ -17,7 +17,7 @@ function Notifications() {
   const { socket, user, device } = useAppSelector((s) => s.sessionStore);
   const [openModal, setOpenModal] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
-    Interfaces.Notifications[0][]
+    Interfaces.Notification[]
   >(user?.Notifications || []);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const Backdrop = React.useRef<HTMLDivElement>(null);
@@ -138,17 +138,27 @@ function Notifications() {
   );
 }
 
-function NotificationsPaper(props) {
+interface NotificationPaperProps {
+  current: string;
+  previous: string;
+  index: number;
+  data: Interfaces.Notification;
+}
+function NotificationsPaper(props: NotificationPaperProps) {
   const { data, current, previous, index } = props;
   return (
     <React.Fragment>
-      <GroupNotification cur={current} pre={previous} i={index} />
+      <GroupNotification
+        cur={new Date(current)}
+        pre={new Date(previous)}
+        i={index}
+      />
       <li className="notification">
         <div className="notification-image">
           <div className="image">
             <img
               className="avatar w-10 h-10 rounded-full"
-              src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+              src="/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
               alt=""
             />
           </div>

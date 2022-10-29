@@ -156,11 +156,9 @@
   top: 75px;
   right: 0;
   height: calc(100vh - 75px);
-  opacity: 1;
   box-shadow: $shadow;
   transition: $transition;
   z-index: 99;
-  // border-radius: 10px;
   background: map-get($color, "lightergrey");
 
   &::-webkit-scrollbar {

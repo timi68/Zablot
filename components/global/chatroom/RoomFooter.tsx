@@ -12,7 +12,7 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
 } from "@mui/material";
-import Poll from "@comp/dashboard/chatroom/Poll";
+import Poll from "@comp/global/chatroom/Poll";
 import * as Interfaces from "@lib/interfaces";
 import { emitCustomEvent } from "react-custom-events";
 import { updateRoom } from "@lib/redux/roomSlice";
@@ -52,7 +52,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
     if (!messageText) return;
 
     j(SendRef.current).removeClass("active");
-    j(MessageBoxRef.current).val("").trigger("focus");
+    j(MessageBoxRef.current).val("").trigger("focus").removeAttr("style");
 
     var newMessage: Interfaces.MessageType = {
       message: messageText,
@@ -187,10 +187,11 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       <div className="message-create-box input-box flex h-full items-end">
         <SpeedDial
           open={open}
-          onOpen={() => setOpen(true)}
+          onClick={() => setOpen(true)}
           onClose={() => setOpen(false)}
           sx={SpeedDialCss}
-          ariaLabel="SpeedDial openIcon example"
+          color="inherit"
+          ariaLabel="SpeedDial openIcon"
           icon={
             <SpeedDialIcon
               icon={<AttachmentOutlinedIcon fontSize="small" />}
@@ -221,7 +222,6 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
             className="file-control video-file"
             type="file"
             accept="video/*"
-            id="40abf369-1e9video"
             name="video-file"
             hidden
           />
@@ -229,11 +229,13 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
         <div className="input-group message-box relative flex-grow">
           <textarea
             placeholder="Type a message..."
-            className="text-control"
+            className="text-control transition-all"
             onKeyPressCapture={handleKey}
             onChange={({ target: element }) => {
               element.style.height = "5px";
               element.style.height = element.scrollHeight + "px";
+
+              console.log({ scroll: element.scrollHeight });
 
               if (element.value) SendRef.current.classList.add("active");
               else SendRef.current.classList.remove("active");
@@ -267,6 +269,7 @@ const SpeedDialCss = {
   zIndex: 10,
   "& .MuiSpeedDial-fab": {
     maxWidth: 36,
+    bgcolor: "transparent",
     "&:hover": {
       bgcolor: "rgb(87, 130, 137)",
       color: "#fff",
@@ -280,7 +283,6 @@ const SpeedDialCss = {
     height: 35,
     my: 0.5,
     transition: ".30 all ease-in-out",
-    bgcolor: "#ececec",
     "&:hover": {
       bgcolor: "rgb(87, 130, 137)",
       color: "#fff",

@@ -8,12 +8,23 @@ import React from "react";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import StyledBadge from "./StyledBadge";
 import stringToColor from "@utils/stringToColor";
-import { format } from "date-fns";
+import { format, formatRelative, isYesterday, isToday } from "date-fns";
 
 interface chats {
   friendId: string;
   friend: Interface.Friend;
 }
+
+const getRelative = (time: number) => {
+  let date = new Date(time);
+  let n = format(date, "HH:mm");
+
+  return isToday(date)
+    ? n
+    : isYesterday(date)
+    ? "Yesterday at " + n
+    : format(date, "dd/mmm/yyyy");
+};
 
 function Chats({ friendId, friend }: chats): JSX.Element {
   const CardRef = React.useRef<HTMLDivElement>(null);
@@ -49,8 +60,15 @@ function Chats({ friendId, friend }: chats): JSX.Element {
       </StyledBadge>
       <div className="text" role="listitem">
         <div className="wrap">
-          <div className="text-sm font-semibold capitalize">{friend.Name}</div>
-          <div className="time text-xs">{format(friend.time, "HH:mm")}</div>
+          <div className="text-sm font-semibold text-ellipsis pr-1 capitalize max-w-[70%] overflow-clip">
+            {friend.Name}
+          </div>
+          <div
+            className="time text-xs leading-[10px] text-[0.55em] max-w-[35%] font-medium"
+            style={{ whiteSpace: "break-spaces" }}
+          >
+            {getRelative(friend.time)}
+          </div>
         </div>
         <div className="flex justify-between items-center">
           <div className="last_message secondary_text flex-grow">

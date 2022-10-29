@@ -83,18 +83,25 @@ function OutgoingForm(props: {
               <div className="poll-question-header">
                 {message.timer && (
                   <div className="timer flex items-center gap-1">
-                    <AccessTimeOutlinedIcon fontSize={"small"} />
-                    <span className="text-sm">{message.timer + "s"}</span>
+                    <AccessTimeOutlinedIcon className="h-4 w-4" />
+                    <span className="text-xs font-semibold">
+                      {message.timer + "s"}
+                    </span>
                   </div>
                 )}
                 {message.coin && (
                   <div className="coin-added flex items-center gap-1">
-                    <MonetizationOnIcon fontSize="small" />
-                    <span className="text-sm">{message.coin}</span>
+                    <MonetizationOnIcon className="h-4 w-4" />
+                    <span className="text-xs font-semibold">
+                      {message.coin}
+                    </span>
                   </div>
                 )}
               </div>
-              <div className="text !p-2" id="question">
+              <div
+                className="p-1 text-xs font-medium bg-lightgrey"
+                id="question"
+              >
                 {message.question}
               </div>
             </div>

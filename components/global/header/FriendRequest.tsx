@@ -325,7 +325,7 @@ function PeopleYouMightKnow() {
             <div className="user-image">
               <div className="image-wrapper">
                 <img
-                  src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+                  src="/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
                   alt="user-image"
                   className="image"
                 />

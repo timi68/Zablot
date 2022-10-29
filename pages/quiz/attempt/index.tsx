@@ -4,7 +4,7 @@ import { Quiz as QuizType } from "@types";
 import FetchUser from "@lib/fetch_user";
 import axios from "axios";
 import { NextRouter, useRouter } from "next/router";
-import { Divider, Grid } from "@mui/material";
+import { Divider, Grid, Tooltip } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import jsonwebtoken from "jsonwebtoken";
 import { useForm } from "react-hook-form";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import Quiz from "@comp/quiz/quiz";
 import View from "@comp/quiz/View";
 import { Quizzes } from "@lib/quizzes";
+import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
 
 export default function PastQuestions(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);
@@ -40,28 +41,45 @@ export default function PastQuestions(props: { user: string }) {
     <div className="attempt-quiz-wrapper p-3 h-full overflow-auto flex-grow">
       <div className="flex flex-wrap py-3 justify-between w-full rounded-lg h-max items-center gap-3">
         <div className="text flex-shrink">
-          <div className="primary text-2xl mb-2 font-extrabold font-[nunito]">
-            Checkout Prepared Quiz
-          </div>
-          <div className="secondary text-xs max-w-[600px]">
-            Get to attempt and check your level of preparation. This page
-            contains that has been set for public assessment, excluding premium.
-          </div>
+          <Tooltip title="Go back to previous page" placement="bottom">
+            <motion.div
+              whileHover={{ scale: 0.9 }}
+              className="relative bg-green h-[30px] w-[30px] rounded-3xl"
+            >
+              <motion.button
+                onClick={() => router.push("/quiz")}
+                whileHover={{ x: -10 }}
+                whileTap={{ x: -20 }}
+                className="bg-transparent"
+              >
+                <KeyboardBackspaceRoundedIcon
+                  fontSize="large"
+                  className="ml-[5px] mt-[-2px] text-white"
+                />
+              </motion.button>
+            </motion.div>
+          </Tooltip>
         </div>
-        <div className="form-group">
+        <div className="primary flex-grow hidden sm:block text-xl font-extrabold font-[nunito]">
+          Checkout Prepared Quiz
+        </div>
+
+        <div className="form-group flex-grow max-w-[300px]">
           <motion.input
             whileFocus={{
               scale: 1.03,
             }}
-            className="border border-solid shadow-lg border-gray-700 p-2 w-[250px] rounded-3xl"
+            className="border border-solid shadow-lg w-full bg-transparent border-gray-700 p-2 rounded-lg"
             placeholder="Enter quiz id | title | category"
           />
         </div>
       </div>
       <Divider>
-        <span>Do not sleep on it.</span>
+        <span className="text-xs">
+          Attempt quiz to check your level of preparation.
+        </span>
       </Divider>
-      <div className="main-content p-3">
+      <div className="main-content p-3 mt-3">
         <Grid
           rowSpacing={3}
           columnSpacing={2}

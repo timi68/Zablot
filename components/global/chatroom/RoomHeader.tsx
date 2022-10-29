@@ -9,7 +9,7 @@ import { Friend } from "@types";
 import { getRoom } from "@lib/redux/roomSlice";
 import { useAppSelector } from "@lib/redux/store";
 import { Avatar } from "@mui/material";
-import StyledBadge from "@comp/dashboard/chatboard/StyledBadge";
+import StyledBadge from "@comp/global/header/chatboard/StyledBadge";
 import stringToColor from "@utils/stringToColor";
 import { format } from "date-fns";
 import { emitCustomEvent } from "react-custom-events";
@@ -64,7 +64,7 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
           </Avatar>
         </StyledBadge>
         <div className="name">
-          <span className="text-base font-semibold">{friend?.Name}</span>
+          <span className="text-sm font-semibold">{friend?.Name}</span>
           <div className="active-sign">
             <div className="active-text" ref={statusRef}>
               {online

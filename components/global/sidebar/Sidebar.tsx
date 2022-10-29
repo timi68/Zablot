@@ -124,9 +124,9 @@ export default React.memo(function Sidebar() {
             ""
           ) : (
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ width: 0, scale: 0 }}
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              exit={{ width: 0, height: 0, padding: 0 }}
               className="preview-profile"
             >
               <div className="user-image-name-wrapper">
@@ -174,7 +174,7 @@ export default React.memo(function Sidebar() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                exit={{ width: 0, scale: 0 }}
+                exit={{ width: 0, height: 0 }}
                 className="message-from-zablot"
               >
                 <div className="message">
@@ -204,6 +204,10 @@ export default React.memo(function Sidebar() {
                   return (
                     <motion.li
                       key={index}
+                      onClick={() => {
+                        setTooltip({ ...tooltip, open: false });
+                        setShow(false);
+                      }}
                       data-title={data.title}
                       className="link-wrap"
                     >
@@ -226,12 +230,7 @@ export default React.memo(function Sidebar() {
                           {!show && device === "tablet" ? (
                             ""
                           ) : (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              exit={{ width: 0, scale: 0 }}
-                              className="link"
-                            >
+                            <motion.div exit={{ width: 0 }} className="link">
                               <div className="link-title">{data.title}</div>
                             </motion.div>
                           )}
@@ -269,12 +268,7 @@ export default React.memo(function Sidebar() {
                           {!show && device === "tablet" ? (
                             ""
                           ) : (
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              exit={{ width: 0, scale: 0 }}
-                              className="link"
-                            >
+                            <motion.div exit={{ width: 0 }} className="link">
                               <div className="link-title">{data.title}</div>
                             </motion.div>
                           )}

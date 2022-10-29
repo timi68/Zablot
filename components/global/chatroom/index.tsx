@@ -11,18 +11,12 @@ import { AnimateSharedLayout, motion } from "framer-motion";
 
 const ChatRoom = () => {
   const rooms = useAppSelector(getRoomIds);
-  const _id = useAppSelector((state) => state.sessionStore.user._id);
+  const device = useAppSelector((state) => state.sessionStore.device);
   const dispatch = useAppDispatch();
 
   useCustomEventListener(
     "openRoom",
-    ({
-      friend,
-      target,
-    }: {
-      friend: Interfaces.Friend;
-      target: HTMLDivElement;
-    }) => {
+    ({ friend }: { friend: Interfaces.Friend }) => {
       if (rooms.includes(friend.Id)) {
         emitCustomEvent("RE_OPEN_CHAT", friend.Id);
         return;
@@ -32,17 +26,22 @@ const ChatRoom = () => {
         friend,
         messages: [],
         loaded: false,
+        fetched: false,
       };
       dispatch(addRoom(roomData));
-      // setRooms((prev): Interfaces.RoomType[] => {
-      //   return [...prev, roomData];
-      // });
     }
   );
 
   return (
     Boolean(rooms.length) && (
-      <div className="chat-rooms-container">
+      <div
+        className={
+          "chat-rooms-container sm:z-[10] max-w-[100vw] overflow-x-auto " +
+          (device == "mobile"
+            ? "top-0 h-screen w-screen left-0 z-[9999999] fixed"
+            : "left-1/2 -translate-x-1/2 bottom-2.5 absolute")
+        }
+      >
         <AnimateSharedLayout>
           <motion.div className="chat-rooms-wrapper">
             {rooms?.map((room, i) => {

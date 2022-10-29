@@ -23,7 +23,7 @@ const ChatBoard: React.FC = function () {
   const Backdrop = React.useRef<HTMLDivElement>(null);
 
   const NewFriend = React.useCallback((data: Interface.Friend) => {
-    setFriends((friends) => [data, ...friends]);
+    setFriends((friends) => [data, ...friends].sort((a, b) => a.time - b.time));
   }, []);
 
   const _callback$IncomingMessage = React.useCallback(
@@ -104,7 +104,7 @@ const ChatBoard: React.FC = function () {
           }
           return u;
         });
-        return state;
+        return state.sort((a, b) => a.time - b.time);
       });
       CleanSeen(friend._id);
     }
@@ -114,17 +114,19 @@ const ChatBoard: React.FC = function () {
     "Message",
     (data: { id: string; message: string; flow: string; time: number }) => {
       setFriends((prevFriends) => {
-        return prevFriends.map((friend) => {
-          if (friend.Id === data.id) {
-            return {
-              ...friend,
-              time: data.time,
-              Last_Message: data.message,
-              LastPersonToSendMessage: data.flow,
-            };
-          }
-          return friend;
-        });
+        return prevFriends
+          .map((friend) => {
+            if (friend.Id === data.id) {
+              return {
+                ...friend,
+                time: data.time,
+                Last_Message: data.message,
+                LastPersonToSendMessage: data.flow,
+              };
+            }
+            return friend;
+          })
+          .sort((a, b) => a.time - b.time);
       });
     },
     []
@@ -133,7 +135,7 @@ const ChatBoard: React.FC = function () {
   useCustomEventListener(
     "newFriend",
     (friend: Interface.Friend) => {
-      setFriends([friend, ...friends]);
+      setFriends([friend, ...friends].sort((a, b) => a.time - b.time));
     },
     [friends]
   );
@@ -147,7 +149,7 @@ const ChatBoard: React.FC = function () {
   );
 
   React.useEffect(() => {
-    if (user) setFriends(user.Friends);
+    if (user) setFriends([...user.Friends].sort((a, b) => a.time - b.time));
   }, [user]);
 
   // React.useEffect(() => {
@@ -159,15 +161,15 @@ const ChatBoard: React.FC = function () {
       socket.on("STATUS", _callback$Status);
       socket.on("INCOMINGMESSAGE", _callback$IncomingMessage);
       socket.on("NEW_FRIEND", NewFriend);
+
+      if (!activeFriends) socket.emit("ACTIVE_USERS", handleActiveFriends);
+      else handleActiveFriends(activeFriends);
     }
 
-    if (!activeFriends) socket.emit("ACTIVE_USERS", handleActiveFriends);
-    else handleActiveFriends(activeFriends);
-
     return () => {
-      socket.off("STATUS", _callback$Status);
-      socket.off("INCOMINGMESSAGE", _callback$IncomingMessage);
-      socket.off("NEW_FRIEND", NewFriend);
+      socket?.off("STATUS", _callback$Status);
+      socket?.off("INCOMINGMESSAGE", _callback$IncomingMessage);
+      socket?.off("NEW_FRIEND", NewFriend);
     };
   }, [
     NewFriend,
@@ -183,53 +185,37 @@ const ChatBoard: React.FC = function () {
       (setOpenModal(false), emitCustomEvent("off"));
   };
 
-  let V = {
-    mobile: "left",
-    tablet: "scale",
-  };
-  const isTablet = device !== "desktop";
-  const M = !isTablet ? "div" : motion.div;
-  const A = AnimatePresence;
-  const MProp = !isTablet
-    ? {}
+  const isNotDesktop = ["mobile"].includes(device);
+  const M = motion.div;
+  const MProp = isNotDesktop
+    ? {
+        className:
+          "!fixed !top-0 !left-0 z-50 chats-container h-screen w-screen",
+        initial: { x: 100 },
+        animate: { x: 0 },
+        exit: { x: 600 },
+      }
     : {
-        initial: { [V[device]]: device == "mobile" ? "50vw" : 0.8 },
-        animate: { [V[device]]: device == "mobile" ? "0vw" : 1 },
-        exit: {
-          [V[device]]: device == "mobile" ? "100vw" : 0.7,
-          opacity: 0,
-        },
-        className: "absolute h-100 top-0 right-0 w-[340px]",
+        initial: { scale: 0.8 },
+        animate: { scale: 1 },
+        exit: { scale: 0.7, opacity: 0 },
+        className: "chats-container",
       };
+
+  const A = AnimatePresence;
 
   return (
     <A>
-      {(openModal || device === "desktop") && (
+      {openModal && (
         <>
-          {isTablet && (
-            <div
-              className="h-screen fixed w-screen top-0 left-0 z-10"
-              ref={Backdrop}
-              onClickCapture={CaptureClick}
-            />
-          )}
-          <M
-            {...MProp}
-            className={"chats-container chat-board " + device}
-            ref={chatBoard}
-          >
-            <div className="chat-wrapper">
+          <div
+            className="h-screen fixed w-screen top-0 left-0 z-30"
+            ref={Backdrop}
+            onClickCapture={CaptureClick}
+          />
+          <M {...MProp} ref={chatBoard}>
+            <div className="chats-wrapper">
               <div className="chats-header flex items-center gap-1 flex-nowrap">
-                {device === "mobile" && (
-                  <IconButton
-                    onClick={() => {
-                      setOpenModal(false);
-                      emitCustomEvent("off");
-                    }}
-                  >
-                    <ArrowBack />
-                  </IconButton>
-                )}
                 <div className="text-lg font-bold flex-grow">Chats</div>
                 <div className="ml-3 search-container " id="search">
                   <div className="border border-solid h-[35px] w-[35px] justify-center border-gray-500 rounded-3xl flex items-center">

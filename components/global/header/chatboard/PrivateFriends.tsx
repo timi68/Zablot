@@ -1,5 +1,5 @@
 import React from "react";
-import * as Interface from "../../../lib/interfaces";
+import * as Interface from "../../../../lib/interfaces";
 import { Button } from "@mui/material";
 import Chats from "./Chats";
 

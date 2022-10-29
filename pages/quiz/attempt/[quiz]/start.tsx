@@ -1,12 +1,12 @@
 import React from "react";
 import { useSnackbar } from "notistack";
-import { Question } from "@types";
+import { Counter, Question } from "@types";
 import FetchUser from "@lib/fetch_user";
 import axios from "axios";
 import { NextRouter, useRouter } from "next/router";
 import { Avatar, Button, Card, Stack } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import { CardActionArea } from "@mui/material";
+import { CardActionArea, Tooltip } from "@mui/material";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import Link from "next/link";
@@ -19,6 +19,8 @@ import lodash from "lodash";
 import Cookies from "js-cookie";
 import moment from "moment";
 import BoardControl from "@comp/quiz/attempt/boardControl";
+import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
+import { Modal } from "antd";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -31,7 +33,7 @@ export default function PastQuestions(
   const [questions, setQuestions] = React.useState<Question[]>(
     Questions ?? (JSON.parse(Cookies.get("attempting") ?? "[]") as Question[])
   );
-  const [counter, setCounter] = React.useState({
+  const [counter, setCounter] = React.useState<Counter>({
     answered: [],
     not_answered: questions.map((q) => q.key),
     not_viewed: questions.map((q) => q.key),
@@ -74,12 +76,50 @@ export default function PastQuestions(
     console.log(questions);
   };
 
+  const handleBack = () => {
+    const { destroy } = Modal.confirm({
+      title: (
+        <span className="flex gap-3 items-center">
+          <span>Confirm</span>
+        </span>
+      ),
+      okText: "Save & Navigate",
+      cancelText: "Navigate",
+      onOk: () => {
+        destroy();
+        router.back();
+      },
+      onCancel: () => {
+        Cookies.remove("questions");
+        router.back();
+      },
+    });
+  };
+
   if (!user) return <></>;
 
   return (
     <div className="start-quiz-wrapper h-full overflow-auto p-3 flex-grow">
-      <div className="header mb-3 flex justify-between bg-white rounded-lg shadow-lg p-2">
-        <div className="flex items-center gap-3">
+      <div className="header mb-3 flex gap-3 items-center justify-between bg-white rounded-lg shadow-lg p-2">
+        <Tooltip title="Go back to previous page" placement="bottom">
+          <motion.div
+            whileHover={{ scale: 0.9 }}
+            className="relative bg-green h-[30px] w-[30px] rounded-3xl"
+          >
+            <motion.button
+              onClick={() => handleBack()}
+              whileHover={{ x: -10 }}
+              whileTap={{ x: -20 }}
+              className="bg-transparent"
+            >
+              <KeyboardBackspaceRoundedIcon
+                fontSize="large"
+                className="ml-[5px] mt-[-2px] text-white"
+              />
+            </motion.button>
+          </motion.div>
+        </Tooltip>
+        <div className="flex flex-grow items-center gap-3">
           <div className="quiz-title text-lg font-bold">Mathematics</div>—
           <div className="owner text-xs font-medium">by Timi James</div>
         </div>
@@ -134,10 +174,7 @@ export default function PastQuestions(
         </div>
 
         <BoardControl
-          page={page}
-          setPage={setPage}
-          counter={counter}
-          questions={questions}
+          {...{ page, counter, setQuestions, setCounter, questions, setPage }}
         />
       </div>
       <div className="counter p-5 mt-4 bg-white text-center shadow-lg rounded-lg">

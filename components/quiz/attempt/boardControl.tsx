@@ -1,16 +1,18 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { motion } from "framer-motion";
-import { Question } from "@lib/interfaces";
+import { Counter, Question } from "@lib/interfaces";
 import Countdown, { zeroPad } from "react-countdown";
+import { Modal } from "antd";
+import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 
 interface Props {
   questions: Question[];
-  counter: {
-    [x in "answered" | "not_answered" | "not_viewed"]: string[];
-  };
+  counter: Counter;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   page: number;
+  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
+  setCounter: React.Dispatch<React.SetStateAction<Counter>>;
 }
 
 // Random component
@@ -37,6 +39,42 @@ const renderer = ({ hours, minutes, seconds, completed }) => {
 
 function BoardControl(props: Props) {
   const { questions, counter, setPage, page } = props;
+
+  const handleClear = () => {
+    const { destroy } = Modal.confirm({
+      title: (
+        <span className="flex gap-3 items-center">
+          <span>Confirm</span>
+        </span>
+      ),
+      content:
+        "Are you sure you want to clear all answer, this can not be reversed",
+      okText: "Clear",
+      cancelText: "Cancel",
+      onOk: () => {
+        props.setQuestions((questions) => {
+          return questions.map((question) => {
+            return {
+              ...question,
+              options: question.options.map((option) => {
+                return {
+                  ...option,
+                  checked: false,
+                };
+              }),
+            };
+          });
+        });
+        props.setCounter({
+          answered: [],
+          not_answered: questions.map((q) => q.key),
+          not_viewed: questions.map((q) => q.key),
+        });
+
+        destroy();
+      },
+    });
+  };
 
   return (
     <div className="shadow-sm p-3 quiz-board-control bg-lightgrey min-h-[350px] mb-3">
@@ -70,7 +108,7 @@ function BoardControl(props: Props) {
         </ul>
       </div>
       <div className="time-counter shadow-xl">
-        <div className="flex bg-white p-3 rounded-lg gap-3 items-center">
+        <div className="flex flex-wrap justify-end bg-white p-3 rounded-lg gap-3 items-center">
           <span className="font-medium">Time Count: </span>
           <Countdown date={Date.now() + 75 * 60 * 1000} renderer={renderer} />
           <motion.div
@@ -87,6 +125,14 @@ function BoardControl(props: Props) {
           </motion.div>
         </div>
       </div>
+      <Button
+        variant="text"
+        color="warning"
+        className="mt-4"
+        onClick={handleClear}
+      >
+        Clear all answer
+      </Button>
     </div>
   );
 }

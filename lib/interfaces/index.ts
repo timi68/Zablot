@@ -18,16 +18,14 @@ export type stateInterface = {
   device: "mobile" | "tablet" | "desktop";
 };
 
-export type Notifications = [
-  {
-    Name?: string;
-    Title?: string;
-    Image?: string | null;
-    Description?: string;
-    Date?: Date;
-    Seen?: boolean;
-  }
-];
+export type Notification = {
+  Name?: string;
+  Title?: string;
+  Image?: string | null;
+  Description?: string;
+  Date?: string;
+  Seen?: boolean;
+};
 
 export type Friend = {
   _id?: string;
@@ -65,7 +63,7 @@ export type User = {
     cover: string;
   };
   NewUser: string;
-  Notifications: Notifications;
+  Notifications: Notification[];
   Friends: Friend[];
   FriendRequests: Requests[];
   Settings: Settings;
@@ -126,6 +124,8 @@ export type RoomType = {
   messages: MessageType[];
   loaded: boolean;
   type?: "in" | "out" | "loaded";
+  fetched: boolean;
+  closed?: boolean;
 };
 
 export type U<T extends (...args: any) => any> = (
@@ -148,4 +148,10 @@ export type Quiz = {
     reputation: number;
     image: string;
   };
+};
+
+// Quiz Types
+
+export type Counter = {
+  [x in "answered" | "not_answered" | "not_viewed"]: string[];
 };

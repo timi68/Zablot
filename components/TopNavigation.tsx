@@ -49,16 +49,11 @@ const TopNavigation = () => {
         </div>
       </div>
       <Coin />
-      {device == "tablet" && (
-        <Badge color="secondary" showZero>
-          <IconButton
-            className={className("c")}
-            onClick={() => handleClick("c")}
-          >
-            <ChatRoundedIcon fontSize="small" />
-          </IconButton>
-        </Badge>
-      )}
+      <Badge color="secondary" showZero>
+        <IconButton className={className("c")} onClick={() => handleClick("c")}>
+          <ChatRoundedIcon fontSize="small" />
+        </IconButton>
+      </Badge>
       <Badge color="secondary" showZero>
         <IconButton className={className("f")} onClick={() => handleClick("f")}>
           <PersonAddIcon fontSize="small" />

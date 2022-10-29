@@ -13,18 +13,18 @@ function View({ quizzes, view }: { quizzes: Quiz[]; view: string }) {
   const id = quizToView?._id.substring(12);
 
   return (
-    <div className="view-container fixed z-[99999] w-screen h-screen overflow-auto left-0 top-0 ">
+    <div className="view-container grid place-items-center fixed z-[9999999] w-screen h-screen overflow-auto left-0 top-0 ">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0, transition: { duration: 0.15 } }}
         transition={{ duration: 0.2, delay: 0.15 }}
         style={{ pointerEvents: "auto" }}
-        className="cursor-pointer w-screen fixed left-0 top-0 bottom-0 bg-black bg-opacity-40"
-        onClick={() => router.push("/quiz/attempt")}
+        className="cursor-pointer w-screen fixed z-[999999]  left-0 top-0 bottom-0 bg-black bg-opacity-40"
+        onClick={() => router.back()}
       />
       <motion.div
-        className="quiz card relative z-[10] shadow-lg rounded-lg overflow-hidden bg-gray-200 max-w-[700px] mx-auto my-[50px]"
+        className="quiz card relative z-[99999999] shadow-lg rounded-lg overflow-hidden bg-gray-200 w-[700px] max-w-[90vw]"
         layoutId={`wrap-${id}`}
       >
         <motion.div

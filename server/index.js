@@ -7,7 +7,8 @@ require("./cleanup").Cleanup();
 require("./types");
 
 const { ObjectId } = require("mongodb");
-const { Socket } = require("socket.io");
+const moment = require("moment");
+const MongoStore = require("connect-mongo");
 const { Activities, Users } = require("./models");
 const next = require("next"),
   express = require("express"),
@@ -38,9 +39,17 @@ app.set("view engine", "ejs");
 const sessionMiddleWare = session({
   cookie: {
     secure: !dev,
-    maxAge: 24 * 30 * 60 * 60 * 1000,
+    expires: moment().add(30, "days").toDate(),
   },
-  secret: "zablot#",
+  secret: process.env.CRYPTO_36,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    autoRemove: !dev ? "disabled" : undefined,
+    touchAfter: 24 * 3600,
+  }),
+  crypto: {
+    secret: process.env.CRYPTO_36,
+  },
   saveUninitialized: false,
   resave: false,
 });

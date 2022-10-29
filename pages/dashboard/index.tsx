@@ -14,8 +14,8 @@ import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import UploadScreen from "@comp/dashboard/uploadsection";
-import AppChatBoard from "@comp/dashboard/chatboard";
-import ChatRoom from "@comp/dashboard/chatroom";
+import AppChatBoard from "@comp/global/header/chatboard";
+import ChatRoom from "@comp/global/chatroom";
 import { Users } from "@server/models";
 import getUser from "@lib/getUser";
 import Coin from "@comp/coin";
@@ -45,58 +45,17 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
     };
   }, [socket]);
 
-  if (socket && user && loggedIn) {
-    return (
-      <React.Fragment>
-        <section className="main-body wide center-content">
-          <div className="mobile-header sm:hidden sticky top-0 bg-whitesmoke z-10">
-            <div className="flex justify-between p-3">
-              <Typography
-                variant="h5"
-                color="primary"
-                className="logo title display-large"
-                sx={{
-                  fontWeight: 700,
-                  fontFamily: "Poppins !important",
-                }}
-              >
-                Zablot
-              </Typography>
-              <div className="wrap">
-                <Coin />
-                <IconButton
-                  className="open ml-3"
-                  onClick={() => emitCustomEvent("side")}
-                >
-                  <Avatar
-                    src={user.Image.profile}
-                    sx={{
-                      width: 25,
-                      height: 25,
-                      pt: "1px",
-                      fontSize: ".8rem",
-                      bgcolor: stringToColor(user.FullName),
-                    }}
-                  >
-                    {user.FullName.split(" ")[0][0] +
-                      (user.FullName.split(" ")[1]?.at(0) ?? "")}
-                  </Avatar>
-                </IconButton>
-              </div>
-            </div>
-            <Divider />
-          </div>
-          <div className="posts social-feeds informations view-screen">
-            <UploadScreen />
-          </div>
-          <ChatRoom />
-        </section>
-        <AppChatBoard />
-      </React.Fragment>
-    );
-  } else {
-    return <NoSession />;
-  }
+  if (!user) return <></>;
+
+  return (
+    <React.Fragment>
+      <section className="main-body wide center-content">
+        <div className="posts social-feeds informations view-screen">
+          <UploadScreen />
+        </div>
+      </section>
+    </React.Fragment>
+  );
 };
 
 export async function getServerSideProps({ req, res }) {

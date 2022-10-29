@@ -20,17 +20,13 @@ function QuizCreator(props: { user: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (!user) return <></>;
+
   return (
-    <div className="quiz flex-grow p-2">
-      <div className="flex justify-between w-full p-3 rounded-lg h-max items-center gap-3">
+    <div className="quiz flex-grow px-2 py-4 h-full overflow-auto">
+      <div className="flex flex-wrap justify-between w-full rounded-lg h-max items-center gap-3">
         <div className="text flex-shrink">
-          <div className="primary text-2xl mb-2 font-extrabold font-[nunito]">
-            Your Quiz
-          </div>
-          <div className="secondary text-sm max-w-[600px]">
-            Be an help to other fellow, set up a cook up possible questions that
-            most likely to come out in their next exam.
-          </div>
+          <div className="primary text-xl mb-2 font-bold">Your Quiz</div>
         </div>
         <div className="flex gap-3">
           <Link href="/quiz/attempt" passHref>
@@ -55,11 +51,13 @@ function QuizCreator(props: { user: string }) {
           </Link>
         </div>
       </div>
-      <Divider>
-        <span>We want more prepared quiz from you.</span>
-      </Divider>
+      <div className="secondary hidden sm:block text-xs max-w-[600px]">
+        Be an help to other fellow, set up a cook up possible questions that
+        most likely to come out in their next exam.
+      </div>
+      <Divider className="my-3" />
       <div className="quizzes-container">
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {Array.from(new Array(8)).map((key) => {
             return (
               <Grid
@@ -69,9 +67,9 @@ function QuizCreator(props: { user: string }) {
                 lg={3}
                 item
                 key={key}
-                className="h-max"
+                className="h-[250px]"
               >
-                <Skeleton height={250} width="100%" />
+                <Skeleton height={"100%"} variant="rounded" width="100%" />
               </Grid>
             );
           })}

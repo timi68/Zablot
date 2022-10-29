@@ -20,36 +20,12 @@ const RoomBody: React.FC<{
   const { room_id } = props;
 
   const socket = useAppSelector((state) => state.sessionStore.socket);
-  const { messages, type, loaded, friend } = useAppSelector((state) =>
+  const { messages, type, loaded, friend, fetched } = useAppSelector((state) =>
     getRoom(state, room_id)
   );
   const dispatch = useAppDispatch();
   const bodyRef = React.useRef<HTMLDivElement>();
   const Alert = React.useRef<HTMLDivElement>();
-
-  const _callback$Incoming = React.useCallback(
-    (message: Interfaces.MessageType) => {
-      if (message.coming !== friend.Id) return;
-      const messages = store.getState().rooms.entities[room_id].messages;
-      dispatch(
-        updateRoom({
-          id: room_id,
-          changes: {
-            messages: [...messages, message],
-            type: "in",
-          },
-        })
-      );
-    },
-    [dispatch, room_id, friend]
-  );
-
-  const _callback$Answered = React.useCallback(
-    (data: { coming: string; answer: { text: string; checked: boolean } }) => {
-      if (data.coming !== friend.Id) return;
-    },
-    [friend]
-  );
 
   React.useEffect(() => {
     if (loaded) {
@@ -84,23 +60,7 @@ const RoomBody: React.FC<{
   }, [loaded, type, messages]);
 
   React.useEffect(() => {
-    // Socket handler; socket listener set when each group in created
-    // they are also removed when friend close the room
-    socket.on("INCOMINGMESSAGE", _callback$Incoming);
-    socket.on("INCOMINGFORM", _callback$Incoming);
-    socket.on("ANSWERED", _callback$Answered);
-
-    return () => {
-      // All this listener will be off when the friend close
-      // the chat room
-      socket.off("INCOMINGMESSAGE", _callback$Incoming);
-      socket.off("INCOMINGFORM", _callback$Incoming);
-      socket.off("ANSWERED", _callback$Answered);
-    };
-  }, [_callback$Answered, _callback$Incoming, dispatch, socket]);
-
-  React.useEffect(() => {
-    if (!loaded) {
+    if (!loaded && !fetched) {
       (async () => {
         try {
           const response = await axios.post<{
@@ -117,6 +77,7 @@ const RoomBody: React.FC<{
                   messages: response?.data?.Message ?? [],
                   type: "loaded",
                   loaded: true,
+                  fetched: true,
                 },
               })
             );
@@ -146,7 +107,6 @@ const RoomBody: React.FC<{
     );
   }
 
-  console.log({ messages });
   return (
     <div className="room-body" ref={bodyRef}>
       <div className="welcome-message">

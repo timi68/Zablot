@@ -6,17 +6,7 @@ import SearchBar from "@comp/global/header/SearchBar";
 import ProfileCard from "@comp/global/header/ProfileCard";
 import React from "react";
 import Sidebar from "@comp/global/sidebar/Sidebar";
-import {
-  AppBar,
-  Toolbar,
-  Stack,
-  Chip,
-  Typography,
-  IconButton,
-  Badge,
-  Container,
-  Box,
-} from "@mui/material";
+import { Container, Box } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Coin from "./coin";
 import BottomNavigation from "@comp/global/bottomNavigation";
@@ -28,6 +18,8 @@ import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import SearchIcon from "@mui/icons-material/Search";
 import Header from "./global/header";
 import CreatedQuestion from "@comp/quiz/createdQuestion";
+import AppChatBoard from "@comp/global/header/chatboard";
+import ChatRoom from "@comp/global/chatroom";
 
 interface PropsInterface {
   children: React.ReactNode;
@@ -53,7 +45,7 @@ export default React.memo(function AppLayout(props: PropsInterface) {
             <Container
               maxWidth="xl"
               sx={{ px: "0px!important" }}
-              className="main"
+              className="main pb-[50px] sm:pb-0"
             >
               {children}
 
@@ -66,6 +58,9 @@ export default React.memo(function AppLayout(props: PropsInterface) {
       <SearchBar />
       <Notifications />
       <ProfileCard />
+      <AppChatBoard />
+
+      <ChatRoom />
       <BottomNavigation />
     </ThemeProvider>
   );

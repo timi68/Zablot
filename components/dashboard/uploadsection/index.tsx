@@ -25,7 +25,7 @@ function UploadScreen() {
     <div>
       <div className="social-wrapper py-3">
         <div className="feeds-container">
-          <ul className="feeds-list flex px-2 gap-x-3 w-full overflow-auto">
+          <ul className="feeds-list flex px-2 gap-x-2 w-full overflow-auto ">
             {user && (
               <li className="feed grid place-items-center">
                 <div className="border rounded-full border-dashed border-slate-900 p-1">
@@ -49,9 +49,22 @@ function UploadScreen() {
                 </div>
               </li>
             )}
-            {[...(new Array(5).keys() as unknown as number[])].map((index) => {
+            {[
+              "Tolu",
+              "Adeben",
+              "Sandra",
+              "Abigail",
+              "Fife",
+              "Jeje",
+              "Jagun",
+              "Razaq",
+              "Grace",
+              "Ayomi",
+              "CEO",
+              "Sanni",
+            ].map((item) => {
               return (
-                <li className="feed grid place-items-center" key={index}>
+                <li className="feed grid place-items-center" key={item}>
                   <div className="border rounded-full border-dashed border-slate-900 p-[3px]">
                     <Avatar
                       src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
@@ -67,22 +80,7 @@ function UploadScreen() {
                   </div>
                   <div className="status-label">
                     <span className="!font-['Nunito'] text-xs text-center">
-                      {
-                        [
-                          "Tolu",
-                          "Adeben",
-                          "Sandra",
-                          "Abigail",
-                          "Fife",
-                          "Jeje",
-                          "Jagun",
-                          "Razaq",
-                          "Grace",
-                          "Ayomi",
-                          "CEO",
-                          "Sanni",
-                        ][Math.floor(Math.random() * 12) + 1]
-                      }
+                      {item}
                     </span>
                   </div>
                 </li>
@@ -90,7 +88,7 @@ function UploadScreen() {
             })}
           </ul>
         </div>
-        <Divider />
+        <Divider className="my-[10px]" />
         <div className="upload create-post pt-0">
           <div className="form-group">
             <div className="text-box">
@@ -127,8 +125,8 @@ function UploadScreen() {
             divider={<Divider />}
             className="post-of-users general"
           >
-            <li className="post each">
-              <div className="post-wrapper flex p-2 gap-2">
+            <li className="post each p-2">
+              <div className="post-wrapper flex gap-2">
                 <Avatar
                   src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
                   alt="John Oderinde Post"
@@ -195,37 +193,141 @@ function UploadScreen() {
                       <span className="count">500</span>
                     </Button>
                   </div>
-
-                  <div className="fast-comment-box">
-                    <div className="recent-comment mb-2">
-                      <div className="user">
-                        <Avatar
-                          src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-                          alt=""
-                          className="h-8 w-8"
-                        />
-                        <span className="name text-sm">Davido Adeniyi</span>
-                        <span className="comment text-xs">
-                          What is wrong with you &#128513; &#128513;
-                        </span>
+                </div>
+              </div>
+              <div className="fast-comment-box">
+                <div className="recent-comment mb-2">
+                  <div className="user">
+                    <Avatar
+                      src="./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
+                      alt=""
+                      className="h-8 w-8"
+                    />
+                    <span className="name text-sm">Davido Adeniyi</span>
+                    <span className="comment text-xs">
+                      What is wrong with you &#128513; &#128513;
+                    </span>
+                  </div>
+                </div>
+                <div className="comment-create-box input-box relative rounded-lg flex items-center p-[5px]">
+                  <IconButton size="small" className="icon media-icon">
+                    <LinkRoundedIcon fontSize="small" />
+                  </IconButton>
+                  <textarea
+                    placeholder="Type a message.."
+                    name="message"
+                    id="text-control"
+                    className="text-control"
+                  />
+                  <div className="send-btn">
+                    <IconButton size="small" className="btn send">
+                      <SendIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li className="post each p-2">
+              <div className="post-wrapper flex gap-2">
+                <Avatar
+                  src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
+                  alt="John Oderinde Post"
+                >
+                  TJ
+                </Avatar>
+                <div className="post-main">
+                  <div className="username text-sm font-bold font-['Nunito']">
+                    Ajoke Toluwa
+                  </div>
+                  <div className="post-content">
+                    <div className="post-text mb-2">
+                      <div className="caption-text text-sm  font-['Nunito']">
+                        Lorem ipsum dolor sit amet
+                        <Link href="#" passHref>
+                          <a className="tags"> @cynthia</a>
+                        </Link>{" "}
+                        <Link href="#" passHref>
+                          <a className="tags"> @Sandra</a>
+                        </Link>{" "}
+                        consectetur adipisicing elit. Quo, mollitia tempora
+                        delectus repudiandae eum iste!
                       </div>
                     </div>
-                    <div className="comment-create-box input-box relative rounded-lg flex items-center p-[5px]">
-                      <IconButton size="small" className="icon media-icon">
-                        <LinkRoundedIcon fontSize="small" />
-                      </IconButton>
-                      <textarea
-                        placeholder="Type a message.."
-                        name="message"
-                        id="text-control"
-                        className="text-control"
-                      />
-                      <div className="send-btn">
-                        <IconButton size="small" className="btn send">
-                          <SendIcon fontSize="small" />
-                        </IconButton>
+                  </div>
+                  <div className="post-media">
+                    <div className="swiper-container">
+                      <div className="swiper-wrapper">
+                        <div className="swiper-slide">
+                          <div className="image-content">
+                            <img
+                              src="/images/online-study.png"
+                              alt="Online study"
+                              className="image w-full rounded-xl overflow-hidden"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  </div>
+                  <div className="post-actions feedback flex justify-around">
+                    <Button
+                      className="likes-count action flex gap-1 items-center justify-center"
+                      color="inherit"
+                      id="thumb"
+                      fullWidth
+                    >
+                      <LoveIcon fontSize="small" />
+                      <span className="count">500</span>
+                    </Button>
+                    <Button
+                      className="comments action action flex gap-1 items-center justify-center"
+                      color="inherit"
+                      id="comment"
+                      fullWidth
+                    >
+                      <CommentIcon />
+                      <span className="count">500</span>
+                    </Button>
+                    <Button
+                      className="shares-counts action action flex gap-1 items-center justify-center"
+                      color="inherit"
+                      id="share"
+                      fullWidth
+                    >
+                      <ShareIcon fontSize="small" />
+                      <span className="count">500</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="fast-comment-box">
+                <div className="recent-comment mb-2">
+                  <div className="user">
+                    <Avatar
+                      src="/images/graduation-hat.png"
+                      alt="Second image for testing"
+                      className="h-8 w-8"
+                    />
+                    <span className="name text-sm">Timi James</span>
+                    <span className="comment text-xs">
+                      What is wrong with you &#128513; &#128513;
+                    </span>
+                  </div>
+                </div>
+                <div className="comment-create-box input-box relative rounded-lg flex items-center p-[5px]">
+                  <IconButton size="small" className="icon media-icon">
+                    <LinkRoundedIcon fontSize="small" />
+                  </IconButton>
+                  <textarea
+                    placeholder="Type a message.."
+                    name="message"
+                    id="text-control"
+                    className="text-control"
+                  />
+                  <div className="send-btn">
+                    <IconButton size="small" className="btn send">
+                      <SendIcon fontSize="small" />
+                    </IconButton>
                   </div>
                 </div>
               </div>

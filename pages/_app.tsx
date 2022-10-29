@@ -18,6 +18,7 @@ import "../styles/createQuiz.scss";
 import "../styles/pastQuestions.scss";
 import "../styles/attemptQuiz.scss";
 import "../styles/global.css";
+import "../styles/chatRoom.scss";
 
 function MyApp({ Component, pageProps }: AppProps) {
   NProgress.configure({
