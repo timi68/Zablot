@@ -4,8 +4,8 @@ const csrf = require("csurf");
 const logger = require("morgan");
 const createError = require("http-errors");
 
-const livereload = require("livereload");
-const connectLiveReload = require("connect-livereload");
+// const livereload = require("livereload");
+// const connectLiveReload = require("connect-livereload");
 const moment = require("moment");
 const MongoStore = require("connect-mongo");
 
@@ -16,7 +16,7 @@ const passport = require("passport");
 const compressor = require("compression");
 const cors = require("cors");
 const { router } = require("./routes/router");
-const ensureIsAuthenticated = require("./config/auth.js");
+// const ensureIsAuthenticated = require("./config/auth.js");
 const next = require("next");
 const client = next({ dev: process.env.NODE_ENV !== "production" });
 const handle = client.getRequestHandler();
