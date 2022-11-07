@@ -33,12 +33,12 @@ const dev = process.env.NODE_ENV !== "production";
 
 app.locals.pluralize = require("pluralize");
 
-const liveReloadServer = livereload.createServer();
-liveReloadServer.server.once("connection", () => {
-  setTimeout(() => {
-    liveReloadServer.refresh("/");
-  }, 100);
-});
+// const liveReloadServer = livereload.createServer();
+// liveReloadServer.server.once("connection", () => {
+//   setTimeout(() => {
+//     liveReloadServer.refresh("/");
+//   }, 100);
+// });
 
 app.set("trust proxy", Number(!dev));
 app.set("view engine", "ejs");
