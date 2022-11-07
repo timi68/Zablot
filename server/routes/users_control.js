@@ -9,39 +9,40 @@ const {
   Quiz,
   Messages,
 } = require("../models/index");
-const bcrypt = require("bcryptjs");
+// const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const uuid = require("uuid");
 const { ObjectId } = require("mongodb");
 const async = require("async");
 const { v4: uuidv4 } = uuid;
 const { promisify } = require("util");
-var CryptoJS = require("crypto-js");
+var crypto = require("crypto");
+const isEmpty = require("lodash/isEmpty");
 
-const addUsers = async (body) => {
+const AddUser = async (body) => {
   try {
-    const email = await Users.findOne({ Email: body.userEmail });
+    const email = await Users.exists({ Email: body.userEmail });
     if (email?._id)
       return { success: false, message: "User Already Exist By Email" };
 
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(body.userPassword, salt);
-
     const _id = new mongoose.Types.ObjectId();
+    const hashedPassword = hashPassword(body.password);
 
     const user = new Users({
-      _id: _id,
+      _id,
       FullName: body.fullName,
       UserName: body.userName,
       Email: body.userEmail,
-      Password: hash,
+      Password: hashedPassword,
       Image: {
-        profile: "",
+        profile: body.picture ?? "",
         cover: "",
       },
-      Gender: body.userGender,
+      Sub: body.subject ?? nanoid(),
+      Provider: body.provider ?? "zablot",
+      Verified: body.verified ?? false,
+      Gender: body.userGender ?? "",
       Online: false,
-      Account_Creation_Date: new Date(),
       Settings: _id,
       Friends: _id,
       Notifications: _id,
@@ -91,39 +92,46 @@ const addUsers = async (body) => {
     });
 
     await friendRequest.save();
+    const sessionUser = {
+      _id,
+    };
 
-    return { success: true };
+    return { success: true, sessionUser };
   } catch (error) {
-    return { success: false, message: error.message };
+    console.log({ error });
+    return { success: false, error: error.message };
   }
 };
 
-const AuthLogin = async (req, data) => {
+const Login = async (req, res, next) => {
   try {
+    if (isEmpty(req.body)) throw new Error("No data send");
+
+    const hashedPassword = hashPassword(req.body.userPassword);
     const user = await Users.findOne(
       {
-        Email: data.userEmail,
+        Email: req.body.userEmail,
       },
       {
-        Email: 1,
         Password: 1,
         FullName: 1,
       }
     );
 
-    if (!user?._id)
-      return { success: false, message: "Email or password is incorrect" };
-    const match = await bcrypt.compare(data.userPassword, user.Password);
-    if (!match)
-      return { success: false, message: "Email or password is incorrect" };
+    let alert = { success: false, message: "Email or password is incorrect" };
+    if (isEmpty(user) || !crypto.timingSafeEqual(user.Password, hashedPassword))
+      return res.json(alert);
 
-    req.session.user = user._id;
-    delete user.Password;
-
-    return { success: true, message: `Welcome Back ${user.FullName}` };
+    req.login(sessionUser, function (err) {
+      if (err) return next(err);
+      res.json({
+        success: true,
+        message: `Authenticated as ${user.FullName}`,
+      });
+    });
   } catch (err) {
-    console.log(err);
-    return { error: err.message };
+    console.log({ err });
+    next(err);
   }
 };
 
@@ -258,12 +266,17 @@ const UploadQuiz = async (details, cb) => {
   }
 };
 
+function hashPassword(/** @type {string} */ password) {
+  const salt = crypto.randomBytes(16);
+  return crypto.pbkdf2Sync(password, salt, 310000, 32, "sha256");
+}
+
 module.exports = {
-  addUsers,
+  AddUser,
   FetchUserDetails,
   Search,
   FetchUsers,
   fetchMessages,
   UploadQuiz,
-  AuthLogin,
+  Login,
 };

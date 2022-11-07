@@ -13,7 +13,8 @@ const { Socket } = require("socket.io");
 
 // FriendRequests.findByIdAndUpdate = promisify(FriendRequests.findByIdAndUpdate)
 /**
- * @param {import("../types").ModSocket} socket
+ * @typedef {Socket & {request: { session: {user: string}} }} ModSocket
+ * @param {ModSocket} socket
  */
 function ControlSocketActions(socket) {
   socket.on(
@@ -430,7 +431,7 @@ function ControlSocketActions(socket) {
 
 /**
  *
- * @param {import("../types").ModSocket} socket
+ * @param {ModSocket} socket
  */
 function handleDisconnect(socket) {
   Activities.findOneAndDelete({ SocketId: socket.id });

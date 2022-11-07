@@ -259,7 +259,6 @@
         padding: 5px 10px;
         width: fit-content;
         max-width: 100%;
-        background: map-get($color, "white");
         border-radius: 15px;
         box-shadow: $shadow;
 
@@ -450,6 +449,10 @@
         .media-wrapper {
           float: left;
         }
+
+        .plain-message {
+          background: #d9e5e7;
+        }
       }
 
       .outgoing-message {
@@ -460,6 +463,10 @@
 
         .time-count {
           padding: 5px;
+        }
+
+        .plain-message {
+          background: map-get($color, "white");
         }
       }
     }

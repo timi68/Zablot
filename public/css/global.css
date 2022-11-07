@@ -1,0 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  background: #f2f2fb;
+  color: rgba(0, 0, 0, 0.8);
+  overflow-x: hidden;
+  font-family: Poppins;
+  position: relative;
+  width: 100vw;
+}

@@ -68,13 +68,6 @@ export default React.memo(function Sidebar() {
     });
   };
 
-  const logOut = async () => {
-    var response = await axios.get<string>("/logout");
-    alert(response.data);
-
-    return router.replace("/login");
-  };
-
   useCustomEventListener("side", openSidebar);
 
   return (
@@ -222,7 +215,6 @@ export default React.memo(function Sidebar() {
                             device +
                             (router.asPath.includes(data.url) ? " active" : "")
                           }
-                          onClick={data.title !== "Logout" ? null : logOut}
                         >
                           <div className="icon-wrap">
                             <data.icon fontSize="small" className="svg" />

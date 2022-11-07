@@ -1,47 +1,4 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-
-const FriendsSchema = Schema(
-  {
-    _id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    friends: [
-      {
-        _id: Schema.Types.ObjectId,
-        Id: Schema.Types.ObjectId,
-        Name: String,
-        Image: String,
-        LastPersonToSendMessage: Schema.Types.ObjectId,
-        UnseenMessages: Number,
-        Last_Message: String,
-        IsPrivate: Boolean,
-        time: Number,
-      },
-    ],
-  },
-  {
-    collection: "Friends",
-  }
-);
-
-const SettingSchema = Schema(
-  {
-    _id: {
-      type: Schema.Types.ObjectId,
-      required: true,
-    },
-    user: [{ type: Schema.Types.ObjectId, ref: "Users" }],
-    settings: {
-      type: Array,
-      require: true,
-    },
-  },
-  {
-    collection: "Settings",
-  }
-);
+const { Schema, model, models } = require("mongoose");
 
 const UsersSchema = Schema(
   {
@@ -49,19 +6,21 @@ const UsersSchema = Schema(
       type: String,
       required: true,
     },
-    UserName: {
-      type: String,
-      required: true,
-    },
+    UserName: String,
     Email: {
       type: String,
       required: true,
       unique: true,
     },
     Password: {
-      type: String,
+      type: Buffer,
       required: true,
     },
+    Sub: {
+      type: String,
+      default: null,
+    },
+    Provider: String,
     Gender: String,
     Settings: [
       {
@@ -114,15 +73,61 @@ const UsersSchema = Schema(
       type: Number,
       default: 0,
     },
-    Account_Creation_Date: Date,
+    Verified: {
+      type: Boolean,
+      default: false,
+    },
     DateOfBirth: Date,
   },
   {
     collection: "Users",
+    timestamps: true,
   }
 );
 
-const ActivitiesSchema = Schema(
+const FriendsSchema = new Schema(
+  {
+    _id: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    friends: [
+      {
+        _id: Schema.Types.ObjectId,
+        Id: Schema.Types.ObjectId,
+        Name: String,
+        Image: String,
+        LastPersonToSendMessage: Schema.Types.ObjectId,
+        UnseenMessages: Number,
+        Last_Message: String,
+        IsPrivate: Boolean,
+        time: Number,
+      },
+    ],
+  },
+  {
+    collection: "Friends",
+  }
+);
+
+const SettingSchema = new Schema(
+  {
+    _id: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    user: [{ type: Schema.Types.ObjectId, ref: "Users" }],
+    settings: {
+      type: Array,
+      require: true,
+    },
+  },
+  {
+    collection: "Settings",
+  }
+);
+
+const ActivitiesSchema = new Schema(
   {
     UserId: {
       type: String,
@@ -138,7 +143,7 @@ const ActivitiesSchema = Schema(
   }
 );
 
-const MessagesSchema = Schema(
+const MessagesSchema = new Schema(
   {
     _id: Schema.Types.ObjectId,
     From: {
@@ -176,7 +181,7 @@ const MessagesSchema = Schema(
   }
 );
 
-const FriendRequestsSchema = Schema(
+const FriendRequestsSchema = new Schema(
   {
     _id: {
       type: Schema.Types.ObjectId,
@@ -189,7 +194,7 @@ const FriendRequestsSchema = Schema(
   }
 );
 
-const NotificationSchema = Schema(
+const NotificationSchema = new Schema(
   {
     _id: {
       type: Schema.Types.ObjectId,
@@ -202,7 +207,7 @@ const NotificationSchema = Schema(
   }
 );
 
-const UploadsSchema = Schema(
+const UploadsSchema = new Schema(
   {
     _id: {
       type: Schema.Types.ObjectId,
@@ -224,10 +229,11 @@ const UploadsSchema = Schema(
   },
   {
     collection: "Uploads",
+    timestamps: true,
   }
 );
 
-const QuizSchema = Schema(
+const QuizSchema = new Schema(
   {
     _id: Schema.Types.ObjectId,
     name: { type: String, required: true },
@@ -240,27 +246,38 @@ const QuizSchema = Schema(
   },
   {
     collection: "Quiz",
+    timestamps: true,
   }
 );
 
-const Users = mongoose.models.Users || mongoose.model("Users", UsersSchema);
-const Activities =
-  mongoose.models.Activities || mongoose.model("Activities", ActivitiesSchema);
-const Settings =
-  mongoose.models.Settings || mongoose.model("Settings", SettingSchema);
-const Friends =
-  mongoose.models.Friends || mongoose.model("Friends", FriendsSchema);
-const Messages =
-  mongoose.models.Messages || mongoose.model("Messages", MessagesSchema);
+const FederatedSchema = new Schema(
+  {
+    provider: String,
+    subject: {
+      required: true,
+      type: String,
+      unique: true,
+    },
+  },
+  {
+    collection: "FederatedCredentials",
+    timestamps: true,
+  }
+);
+
+const Users = models.Users || model("Users", UsersSchema);
+const Activities = models.Activities || model("Activities", ActivitiesSchema);
+const Settings = models.Settings || model("Settings", SettingSchema);
+const Friends = models.Friends || model("Friends", FriendsSchema);
+const Messages = models.Messages || model("Messages", MessagesSchema);
 const Notifications =
-  mongoose.models.Notifications ||
-  mongoose.model("Notifications", NotificationSchema);
+  models.Notifications || model("Notifications", NotificationSchema);
 const FriendRequests =
-  mongoose.models.FriendRequests ||
-  mongoose.model("FriendRequests", FriendRequestsSchema);
-const Uploads =
-  mongoose.models.Uploads || mongoose.model("Uploads", UploadsSchema);
-const Quiz = mongoose.models.Quiz || mongoose.model("Quiz", QuizSchema);
+  models.FriendRequests || model("FriendRequests", FriendRequestsSchema);
+const Uploads = models.Uploads || model("Uploads", UploadsSchema);
+const Quiz = models.Quiz || model("Quiz", QuizSchema);
+const FederatedCredentials =
+  models.FederatedCredentials || model("FederatedCredentials", FederatedSchema);
 
 module.exports = {
   Users,
@@ -272,4 +289,5 @@ module.exports = {
   FriendRequests,
   Uploads,
   Quiz,
+  FederatedCredentials,
 };

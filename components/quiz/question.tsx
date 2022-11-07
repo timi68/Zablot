@@ -139,7 +139,7 @@ function Question(props: QuestionProp) {
                       className="question-option break-all"
                     >
                       <div
-                        className="text-sm font-medium bg-white p-2 rounded-lg shadow-lg"
+                        className="text-xs font-medium bg-white p-2 rounded-lg shadow-lg"
                         dangerouslySetInnerHTML={{ __html: option.text }}
                       />
                       {option.checked && (

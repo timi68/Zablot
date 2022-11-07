@@ -1,0 +1,118 @@
+#!/usr/bin/env node
+
+var { app, sessionMiddleWare, client } = require("../server/app");
+var debug = require("debug")("zablot:server");
+var socket = require("socket.io");
+
+var socketController = require("../server/socket");
+const { ObjectId } = require("mongodb");
+const { Activities, Users } = require("../server/models");
+
+/**
+ * @typedef {{request: {session: {user: string}}}} Request
+ * @typedef {(arg0?: Error | undefined) => void} Next
+ * @typedef {socket.Socket & {request: { session: {user: string}} }} ModSocket
+ */
+
+const wrap =
+  (/** @type {any} */ middleware) =>
+  (/** @type {socket.Socket & Request} */ socket, /** @type {Next} */ next) =>
+    middleware(socket.request, {}, next);
+
+const SocketSign = async (
+  /** @type {socket.Socket & Request} */ socket,
+  /** @type {Next} */ next
+) => {
+  const session = socket.request.session;
+  if (session && session.user) {
+    const new_user = new Activities({
+      UserId: new ObjectId(session.user),
+      SocketId: socket.id,
+    });
+
+    await new_user.save();
+    await Users.findByIdAndUpdate(session.user, {
+      Online: true,
+    }).exec();
+
+    socket.broadcast.emit("STATUS", {
+      _id: session.user,
+      online: true,
+    });
+    next();
+  } else {
+    next(new Error("unauthorized"));
+  }
+};
+
+const port = normalizePort(process.env.PORT || "8000");
+app.set("port", port);
+
+client
+  .prepare()
+  .then(() => {
+    const server = app.listen(port, onListening);
+    server.on("error", onError);
+
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+
+    function onListening() {
+      var addr = server.address();
+      var bind =
+        typeof addr === "string"
+          ? "pipe " + addr
+          : "http://localhost:" + addr.port;
+      debug("Listening on " + bind);
+    }
+
+    const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
+
+    // convert a connect middleware to a Socket.IO middleware
+    io.use(wrap(sessionMiddleWare));
+    // only allow authenticated users
+    io.use(SocketSign);
+    app.set("io", io);
+
+    io.on("connection", socketController.bind(null));
+  })
+  .catch((/** @type {{ stack: any; }} */ ex) => {
+    console.log(ex.stack, "from stack");
+    process.exit(1);
+  });
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+  return isNaN(port) ? val : port >= 0 ? port : false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== "listen") {
+    throw error;
+  }
+
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}

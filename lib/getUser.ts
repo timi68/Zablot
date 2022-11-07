@@ -6,6 +6,7 @@ export default async function getUser(user_id: string) {
     Last_Seen: 0,
     Account_Creation_Date: 0,
     DateOfBirth: 0,
+    Password: 0,
   })
     .populate("FriendRequests")
     .populate("Notifications")

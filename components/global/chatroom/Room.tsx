@@ -39,7 +39,9 @@ const Room = (props: { room_id: EntityId }) => {
 
   React.useLayoutEffect(() => {
     if (device === "mobile") {
-      j(".chat-rooms-container").removeAttr("style");
+      closed
+        ? j(".chat-rooms-container").css("visibility", "hidden")
+        : j(".chat-rooms-container").removeAttr("style");
     }
   }, [closed, device]);
 

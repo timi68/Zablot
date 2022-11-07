@@ -1,26 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import NoSession from "@comp/nosession";
-import {
-  Avatar,
-  Box,
-  CircularProgress,
-  Container,
-  Divider,
-  IconButton,
-  Typography,
-} from "@mui/material";
 import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import UploadScreen from "@comp/dashboard/uploadsection";
-import AppChatBoard from "@comp/global/header/chatboard";
-import ChatRoom from "@comp/global/chatroom";
-import { Users } from "@server/models";
 import getUser from "@lib/getUser";
-import Coin from "@comp/coin";
-import stringToColor from "@utils/stringToColor";
-import { emitCustomEvent } from "react-custom-events";
 
 const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
   const { user, loggedIn, socket } = useAppSelector(
@@ -60,13 +44,11 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
 
 export async function getServerSideProps({ req, res }) {
   try {
-    const user_id = req.session.user;
-
+    const user_id = req.session.passport.user._id ?? req.session.user;
     if (!user_id) throw new Error("There is no session");
 
     const user = await getUser(user_id);
     if (!user) throw new Error("User not found");
-
     return {
       props: { user: JSON.stringify(user) },
     };

@@ -4,22 +4,22 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/css/auth.css" />
-    <script src="../javascript/jquery.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900;1000&Poppins:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <script src="/javascript/jquery.min.js"></script>
+
     <title>ZABLOT - Login Page</title>
   </head>
   <body>
     <div class="container auth login-content">
-      <div class="auth-header">
+      <header class="auth-header main-header">
         <div class="logo_container">
-          <a href="/" class="logo">ZABLOT</a>
+          <a href="/" class="logo" style="text-decoration: none">ZABLOT</a>
         </div>
         <div class="header-center">
           <div class="link">
@@ -30,11 +30,11 @@
           </div>
         </div>
         <div class="header-right">
-          <div class="signup-btn">
-            <a href="/login" class="btn signup-link">Login</a>
+          <div class="signin-link">
+            <a href="/login" class="link signin-link">Login</a>
           </div>
         </div>
-      </div>
+      </header>
       <div class="wrapper sign_in">
         <div class="wrapper-flex">
           <form
@@ -44,7 +44,6 @@
             autocomplete="off"
           >
             <div class="form_group_wrapper sign_in_wrapper">
-              <div class="primary-text">Register</div>
               <div class="secondary-text">
                 Let’s give a material you can trust, strictly for education
               </div>
@@ -92,12 +91,20 @@
                   Select Gender
                 </div>
                 <div class="options-toggle">
-                  <img
-                    src="/svgs/triangle.svg"
-                    alt="triangle svg"
-                    width="15"
+                  <svg
                     class="toggle-image"
-                  />
+                    aria-hidden="true"
+                    role="img"
+                    width="15"
+                    height="24"
+                    preserveAspectRatio="xMidYMid meet"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill="#545454"
+                      d="M2 5.56L2.413 5h11.194l.393.54L8.373 11h-.827L2 5.56z"
+                    />
+                  </svg>
                 </div>
                 <div class="options-wrapper card">
                   <div class="option" data-value="Male">Male</div>
@@ -111,31 +118,31 @@
                   type="password"
                   id="user-password"
                   name="userPassword"
-                  autocomplete="new-password"
                   placeholder="Enter your password"
                   class="user-password form-control"
                 />
-                <div class="password-toggle">
-                  <img
-                    src="/svgs/password.svg"
-                    alt=""
-                    class="pass-svg"
-                    id="pass-svg"
-                  />
-                </div>
+                <%- include("password-icon") -%>
                 <div class="invalid-feedback">
                   Password length must be at least 8, must contains uppercase,
                   lowercase and a Symbol
                 </div>
               </div>
               <button type="submit" class="btn submit_btn auth-sign">
-                Submit
+                Sign up
               </button>
               <p class="register-link">
-                have an account?
+                Already have an account ?
                 <a href="/login" class="Create">login</a>
               </p>
             </div>
+            <a
+              href="/api/auth/register/federated/google"
+              id="google"
+              class="google"
+            >
+              <img src="/svgs/google.svg" alt="google" />
+              <span>Sign up with Google</span>
+            </a>
           </form>
           <div class="svg-container">
             <div class="image-wrap">
@@ -145,8 +152,7 @@
         </div>
       </div>
     </div>
-    <!-- <%- include('../footer') -%> -->
     <script src="/javascript/bootstrap.bundle.min.js"></script>
-    <script src="/javascript/auth.js"></script>
+    <script src="/javascript/register.js"></script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 const express = require("express");
 const { ObjectId } = require("mongodb");
 const { Socket } = require("socket.io");
-const { Users, Activities, FriendRequests } = require("../../models");
+const { Users, Activities, FriendRequests } = require("../models");
 const router = express.Router();
 
 router.post("/friend-request", async (req, res) => {

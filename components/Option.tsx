@@ -25,7 +25,11 @@ function Option(props: {
       scale: 0.3,
       boxShadow: "0px 0px 0px whitesmoke",
     },
-    exit: { opacity: 0, boxShadow: "0px 0px 0px whitesmoke", scale: 0.5 },
+    exit: {
+      opacity: 0,
+      scale: 0,
+      boxShadow: "0px 0px 0px whitesmoke",
+    },
   };
 
   return (
@@ -35,7 +39,7 @@ function Option(props: {
       className="option relative h-[30px] flex items-center bg-white rounded-lg overflow-hidden"
       variants={variant}
       transition={{ type: "just" }}
-      // initial="hidden"
+      initial="hidden"
       animate="visible"
       exit="exit"
     >

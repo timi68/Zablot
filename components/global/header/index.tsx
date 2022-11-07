@@ -45,7 +45,7 @@ function Header() {
       </div>
     </AppBar>
   ) : (
-    <div className="mobile-header sm:hidden sticky top-0 bg-whitesmoke z-10">
+    <div className="mobile-header header sm:hidden sticky top-0 bg-lightgrey z-10">
       <div className="flex justify-between p-3">
         <Typography
           variant="h5"

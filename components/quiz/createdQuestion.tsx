@@ -44,8 +44,8 @@ import AddIcon from "@mui/icons-material/AddCircleOutlineRounded";
 const CreatedQuestions: React.FC = (): JSX.Element => {
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState<boolean>(false);
-  const scrollTop = useRef<HTMLDivElement>(null);
   const questions = useAppSelector(getQuestionIds);
+  const device = useAppSelector((state) => state.sessionStore.device);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const notUpload = !router.asPath.includes("upload");
@@ -74,9 +74,17 @@ const CreatedQuestions: React.FC = (): JSX.Element => {
 
   return (
     <Fragment>
-      <div className={`created-questions-container${open ? " open" : ""}`}>
+      <div
+        className={`created-questions-container${
+          device != "desktop"
+            ? ` absolute ${
+                open ? " right-0" : " right-[-130%]"
+              } m-0 w-full top-0`
+            : ""
+        }`}
+      >
         <div className="created-questions">
-          <motion.div layoutId="created" className="wrap pb-20" ref={scrollTop}>
+          <motion.div layoutId="created" className="wrap pb-20">
             <div className="header sticky top-0">
               <div className="title">{questions.length} Questions Created</div>
               <Button className="close-btn" onClick={() => setOpen(!open)}>
@@ -99,47 +107,51 @@ const CreatedQuestions: React.FC = (): JSX.Element => {
                 <div className="no-question-created">No Question Created</div>
               )}
             </motion.ul>
-          </motion.div>
-          {Boolean(questions.length) && (
-            <div className="flex p-3 justify-end left-0 w-full gap-4 absolute bottom-2 bg-lightgrey">
-              <motion.button
-                whileTap={{ scale: 0.8 }}
-                whileHover={{ scale: 1.1 }}
-                className="create-btn btn text-green px-4 rounded-lg ring-2 ring-green shadow-lg"
-                onClick={() =>
-                  router.push(notUpload ? "/quiz/upload" : "/quiz/create")
-                }
+            {Boolean(questions.length) && (
+              <div
+                className={`flex p-3 justify-end left-0 w-full gap-4 ${
+                  device !== "desktop" ? "" : "absolute bottom-2"
+                } bg-lightgrey`}
               >
-                {notUpload ? (
-                  <UploadRoundedIcon className="mr-2" />
-                ) : (
-                  <AddIcon className="mr-2" />
-                )}
-                <span className="text-sm font-medium">
-                  {notUpload ? "Upload" : "Add More Questions"}
-                </span>
-              </motion.button>
-              <Tooltip title="Clear all question">
                 <motion.button
                   whileTap={{ scale: 0.8 }}
                   whileHover={{ scale: 1.1 }}
-                  className="reset-btn bg-red-100 hover:bg-red-500 shadow-lg p-1 rounded-lg text-red-900 hover:text-white"
-                  onClick={() => {
-                    emitCustomEvent("removeAll");
-                    setTimeout(() => {
-                      dispatch(removeAllQuestion());
-                    }, 500);
-                    !notUpload && router.push("/quiz/create");
-                  }}
+                  className="create-btn btn text-green px-4 rounded-lg ring-2 ring-green shadow-lg"
+                  onClick={() =>
+                    router.push(notUpload ? "/quiz/upload" : "/quiz/create")
+                  }
                 >
-                  <RestartAltRoundedIcon />
+                  {notUpload ? (
+                    <UploadRoundedIcon className="mr-2" />
+                  ) : (
+                    <AddIcon className="mr-2" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {notUpload ? "Upload" : "Add More Questions"}
+                  </span>
                 </motion.button>
-              </Tooltip>
-            </div>
-          )}
+                <Tooltip title="Clear all question">
+                  <motion.button
+                    whileTap={{ scale: 0.8 }}
+                    whileHover={{ scale: 1.1 }}
+                    className="reset-btn bg-red-100 hover:bg-red-500 shadow-lg p-1 rounded-lg text-red-900 hover:text-white"
+                    onClick={() => {
+                      emitCustomEvent("removeAll");
+                      setTimeout(() => {
+                        dispatch(removeAllQuestion());
+                      }, 500);
+                      !notUpload && router.push("/quiz/create");
+                    }}
+                  >
+                    <RestartAltRoundedIcon />
+                  </motion.button>
+                </Tooltip>
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
-      <Zoom in={open} unmountOnExit>
+      <Zoom in={device !== "desktop" && !open} unmountOnExit>
         <Tooltip
           title="See created questions"
           color="primary"
@@ -148,9 +160,9 @@ const CreatedQuestions: React.FC = (): JSX.Element => {
         >
           <Fab
             aria-label="Created-Question toggler"
-            color="secondary"
+            color="primary"
             size="small"
-            className="question-toggler"
+            className="question-toggler fixed bottom-16 right-3 text-white"
             onClick={() => {
               setOpen(true);
             }}

@@ -4,7 +4,6 @@ import React from "react";
 import * as Interfaces from "@lib/interfaces";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import Room from "./Room";
-import { nanoid } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { addRoom, getRoomIds } from "@lib/redux/roomSlice";
 import { AnimateSharedLayout, motion } from "framer-motion";

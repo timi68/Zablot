@@ -8,7 +8,6 @@ import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import ArrowBack from "@mui/icons-material/ArrowBackIos";
 import SearchIcon from "@mui/icons-material/Search";
 
 const ChatBoard: React.FC = function () {

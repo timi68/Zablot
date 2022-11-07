@@ -127,20 +127,9 @@
   max-width: 100%;
   height: 100%;
   overflow: hidden;
-  transition: right 0.5s ease-in-out;
   color: map-get($map: $color, $key: "brown");
   background: map-get($map: $color, $key: "lightergrey");
-
-  @include media_830 {
-    position: absolute !important;
-    right: -130%;
-  }
-
-  &.open {
-    right: 0;
-    opacity: 1;
-    transition: right 0.5s cubic-bezier(0, 0.71, 0, 1.15);
-  }
+  transition: all 0.5s ease-in-out;
 }
 
 .created-questions {
@@ -149,7 +138,6 @@
   .wrap {
     height: inherit;
     overflow: auto;
-    position: relative;
 
     @include scrollbar();
   }

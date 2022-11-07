@@ -2,58 +2,33 @@
   "use strict";
 
   const password = e("#user-password");
-  const pass_svg = e("#pass-svg");
+  const passwordToggle = e(".password-toggle");
   const auth = e(".auth_form");
   const formGroup = e("#userGender");
   const options = e(".option");
   const formControl = e(".user-gender");
   const gender = e("#gender");
 
-  setTimeout(() => {
-    e(".alert-success").detach();
-  }, 5000);
-
-  pass_svg.on("click", passControl);
-  auth.on("submit", Auth);
-  e(".backdrop").on("click", () => formGroup.removeClass("show"));
-
-  options.each(function (index) {
-    var value = e(this).data("value");
-    e(this).on("click", () => {
-      gender.prop("value", value);
-      formGroup.removeClass("show");
-      formControl.html(
-        `<span style="font-weight: 500;color: rgba(0,0,0,.6)">${value}</span>`
-      );
-    });
-  });
-
-  formControl.on("click", () => {
-    formGroup.toggleClass("show");
-  });
-
-  function passControl() {
-    var srcArray = ["/svgs/password-off.svg", "/svgs/password.svg"];
+  passwordToggle.on("click", function passControl() {
     var typeArray = ["text", "password"];
 
-    var activeSrc = e(this).attr("src");
     var activeType = password.attr("type");
-
-    activeSrc = srcArray.filter((src) => src !== activeSrc);
     activeType = typeArray.filter((type) => type !== activeType);
 
-    e(this).attr("src", activeSrc);
+    e(".password-toggle").toggleClass("show");
     password.attr("type", activeType).trigger("focus");
-  }
+  });
 
-  async function Auth(event) {
+  auth.on("submit", async function Auth(event) {
     event.preventDefault();
     e(".form-group").removeClass("error");
-    e(".submit_btn").prop("disabled", true);
+    e(".submit_btn")
+      .prop("disabled", true)
+      .addClass("loading")
+      .text("Processing...");
 
     var formData = {};
     var required = [];
-    var name = e(this).data("name");
     const formArray = e(this).serializeArray();
 
     formArray.forEach((field, index) => {
@@ -69,37 +44,60 @@
         e(`#${key}`).addClass("error");
       });
 
-      e(".submit_btn").prop("disabled", false);
-      return false;
+      return e(".submit_btn")
+        .prop("disabled", false)
+        .removeClass("loading")
+        .text("Sign up");
     }
 
-    // verify email and password
-    var email = formData["userEmail"];
-    var password = formData["userPassword"];
-
-    var isPasswordValid =
-      name === "register" ? validatePassword(password) : true;
-    var isEmailValid = validateEmail(email);
+    var isPasswordValid = validatePassword(formData["userPassword"]);
+    var isEmailValid = validateEmail(formData["userEmail"]);
 
     if (!isPasswordValid) e("#userPassword").addClass("error");
     if (!isEmailValid) e("#userEmail").addClass("error");
 
     if (!isPasswordValid || !isEmailValid)
-      return e(".submit_btn").prop("disabled", false);
+      return e(".submit_btn")
+        .prop("disabled", false)
+        .removeClass("loading")
+        .text("Sign up");
 
     // submit form
+    var options = {
+      method: "POST",
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
 
-    const { success, message } = await Fetch(formData, name);
+    const sendFormData = await fetch(`/api/auth/register/local`, options);
+
+    var response = await sendFormData.json();
+    const { success, message } = await response.json();
 
     if (!success)
       return e(".submit_btn").prop("disabled", false), modal(message);
-    console.log({ name });
-    if (name === "login") await modal(message, success);
 
-    setTimeout(() => {
-      location = name === "login" ? "/dashboard" : "/login";
-    }, 1000);
-  }
+    await Promise.resolve(modal(message, success));
+    location = "/dashboard";
+  });
+
+  e(".backdrop").on("click", () => formGroup.removeClass("show"));
+
+  options.each(function (index) {
+    var value = e(this).data("value");
+    e(this).on("click", () => {
+      gender.prop("value", value);
+      formGroup.removeClass("show");
+      formControl.html(
+        `<span style="font-weight: 500;color: rgba(0,0,0,.6)">${value}</span>`
+      );
+    });
+  });
+
+  formControl.on("click", () => formGroup.toggleClass("show"));
 
   // modal
   async function modal(message, success) {
@@ -171,26 +169,6 @@
     );
 
     return true;
-  }
-
-  // setting function sign user
-  async function Fetch(formData, name) {
-    try {
-      var options = {
-        method: "POST",
-        body: JSON.stringify(formData),
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      };
-      const sendFormData = await fetch(`/api/users/${name}`, options);
-
-      var response = await sendFormData.json();
-      return response;
-    } catch (err) {
-      console.log({ err });
-    }
   }
 
   /**

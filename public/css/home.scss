@@ -1,4 +1,5 @@
 @import "./_global";
+@import "./mixins";
 
 .main_container {
   &::before {
@@ -21,205 +22,227 @@
     right: -100px;
     top: -600px;
   }
-  .main_wrapper {
-    position: relative;
-    z-index: 4;
+}
 
-    .main-header {
+.main_wrapper {
+  position: relative;
+  z-index: 4;
+
+  .main-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1em;
+    justify-content: space-between;
+    padding: 10px 20px;
+    max-width: 1200px;
+    margin: auto;
+
+    .logo {
+      font-size: 1.5em;
+      color: $btn-secondary;
+      font-weight: 1000;
+      font-family: Nunito;
+    }
+
+    .header-center {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
       gap: 1em;
-      justify-content: space-between;
-      padding: 10px 20px;
-      max-width: 1200px;
-      margin: 1em auto;
 
-      .logo {
-        font-size: 1.5em;
-        color: $btn-secondary;
-        font-weight: 600;
+      a {
+        text-decoration: none;
+        color: $text-secondary;
+        font-size: 0.8em;
+        font-weight: 500;
       }
+    }
 
-      .header-center {
-        display: flex;
-        gap: 1em;
+    .header-right {
+      display: flex;
+      gap: 0.5em;
 
-        a {
-          text-decoration: none;
-          color: $text-secondary;
-          font-size: 0.8em;
-          font-weight: 500;
+      .link {
+        background-color: $btn-secondary;
+        color: #fff;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 10px 20px;
+        font-size: 0.8em;
+        border-radius: 50px;
+        display: block;
+
+        &.signin-link {
+          background: none;
+          border: 1.5px solid $btn-secondary;
+          color: $btn-secondary;
         }
-      }
 
-      .header-right {
-        display: flex;
-        gap: 1em;
+        transition: $transition;
 
-        .link {
-          background-color: $btn-secondary;
+        &:hover {
+          background-color: $hover;
+          transform: scale(1.1);
           color: #fff;
-          font-weight: 500;
-          text-decoration: none;
-          padding: 10px 20px;
-          font-size: 0.8em;
-          border-radius: 50px;
-          display: block;
+        }
 
-          &.signin-link {
-            background: #fff;
-            color: $btn-secondary;
-          }
-
-          transition: $transition;
-
-          &:hover {
-            background-color: $hover;
-            transform: scale(1.1);
-            color: #fff;
-          }
-
-          &:active {
-            transform: scale(0.8);
-          }
+        &:active {
+          transform: scale(0.8);
         }
       }
     }
 
-    .section-front {
-      display: flex;
-      justify-content: space-around;
-      padding: 2em 0 2em 2.2em;
-      align-items: center;
+    @include media_max_500 {
+      .header-center {
+        display: none;
+      }
+    }
+  }
 
-      .board-text-wrapper {
-        max-width: 400px;
-        position: relative;
+  .section-front {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: space-around;
+    align-items: center;
+    gap: 3em;
+    padding-inline: 1em;
+    margin-top: 3em;
 
-        &::before {
-          position: absolute;
-          content: "";
-          background-color: $skyblue;
-          top: -30%;
-          left: -26%;
-          filter: blur(110px);
-          width: 500px;
-          height: 500px;
-          border-radius: 50%;
-          z-index: -1;
+    .board-text-wrapper {
+      width: 500px;
+      position: relative;
+      max-width: 90vw;
+
+      &::before {
+        position: absolute;
+        content: "";
+        background-color: $skyblue;
+        top: -30%;
+        left: -26%;
+        filter: blur(110px);
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        z-index: -1;
+      }
+      &::after {
+        position: absolute;
+        content: "";
+        background-color: $skyblue;
+        top: 10%;
+        left: 30%;
+        border-radius: 66% 77% 41% 97% / 81% 92% 58% 58%;
+        width: 300px;
+        height: 300px;
+        z-index: -1;
+      }
+
+      .primary-text {
+        font-size: 3.3em;
+        font-weight: 900;
+        color: $text-primary;
+        line-height: 1;
+      }
+
+      .secondary-text {
+        color: $text-secondary;
+        font-size: 15px;
+        font-weight: 500;
+        margin-block: 1em;
+      }
+
+      .btn-explore {
+        background-color: $btn-secondary;
+        color: #fff;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 15px 50px;
+        font-size: 0.8em;
+        display: inline-block;
+        border-radius: 50px;
+        outline: none;
+        border: none;
+        font-family: Poppins;
+        transition: $transition;
+
+        &:hover {
+          background-color: $hover;
+          transform: scale(1.1);
         }
-        &::after {
-          position: absolute;
-          content: "";
-          background-color: $skyblue;
-          top: 10%;
-          left: 30%;
-          border-radius: 66% 77% 41% 97% / 81% 92% 58% 58%;
-          width: 300px;
-          height: 300px;
-          z-index: -1;
+
+        &:active {
+          transform: scale(0.8);
         }
+      }
+
+      @include media_max_500 {
+        display: grid;
+        place-items: center;
+        text-align: center;
 
         .primary-text {
-          font-size: 2.5em;
-          font-weight: 600;
-          color: $text-primary;
-          line-height: 1.2;
-          margin-bottom: 0.4em;
-        }
-
-        .secondary-text {
-          color: $text-secondary;
-          font-size: 15px;
-          font-weight: 500;
-          margin-bottom: 1em;
-        }
-
-        .btn-explore {
-          background-color: $btn-secondary;
-          color: #fff;
-          font-weight: 500;
-          text-decoration: none;
-          padding: 15px 50px;
-          font-size: 0.8em;
-          display: inline-block;
-          border-radius: 50px;
-          outline: none;
-          border: none;
-          font-family: Poppins;
-          transition: $transition;
-
-          &:hover {
-            background-color: $hover;
-            transform: scale(1.1);
-          }
-
-          &:active {
-            transform: scale(0.8);
-          }
-        }
-      }
-
-      .svg_container {
-        .svg {
-          width: 400px;
+          font-size: 2em;
         }
       }
     }
 
-    .section-objectives {
-      margin-block: 5em;
+    .svg_container {
+      .svg {
+        width: 400px;
+        max-width: 80vw;
+      }
+    }
+  }
 
-      .card-group {
-        display: flex;
-        gap: 30px;
-        justify-content: center;
+  .swiper {
+    position: relative;
+    z-index: 100;
+    margin-block: 5em;
+    padding-bottom: 5em;
+    width: 100%;
+
+    .card {
+      width: 320px;
+      margin: auto;
+      // background-color: white;
+
+      .card-wrapper {
+        border-radius: 56% 44% 70% 30% / 42% 45% 55% 58%;
+        height: 300px;
+        padding: 2em;
+        box-shadow: $shadow-secondary;
+        border: thin solid $skyblue;
+        background-color: rgb(251, 251, 251);
       }
 
-      .card {
-        width: 33.3%;
-        max-width: 300px;
-
-        .card-wrapper {
-          background: #fff;
-          border-radius: 150px;
-          height: 300px;
-          padding: 2em;
-
-          box-shadow: $shadow-primary;
-        }
-
-        .card-image {
-          .image {
-            display: block;
-            width: 80%;
-            margin: auto;
-            border-radius: 10px;
-            height: 160px;
-          }
-        }
-
-        .card-text {
-          font-size: 14px;
-          text-align: center;
-          margin-top: 1em;
-        }
-
-        .card-action {
-          width: max-content;
+      .card-image {
+        .image {
+          display: block;
+          width: 80%;
           margin: auto;
+          border-radius: 10px;
+          height: 160px;
+        }
+      }
 
-          .btn {
-            background: $btn-secondary;
-            outline: none;
-            border: none;
-            border-radius: 50px;
-            min-width: 120px;
-            min-height: 50px;
-            box-shadow: $shadow-primary;
-            margin-top: 2em;
-          }
+      .card-text {
+        font-size: 14px;
+        text-align: center;
+        margin-top: 1em;
+      }
+
+      .card-action {
+        width: max-content;
+        margin: auto;
+
+        .btn {
+          background: $btn-secondary;
+          outline: none;
+          border: none;
+          border-radius: 50px;
+          min-width: 120px;
+          min-height: 50px;
+          box-shadow: $shadow-primary;
+          margin-top: 2em;
         }
       }
     }
