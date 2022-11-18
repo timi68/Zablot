@@ -31,6 +31,7 @@ import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceR
 import moment from "moment";
 import { marked } from "marked";
 import { useForm } from "react-hook-form";
+import { getServerSideProps } from "pages/dashboard";
 
 const { Option } = Select;
 
@@ -103,8 +104,6 @@ const UploadQuestion = (props: { user: string }) => {
       setErrors(errors);
       return;
     }
-
-    console.log({ fields });
   };
 
   return (
@@ -366,25 +365,6 @@ const buttonProps = (className: string): HTMLMotionProps<"button"> => ({
   whileHover: { scale: 1.05 },
 });
 
-export async function getServerSideProps({ req, res }) {
-  try {
-    const user_id = req.session.user;
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-
-    return {
-      props: { user: JSON.stringify(user) },
-    };
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
+export { getServerSideProps };
 
 export default UploadQuestion;

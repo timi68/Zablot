@@ -21,6 +21,7 @@ import moment from "moment";
 import BoardControl from "@comp/quiz/attempt/boardControl";
 import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
 import { Modal } from "antd";
+import { getServerSideProps } from "pages/dashboard";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -215,30 +216,4 @@ export default function PastQuestions(
   );
 }
 
-export async function getServerSideProps({
-  req,
-  res,
-  params,
-}: GetServerSidePropsContext<{ exam: string }>): Promise<
-  GetServerSidePropsResult<{ user: string; params: { exam: string } }>
-> {
-  try {
-    // @ts-ignore
-    const user_id = req.session.user;
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-
-    return {
-      props: { user: JSON.stringify(user), params: params as { exam: string } },
-    };
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
+export { getServerSideProps };

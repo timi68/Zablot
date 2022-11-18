@@ -14,31 +14,43 @@ const isEmpty = require("lodash/isEmpty");
  */
 async function verify(request, accessToken, refreshToken, profile, cb) {
   try {
-    console.debug({ name: profile.name }, "I am called");
     const federated = await FederatedCredentials.findOne({
       provider: profile.provider,
       subject: profile.id,
     });
 
     if (isEmpty(federated)) {
-      let body = {
-        fullName: profile.displayName,
-        UserName: "",
-        provider: profile.provider,
-        picture: profile.picture,
-        verified: profile.verified,
-        userEmail: profile.email,
-        subject: profile.sub,
-        userGender: profile.gender,
-        password: profile.email.substring(0, 5) + "TJ345#",
-      };
-      /**
-       * @type {{success: boolean; sessionUser: {user: string;}}}
-       */
-      const created = await AddUser(body);
-      if (!created.success) {
-        return cb(created, false);
+      let created = {}
+
+      const userExist = await Users.findOne({Provider: profile.provider, Sub: profile.id});
+      
+      if(isEmpty(userExist)){
+          let body = {
+            fullName: profile.displayName,
+            UserName: "",
+            provider: profile.provider,
+            picture: profile.picture,
+            verified: profile.verified,
+            userEmail: profile.email,
+            subject: profile.sub,
+            userGender: profile.gender,
+            password: profile.email.substring(0, 5) + "TJ345#",
+          };
+          /**
+           * @type {{success: boolean; sessionUser: {user: string;}}}
+           */
+          let create = await AddUser(body);
+
+                if (!create.success) {
+                  return cb(created, false);
+                }
+
+          created = create.sessionUser
+
       }
+
+      else created = {user: userExist._id}
+      
 
       FederatedCredentials.create({
         provider: profile.provider,
@@ -61,6 +73,6 @@ async function verify(request, accessToken, refreshToken, profile, cb) {
   } catch (error) {
     cb(error, false);
   }
-}
+} 
 
 module.exports = verify;

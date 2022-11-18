@@ -4,7 +4,7 @@ import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { NextRouter, useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import getUser from "@lib/getUser";
+import { getServerSideProps } from "pages/dashboard";
 
 function QuizCreator(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);
@@ -24,27 +24,5 @@ function QuizCreator(props: { user: string }) {
   );
 }
 
-export async function getServerSideProps({ req, res }) {
-  try {
-    const user_id = req.session.user;
-
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-
-    return {
-      props: { user: JSON.stringify(user) },
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
-
+export { getServerSideProps };
 export default QuizCreator;

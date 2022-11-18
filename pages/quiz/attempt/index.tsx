@@ -15,6 +15,7 @@ import Quiz from "@comp/quiz/quiz";
 import View from "@comp/quiz/View";
 import { Quizzes } from "@lib/quizzes";
 import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
+import { getServerSideProps } from "pages/dashboard";
 
 export default function PastQuestions(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);
@@ -104,25 +105,4 @@ export default function PastQuestions(props: { user: string }) {
   );
 }
 
-export async function getServerSideProps({ req, res }) {
-  try {
-    const user_id = req.session.user;
-
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-
-    return {
-      props: { user: JSON.stringify(user) },
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
+export { getServerSideProps };

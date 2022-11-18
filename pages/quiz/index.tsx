@@ -1,10 +1,9 @@
 import React from "react";
-import CreateQuestion from "@comp/quiz/createQuestion";
 import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { NextRouter, useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import getUser from "@lib/getUser";
+import { getServerSideProps } from "pages/dashboard";
 import { motion } from "framer-motion";
 import { Divider, Grid, Skeleton } from "@mui/material";
 import Link from "next/link";
@@ -79,27 +78,5 @@ function QuizCreator(props: { user: string }) {
   );
 }
 
-export async function getServerSideProps({ req, res }) {
-  try {
-    const user_id = req.session.user;
-
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-
-    return {
-      props: { user: JSON.stringify(user) },
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
-
+export { getServerSideProps };
 export default QuizCreator;
