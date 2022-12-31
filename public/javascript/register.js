@@ -19,13 +19,18 @@
     password.attr("type", activeType).trigger("focus");
   });
 
+  const setLoading = (/** @type {boolean} */ l) => {
+    let target = e(".submit_btn");
+    return target
+      .prop("disabled", l)
+      [`${l ? "add" : "remove"}Class`]("loading")
+      .text(l ? "Processing..." : "Sign up");
+  };
+
   auth.on("submit", async function Auth(event) {
     event.preventDefault();
     e(".form-group").removeClass("error");
-    e(".submit_btn")
-      .prop("disabled", true)
-      .addClass("loading")
-      .text("Processing...");
+    setLoading(true);
 
     var formData = {};
     var required = [];
@@ -44,10 +49,7 @@
         e(`#${key}`).addClass("error");
       });
 
-      return e(".submit_btn")
-        .prop("disabled", false)
-        .removeClass("loading")
-        .text("Sign up");
+      return setLoading(false);
     }
 
     var isPasswordValid = validatePassword(formData["userPassword"]);
@@ -56,11 +58,7 @@
     if (!isPasswordValid) e("#userPassword").addClass("error");
     if (!isEmailValid) e("#userEmail").addClass("error");
 
-    if (!isPasswordValid || !isEmailValid)
-      return e(".submit_btn")
-        .prop("disabled", false)
-        .removeClass("loading")
-        .text("Sign up");
+    if (!isPasswordValid || !isEmailValid) return setLoading(false);
 
     // submit form
     var options = {
@@ -73,14 +71,11 @@
     };
 
     const sendFormData = await fetch(`/api/auth/register/local`, options);
+    const { success, message } = await sendFormData.json();
 
-    var response = await sendFormData.json();
-    const { success, message } = await response.json();
+    if (!success) return setLoading(false), modal(message);
 
-    if (!success)
-      return e(".submit_btn").prop("disabled", false), modal(message);
-
-    await Promise.resolve(modal(message, success));
+    await Promise.resolve(modal("Account Created Successfully.", success));
     location = "/dashboard";
   });
 
@@ -89,7 +84,7 @@
   options.each(function (index) {
     var value = e(this).data("value");
     e(this).on("click", () => {
-      gender.prop("value", value);
+      gender.prop("value", value); 
       formGroup.removeClass("show");
       formControl.html(
         `<span style="font-weight: 500;color: rgba(0,0,0,.6)">${value}</span>`

@@ -34,7 +34,7 @@ async function verify(request, accessToken, refreshToken, profile, cb) {
             userEmail: profile.email,
             subject: profile.sub,
             userGender: profile.gender,
-            password: profile.email.substring(0, 5) + "TJ345#",
+            userPassword: profile.email.substring(0, 5) + "TJ345#",
           };
           /**
            * @type {{success: boolean; sessionUser: {user: string;}}}

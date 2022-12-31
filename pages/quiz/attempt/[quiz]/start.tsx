@@ -1,26 +1,24 @@
 import React from "react";
 import { useSnackbar } from "notistack";
 import { Counter, Question } from "@types";
-import FetchUser from "@lib/fetch_user";
 import axios from "axios";
-import { NextRouter, useRouter } from "next/router";
-import { Avatar, Button, Card, Stack } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
-import { CardActionArea, Tooltip } from "@mui/material";
-import ArrowBack from "@mui/icons-material/ArrowBack";
-import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
+import { NextRouter, useRouter } from "next/router";
+import { GetServerSidePropsContext, GetServerSidePropsResult, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { InferGetServerSidePropsType } from "next";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import getUser from "@lib/getUser";
 import { Questions } from "@lib/questions";
-import AttemptQuestion from "@comp/quiz/attemptQuestion";
 import lodash from "lodash";
 import Cookies from "js-cookie";
 import moment from "moment";
 import BoardControl from "@comp/quiz/attempt/boardControl";
-import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
+import FetchUser from "@lib/fetch_user";
 import { Modal } from "antd";
+import { Avatar, Button, Card, Stack, CardActionArea, Tooltip } from "@mui/material";
+import AttemptQuestion from "@comp/quiz/attemptQuestion";
+import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
+import ArrowBack from "@mui/icons-material/ArrowBack";
 import { getServerSideProps } from "pages/dashboard";
 
 export default function PastQuestions(

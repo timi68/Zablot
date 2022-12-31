@@ -18,6 +18,7 @@ const { v4: uuidv4 } = uuid;
 const { promisify } = require("util");
 var crypto = require("crypto");
 const isEmpty = require("lodash/isEmpty");
+const { nanoid } = require("@reduxjs/toolkit");
 
 const AddUser = async (body) => {
   try {
@@ -26,7 +27,7 @@ const AddUser = async (body) => {
       return { success: false, message: "User Already Exist By Email" };
 
     const _id = new mongoose.Types.ObjectId();
-    const hashedPassword = hashPassword(body.password);
+    const hashedPassword = hashPassword(body.userPassword);
 
     const user = new Users({
       _id,

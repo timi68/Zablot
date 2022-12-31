@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "set DEBUG=* & nodemon bin/www -L -devmode -something 1",
+    "dev": "nodemon bin/www -L -devmode",
+    "debug": "set DEBUG=* & nodemon bin/www -L -devmode -something 'Running Development in develop mode'",
     "build": "next build",
     "start": "node bin/www",
     "lint": "next lint",

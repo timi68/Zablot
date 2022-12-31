@@ -49,14 +49,16 @@ registerRouter.get(
 registerRouter.post("/local", async function (req, res, next) {
   try {
     const body = req.body;
+    console.log({ body });
     if (!body) return next({ error: "No data send" });
 
     const response = await AddUser(body);
+    console.log({ response });
 
     if (response?.success) {
       return req.login(response.sessionUser, function (err) {
         if (err) return next(err);
-        res.redirect("/dashboard");
+        res.status(200).json(response);
       });
     }
 

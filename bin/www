@@ -64,7 +64,7 @@ client
         typeof addr === "string"
           ? "pipe " + addr
           : "http://localhost:" + addr.port;
-      debug("Listening on " + bind);
+      console.debug("Listening on " + bind);
     }
 
     const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
@@ -78,7 +78,7 @@ client
     io.on("connection", socketController.bind(null));
   })
   .catch((/** @type {{ stack: any; }} */ ex) => {
-    console.log(ex.stack, "from stack");
+    console.error(ex.stack, "from stack");
     process.exit(1);
   });
 
