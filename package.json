@@ -104,7 +104,8 @@
     "eslint": "7.31.0",
     "eslint-config-next": "11.0.1",
     "livereload": "^0.9.3",
-    "next-plausible": "^3.6.3"
+    "next-plausible": "^3.6.3",
+    "nodemon": "^2.0.20"
   },
   "engines": {
     "node": "v16.16.0",
