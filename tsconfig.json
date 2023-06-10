@@ -30,10 +30,5 @@
     "**/*.tsx",
     "components/SignInPage.jsx"
   ],
-  "exclude": ["node_modules"],
-  "lint": [
-    {
-      "exclude": ["server"]
-    }
-  ]
+  "exclude": ["node_modules", "server"]
 }
