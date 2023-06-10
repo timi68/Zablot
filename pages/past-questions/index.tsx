@@ -73,8 +73,8 @@ export default function PastQuestions(props: { user: string }) {
                       initial={{ opacity: 0 }}
                       animate={{
                         opacity: 1,
-                        transitionDuration: "1s",
-                        transitionDelay: 0.1 * index + "s",
+                        dur: "1s",
+                        d: 0.1 * index + "s",
                       }}
                     >
                       <span className="text">{name}</span>
@@ -92,8 +92,8 @@ export default function PastQuestions(props: { user: string }) {
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{
                         opacity: 1,
-                        transitionDuration: "1s",
-                        transitionDelay: 0.1 * index + "s",
+                        dur: "1s",
+                        d: 0.1 * index + "s",
                         scale: 1,
                       }}
                       key={index}
@@ -126,8 +126,8 @@ export default function PastQuestions(props: { user: string }) {
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{
                         opacity: 1,
-                        transitionDuration: "1s",
-                        transitionDelay: 0.1 * index + "s",
+                        dur: "1s",
+                        d: 0.1 * index + "s",
                         scale: 1,
                       }}
                       key={index}
@@ -157,8 +157,8 @@ export default function PastQuestions(props: { user: string }) {
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{
                         opacity: 1,
-                        transitionDuration: "1s",
-                        transitionDelay: 0.1 * index + "s",
+                        dur: "1s",
+                        d: 0.1 * index + "s",
                         scale: 1,
                       }}
                       key={index}
@@ -198,8 +198,8 @@ export default function PastQuestions(props: { user: string }) {
                   initial={{ opacity: 0 }}
                   animate={{
                     opacity: 1,
-                    transitionDuration: "1s",
-                    transitionDelay: 0.1 * key + "s",
+                    dur: "1s",
+                    d: 0.1 * key + "s",
                   }}
                 >
                   <CardActionArea className="news-group">
@@ -220,13 +220,11 @@ export default function PastQuestions(props: { user: string }) {
 
 export async function getServerSideProps({ req, res }) {
   try {
-    const user_id = req.session.user;
-
+    const user_id = req.session.passport.user._id ?? req.session.user;
     if (!user_id) throw new Error("There is no session");
 
-    const user = getUser(user_id);
+    const user = await getUser(user_id);
     if (!user) throw new Error("User not found");
-
     return {
       props: { user: JSON.stringify(user) },
     };

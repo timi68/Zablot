@@ -68,13 +68,13 @@
     }
   }
 
-  .message {
-    margin-block: 10px;
-    font-size: map-get($fonts, "smaller");
-    white-space: normal;
-    max-height: 30px;
-    overflow: hidden;
-  }
+  // .message {
+  //   margin-block: 10px;
+  //   font-size: map-get($fonts, "smaller");
+  //   white-space: normal;
+  //   max-height: 30px;
+  //   overflow: hidden;
+  // }
 
   .navigators {
     transition: $transition;
@@ -102,7 +102,7 @@
         margin-bottom: 16px;
         transition: $transition;
       }
-      a {
+      span {
         height: 40px;
         transition: $transition;
         position: relative;
@@ -110,8 +110,9 @@
         cursor: pointer;
         align-items: center;
         justify-content: flex-start;
-        gap: 30px;
+        gap: 20px;
         width: 100%;
+        padding-inline: 10px;
         border-radius: 10px;
         flex-wrap: nowrap;
         text-decoration: none;
@@ -269,7 +270,11 @@
       }
     }
 
-    a {
+    span {
+      &::before {
+        width: 100% !important;
+        border-radius: 10px;
+      }
       &.active {
         &::before {
           background: white;

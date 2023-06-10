@@ -4,7 +4,14 @@ import RoomBody from "./Room_body";
 import { EntityId } from "@reduxjs/toolkit";
 import RoomFooter from "./RoomFooter";
 import j from "jquery";
-import { motion, AnimatePresence, Transition } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  Transition,
+  AnimationControls,
+  TargetAndTransition,
+  Variants,
+} from "framer-motion";
 import { useCustomEventListener } from "react-custom-events";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { removeRoom, updateRoom } from "@lib/redux/roomSlice";
@@ -89,10 +96,10 @@ const Room = (props: { room_id: EntityId }) => {
     }
   });
 
-  const variant = {
-    exit: { left: "100vw" },
-    animate: { left: 0 },
-    initial: { left: "100vw" },
+  const variant: Variants = {
+    exit: { x: "100vw" },
+    animate: { x: 0 },
+    initial: { x: "100vw" },
   };
 
   const transition: Transition = {

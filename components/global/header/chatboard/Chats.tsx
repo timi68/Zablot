@@ -9,6 +9,7 @@ import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 import StyledBadge from "./StyledBadge";
 import stringToColor from "@utils/stringToColor";
 import { format, formatRelative, isYesterday, isToday } from "date-fns";
+import simulateClick from "@lib/simulateClick";
 
 interface chats {
   friendId: string;
@@ -43,7 +44,10 @@ function Chats({ friendId, friend }: chats): JSX.Element {
       ref={CardRef}
       className="chats_listItem list_item chat"
       role="listitem"
-      onClick={(e) => emitCustomEvent("openRoom", { friend, target: e.target })}
+      onClick={(e) => {
+        emitCustomEvent("openRoom", { friend, target: e.target });
+        emitCustomEvent("remove_overlay");
+      }}
     >
       <StyledBadge active={friend.active}>
         <Avatar

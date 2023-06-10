@@ -38,7 +38,7 @@ const ChatRoom = () => {
           "chat-rooms-container sm:z-[10] max-w-[100vw] overflow-x-auto " +
           (device == "mobile"
             ? "top-0 h-screen w-screen left-0 z-[9999999] fixed"
-            : "left-1/2 -translate-x-1/2 bottom-2.5 absolute")
+            : "right-0 -translate-x-1/2 bottom-2.5 absolute")
         }
       >
         <AnimateSharedLayout>

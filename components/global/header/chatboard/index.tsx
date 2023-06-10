@@ -9,6 +9,7 @@ import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchIcon from "@mui/icons-material/Search";
+import Backdrop from "@comp/Backdrop";
 
 const ChatBoard: React.FC = function () {
   const { user, activeFriends, socket, device } = useAppSelector(
@@ -19,7 +20,7 @@ const ChatBoard: React.FC = function () {
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
   const chatBoard = React.useRef<HTMLDivElement>(null);
-  const Backdrop = React.useRef<HTMLDivElement>(null);
+  // const Backdrop = React.useRef<HTMLDivElement>(null);
 
   const NewFriend = React.useCallback((data: Interface.Friend) => {
     setFriends((friends) => [data, ...friends].sort((a, b) => a.time - b.time));
@@ -179,50 +180,37 @@ const ChatBoard: React.FC = function () {
     socket,
   ]);
 
-  const CaptureClick = (e: React.MouseEvent) => {
-    e.target === Backdrop.current &&
-      (setOpenModal(false), emitCustomEvent("off"));
-  };
+  // const CaptureClick = (e: React.MouseEvent) => {
+  //   setOpenModal(false), emitCustomEvent("off");
+  // };
 
   const isNotDesktop = ["mobile"].includes(device);
-  const M = motion.div;
   const MProp = isNotDesktop
     ? {
         className:
           "!fixed !top-0 !left-0 z-50 chats-container h-screen w-screen",
-        initial: { x: 100 },
-        animate: { x: 0 },
-        exit: { x: 600 },
       }
     : {
         initial: { scale: 0.8 },
         animate: { scale: 1 },
-        exit: { scale: 0.7, opacity: 0 },
+        exit: { y: 10, opacity: 0 },
         className: "chats-container",
       };
 
-  const A = AnimatePresence;
-
   return (
-    <A>
-      {openModal && (
-        <>
-          <div
-            className="h-screen fixed w-screen top-0 left-0 z-30"
-            ref={Backdrop}
-            onClickCapture={CaptureClick}
-          />
-          <M {...MProp} ref={chatBoard}>
-            <div className="chats-wrapper">
-              <div className="chats-header flex items-center gap-1 flex-nowrap">
-                <div className="text-lg font-bold flex-grow">Chats</div>
-                <div className="ml-3 search-container " id="search">
-                  <div className="border border-solid h-[35px] w-[35px] justify-center border-gray-500 rounded-3xl flex items-center">
-                    <SearchIcon
-                      fontSize="small"
-                      className="search-icon h-6 w-6"
-                    />
-                    {/* <div className="form-control flex-grow">
+    openModal && (
+      <Backdrop open={setOpenModal}>
+        <motion.div {...MProp} ref={chatBoard}>
+          <div className="chats-wrapper relative z-50">
+            <div className="chats-header flex items-center gap-1 flex-nowrap">
+              <div className="text-lg font-bold flex-grow">Chats</div>
+              <div className="ml-3 search-container " id="search">
+                <div className="border border-solid h-[35px] w-[35px] justify-center border-gray-500 rounded-3xl flex items-center">
+                  <SearchIcon
+                    fontSize="small"
+                    className="search-icon h-6 w-6"
+                  />
+                  {/* <div className="form-control flex-grow">
                       <input
                         type="search"
                         role="searchbox"
@@ -233,27 +221,26 @@ const ChatBoard: React.FC = function () {
                         autoComplete="off"
                       />
                     </div> */}
-                  </div>
                 </div>
               </div>
-              <div className="chats-body p-3">
-                {loading ? (
-                  <>
-                    <div className="loader">
-                      <CircularProgress sx={{ color: "grey" }} />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Friends friendId={user._id} friends={friends} />
-                  </>
-                )}
-              </div>
             </div>
-          </M>
-        </>
-      )}
-    </A>
+            <div className="chats-body p-3">
+              {loading ? (
+                <>
+                  <div className="loader">
+                    <CircularProgress sx={{ color: "grey" }} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Friends friendId={user._id} friends={friends} />
+                </>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      </Backdrop>
+    )
   );
 };
 

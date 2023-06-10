@@ -1,5 +1,4 @@
 {
-  "verbose": true,
   "ignore": ["node_modules", ".next"],
   "watch": ["server/", "bin/www", "views/*"],
   "ext": "js json ejs"

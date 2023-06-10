@@ -95,16 +95,16 @@ export default React.memo(function Sidebar() {
         <AnimatePresence mode={"sync"}>
           {tooltip.open && (
             <motion.div
-              initial={{ x: -20, background: "whitesmoke" }}
+              initial={{ x: -20, enableBackground: "whitesmoke" }}
               animate={{
                 x: 0,
-                background: "white",
+                enableBackground: "white",
                 color: "#369298",
-                borderRadius: "0 10px 10px 0",
+                radius: "0 10px 10px 0",
               }}
               transition={{ type: "just" }}
               className={`fixed z-[999] text-sm font-semibold shadow-lg w-[130px] h-[40px] left-[60px] bg-white grid items-center`}
-              style={{ top: tooltip.top }}
+              style={{ y: tooltip.top }}
             >
               <span className="title">{tooltip.title}</span>
             </motion.div>
@@ -119,7 +119,7 @@ export default React.memo(function Sidebar() {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: "100%" }}
-              exit={{ width: 0, height: 0, padding: 0 }}
+              exit={{ width: 0, height: 0, spacing: 0 }}
               className="preview-profile"
             >
               <div className="user-image-name-wrapper">
@@ -170,8 +170,8 @@ export default React.memo(function Sidebar() {
                 exit={{ width: 0, height: 0 }}
                 className="message-from-zablot"
               >
-                <div className="message">
-                  Good day TJ, hope you are having a nice day
+                <div className="message text-sm mb-4 font-bold">
+                  Good Evening Timi!
                 </div>
               </motion.div>
             )}
@@ -205,12 +205,12 @@ export default React.memo(function Sidebar() {
                       className="link-wrap"
                     >
                       <Link href={data.url} passHref>
-                        <a
+                        <span
                           onMouseEnter={MouseEnter}
                           onMouseLeave={() =>
                             setTooltip({ ...tooltip, open: false })
                           }
-                          href="#"
+                          // href="#"
                           className={
                             device +
                             (router.asPath.includes(data.url) ? " active" : "")
@@ -226,7 +226,7 @@ export default React.memo(function Sidebar() {
                               <div className="link-title">{data.title}</div>
                             </motion.div>
                           )}
-                        </a>
+                        </span>
                       </Link>
                     </motion.li>
                   );
@@ -247,8 +247,8 @@ export default React.memo(function Sidebar() {
                       className="link-wrap"
                     >
                       <Link href={data.url} passHref>
-                        <a
-                          href="#"
+                        <span
+                          // href="#"
                           className={
                             device +
                             (router.asPath.includes(data.url) ? " active" : "")
@@ -264,7 +264,7 @@ export default React.memo(function Sidebar() {
                               <div className="link-title">{data.title}</div>
                             </motion.div>
                           )}
-                        </a>
+                        </span>
                       </Link>
                     </li>
                   );
@@ -299,8 +299,8 @@ const links = [
 ];
 
 const link2 = [
-  { title: "Share Idea", icon: PsychologyOutlinedIcon, url: "#" },
-  { title: "Share Web", icon: ShareOutlinedIcon, url: "#" },
-  { title: "Contribute", icon: AllInclusiveIcon, url: "#" },
-  { title: "Report", icon: ReportIcon, url: "#" },
+  { title: "Share Idea", icon: PsychologyOutlinedIcon, url: "/share-idea" },
+  { title: "Share Web", icon: ShareOutlinedIcon, url: "#share-web" },
+  { title: "Contribute", icon: AllInclusiveIcon, url: "/contribute" },
+  { title: "Report", icon: ReportIcon, url: "/report" },
 ];

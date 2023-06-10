@@ -7,7 +7,8 @@ function Stories() {
   const user = useAppSelector((state) => state.sessionStore.user);
 
   return (
-    <div className="feeds-container">
+    <div className="feeds-container relative">
+      <div className="start w-8  bg-gradient-to-r from-[#f5f5f5] absolute left-0 top-0 z-10 h-full" />
       <ul className="feeds-list flex px-2 gap-x-2 w-full overflow-auto ">
         {user && (
           <li className="feed grid place-items-center">
@@ -70,6 +71,7 @@ function Stories() {
           );
         })}
       </ul>
+      <div className="start w-8 bg-gradient-to-l from-[#f5f5f5] absolute right-0 top-0 h-full z-10" />
     </div>
   );
 }

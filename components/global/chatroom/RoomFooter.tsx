@@ -187,10 +187,11 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       <div className="message-create-box input-box flex h-full items-end">
         <SpeedDial
           open={open}
-          onClick={() => setOpen(true)}
+          onClick={() => setOpen(!open)}
           onClose={() => setOpen(false)}
           sx={SpeedDialCss}
           color="inherit"
+          FabProps={{}}
           ariaLabel="SpeedDial openIcon"
           icon={
             <SpeedDialIcon

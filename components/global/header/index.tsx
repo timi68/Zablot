@@ -7,7 +7,7 @@ import {
   IconButton,
   Skeleton,
 } from "@mui/material";
-import TopNavigation from "@comp/TopNavigation";
+import TopNavigation from "@comp/global/header/TopNavigation";
 import { useAppSelector } from "@lib/redux/store";
 import UploadScreen from "@comp/dashboard/uploadsection";
 import ChatRoom from "@comp/global/chatroom";

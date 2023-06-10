@@ -33,9 +33,31 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
 
   return (
     <React.Fragment>
-      <section className="main-body wide center-content">
-        <div className="posts social-feeds informations view-screen">
+      <section className="main-body wide center-content md:flex ">
+        <div className="posts social-feeds view-screen flex-1 md:grid place-items-center">
           <UploadScreen />
+        </div>
+        <div className="information bg-lowgrey h-[calc(100vh-75px)] overflow-auto w-[300px] mt-1 relative hidden md:block">
+          {/* <div className="title">Fast Information</div> */}
+          <div className="information-group-list px-4">
+            {["School", "Past Questions", "Quiz"].map((label, i) => {
+              return (
+                <div className="info mb-5" key={label}>
+                  <div className="title sticky top-0 font-bold bg-lowgrey py-3 ">
+                    {label} Quick Info
+                  </div>
+                  <div className="infos flex flex-col gap-y-2">
+                    {Array.from(new Array(4)).map((_, i) => (
+                      <div
+                        className="bg-white w-full h-12 rounded-lg shadow-sm"
+                        key={i}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
     </React.Fragment>

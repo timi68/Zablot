@@ -263,7 +263,7 @@ const SearchBar = () => {
                   initial={{ scale: 0.7 }}
                   animate={{
                     scale: 1,
-                    transitionDuration: ".2s",
+                    dur: ".2s",
                   }}
                   className="header"
                 >
@@ -309,7 +309,7 @@ const SearchBar = () => {
                     whileTap={{ scale: 0.9 }}
                     whileHover={{
                       scale: 1.1,
-                      backgroundColor: "rgb(53,163,180)",
+                      enableBackground: "rgb(53,163,180)",
                       color: "rgb(255,255,255)",
                     }}
                   >

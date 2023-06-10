@@ -77,9 +77,9 @@ function Posts() {
                     <div className="post-text mb-2">
                       <div className="caption-text text-xs font-['Nunito']">
                         Lorem ipsum dolor sit amet
-                        <Link href="#" passHref>
-                          <a className="tags"> @tj-dibbs</a>
-                        </Link>{" "}
+                        <Link href="#" passHref className="tags">
+                          @tj-dibbs
+                        </Link>
                         consectetur adipisicing elit. Quo, mollitia tempora
                         delectus repudiandae eum iste!
                       </div>

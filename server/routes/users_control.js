@@ -20,16 +20,32 @@ var crypto = require("crypto");
 const isEmpty = require("lodash/isEmpty");
 const { nanoid } = require("@reduxjs/toolkit");
 
-const AddUser = async (body) => {
+/**
+ * @param body {object}
+ * @param federated {boolean}
+ * @returns {Promise<{ success: boolean, sessionUser: {_id: string} }>}
+ */
+async function AddUser(body, federated) {
   try {
-    const email = await Users.exists({ Email: body.userEmail });
-    if (email?._id)
+    let user = await Users.findOne(
+      { Email: body.userEmail },
+      { Provider: true }
+    );
+    if (user?._id) {
+      if (federated && user?.Provider !== "zablot") {
+        return {
+          success: true,
+          sessionUser: user,
+        };
+      }
+
       return { success: false, message: "User Already Exist By Email" };
+    }
 
     const _id = new mongoose.Types.ObjectId();
     const hashedPassword = hashPassword(body.userPassword);
 
-    const user = new Users({
+    user = new Users({
       _id,
       FullName: body.fullName,
       UserName: body.userName,
@@ -102,7 +118,7 @@ const AddUser = async (body) => {
     console.log({ error });
     return { success: false, error: error.message };
   }
-};
+}
 
 const Login = async (req, res, next) => {
   try {
@@ -119,11 +135,17 @@ const Login = async (req, res, next) => {
       }
     );
 
-    let alert = { success: false, message: "Email or password is incorrect" };
-    if (isEmpty(user) || !crypto.timingSafeEqual(user.Password, hashedPassword))
-      return res.json(alert);
+    if (
+      isEmpty(user) ||
+      !crypto.timingSafeEqual(user.Password, hashedPassword)
+    ) {
+      return res.json({
+        success: false,
+        message: "Email or password is incorrect",
+      });
+    }
 
-    req.login(sessionUser, function (err) {
+    req.login({ _id: user._id }, function (err) {
       if (err) return next(err);
       res.json({
         success: true,

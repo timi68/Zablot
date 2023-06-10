@@ -253,6 +253,7 @@ const QuizSchema = new Schema(
 const FederatedSchema = new Schema(
   {
     provider: String,
+    user: [{ type: Schema.Types.ObjectId, ref: "Users" }],
     subject: {
       required: true,
       type: String,
