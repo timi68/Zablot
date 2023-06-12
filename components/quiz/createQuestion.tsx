@@ -124,11 +124,14 @@ const CreateQuestion = () => {
                 </motion.ul>
               </motion.div>
             </motion.div>
-            <motion.div layout className="button-wrap gap-3 flex bg-inherit">
+            <motion.div
+              layout
+              className="button-wrap gap-3 flex justify-end bg-inherit"
+            >
               <Button
                 color="error"
                 variant="outlined"
-                className="text-sm text-center capitalize font-semibold"
+                className="text-sm text-center capitalize rounded-xl font-semibold shadow-lg"
                 onClick={() => controller.setDefault.call(controller)}
               >
                 Reset
@@ -137,7 +140,7 @@ const CreateQuestion = () => {
                 layout
                 whileTap={{ scale: 0.9 }}
                 whileHover={{ scale: 1.05 }}
-                className="shadow-xl hover:bg-opacity-90 rounded-sm px-20 py-2 text-center font-semibold text-white bg-green"
+                className="shadow-xl hover:bg-opacity-90 rounded-xl px-20 py-2 text-center font-semibold text-white bg-green"
                 onClick={() =>
                   controller.submitQuestion.call(controller, storeQuestion)
                 }

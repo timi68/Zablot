@@ -184,7 +184,7 @@ const FetchUsers = async () => {
 
 const Search = async (SearchText, callback) => {
   try {
-    const searchString = SearchText.trim().replaceAll(" ", "|");
+    const searchString = SearchText.trim().replace(/\s/g, "|");
 
     const matched = await Users.find(
       {

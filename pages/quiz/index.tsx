@@ -29,22 +29,22 @@ function QuizCreator(props: { user: string }) {
         </div>
         <div className="flex gap-3">
           <Link href="/quiz/attempt" passHref>
-            <motion.span
+            <motion.button
               whileTap={{ scale: 0.8 }}
               whileHover={{ scale: 1.1 }}
               className="btn bg-green text-white rounded-lg shadow-xl min-w-max px-3 py-2 text-sm h-full"
             >
               Attempt
-            </motion.span>
+            </motion.button>
           </Link>
           <Link href="/quiz/create" passHref>
-            <motion.span
+            <motion.button
               whileTap={{ scale: 0.8 }}
               whileHover={{ scale: 1.1 }}
               className="btn text-green border border-green border-solid rounded-lg shadow-xl min-w-max px-3 py-2 text-sm h-full"
             >
               Create
-            </motion.span>
+            </motion.button>
           </Link>
         </div>
       </div>
