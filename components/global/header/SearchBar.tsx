@@ -9,6 +9,7 @@ import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useAppSelector } from "@lib/redux/store";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
+import { variants } from "@lib/constants";
 
 interface SearchInterface {
   matched: Interfaces.Matched[];
@@ -54,7 +55,6 @@ const SearchBar = () => {
 
         let matched = response.data;
         if (matched?.length) {
-          console.log({ matched, friends });
           const friendsId = friends.map(({ Id }) => Id);
           matched = matched.filter((matchedUser) => {
             if (user._id != matchedUser._id) {
@@ -110,9 +110,13 @@ const SearchBar = () => {
     });
   }
 
-  function processFriend(id: string) {
+  function processFriend(user: string) {
     setOpen(false);
-    emitCustomEvent("openRoomById", id);
+
+    let friend = friends.find((f) => f.Id === user);
+    if (friend) {
+      emitCustomEvent("openRoom", { friend });
+    }
   }
 
   // Function that runs when user cancelled the request
@@ -232,11 +236,7 @@ const SearchBar = () => {
         className:
           "!fixed !top-0 !left-0 z-50 !h-screen search-results fetched matched !w-screen rounded-none",
       }
-    : {
-        initial: { scale: 0.8 },
-        animate: { scale: 1 },
-        exit: { scale: 0.7 },
-      };
+    : variants;
 
   const B = isNotDesktop ? React.Fragment : motion.div;
   const BProp = isNotDesktop
@@ -250,31 +250,28 @@ const SearchBar = () => {
         ref: Backdrop,
       };
 
-  const A = isNotDesktop ? React.Fragment : AnimatePresence;
-
   return (
-    <A>
+    <AnimatePresence>
       {open && (
         <div className="search-container" ref={container}>
           <B {...BProp}>
             <M className="search-results fetched matched" {...MProp}>
               <div className="search-matched-wrapper">
                 <motion.div
-                  initial={{ scale: 0.7 }}
+                  initial={{ y: 5 }}
                   animate={{
-                    scale: 1,
-                    dur: ".2s",
+                    y: 0,
                   }}
                   className="header"
                 >
-                  <div
-                    className="search-text-box"
+                  <motion.div
+                    layoutId="search_bar"
+                    className="search-text-box flex-grow"
                     id="search"
-                    style={{ flexGrow: 1 }}
                   >
                     <form action="#" className="search-form" onSubmit={Search}>
                       <div
-                        className="search-icon"
+                        className="search-icon mr-1 pl-1"
                         ref={searchIcon}
                         onClick={Search}
                         role="search"
@@ -295,9 +292,9 @@ const SearchBar = () => {
                         />
                       </div>
                     </form>
-                  </div>
+                  </motion.div>
                   <motion.button
-                    className="close-btn modal"
+                    className="close-btn modal hover:text-black hover:bg-green/20"
                     onClick={() => {
                       setOpen(!open);
                       setSearchData({
@@ -309,8 +306,6 @@ const SearchBar = () => {
                     whileTap={{ scale: 0.9 }}
                     whileHover={{
                       scale: 1.1,
-                      enableBackground: "rgb(53,163,180)",
-                      color: "rgb(255,255,255)",
                     }}
                   >
                     <span>Close</span>
@@ -352,7 +347,7 @@ const SearchBar = () => {
           </B>
         </div>
       )}
-    </A>
+    </AnimatePresence>
   );
 };
 

@@ -48,14 +48,14 @@ const sessionMiddleWare = session({
     secure: !dev,
     expires: moment().add(30, "days").toDate(),
   },
-  secret: process.env.CRYPTO_36,
+  secret: process.env.CRYPTO_PASSWORD,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
     autoRemove: !dev ? "disabled" : undefined,
     touchAfter: 24 * 3600,
   }),
   crypto: {
-    secret: process.env.CRYPTO_36,
+    secret: process.env.CRYPTO_PASSWORD,
   },
   saveUninitialized: false,
   resave: false,
@@ -118,6 +118,11 @@ app.get("/", (req, res) => res.render("index"));
 app.use("/api", router);
 app.get("/login", (req, res) => res.render("signIn"));
 app.get("/register", (req, res) => res.render("signUp"));
+app.get("/logout", async (req, res) => {
+  req.session.destroy(() => {
+    req.logout(() => res.redirect("/"));
+  });
+});
 app.get("*", (req, res) => handle(req, res));
 
 // catch 404 and forward to error handler

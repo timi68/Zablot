@@ -24,9 +24,7 @@ const SocketSign = async (
   /** @type {Next} */ next
 ) => {
   const session = socket.request.session;
-  console.log({ session: JSON.stringify(session) });
-
-  let user = session.user ?? session.passport.user._id;
+  let user = session.user ?? session.passport?.user?._id;
   if (session && user) {
     const new_user = new Activities({
       UserId: new ObjectId(user),

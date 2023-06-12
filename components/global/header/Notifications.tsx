@@ -12,6 +12,9 @@ import { useSnackbar } from "notistack";
 import * as Interfaces from "@lib/interfaces";
 import { useAppSelector } from "@lib/redux/store";
 import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
+import { variants } from "@lib/constants";
+import Backdrop from "@comp/Backdrop";
+import CloseButton from "@comp/CloseButton";
 
 function Notifications() {
   const { socket, user, device } = useAppSelector((s) => s.sessionStore);
@@ -20,16 +23,12 @@ function Notifications() {
     Interfaces.Notification[]
   >(user?.Notifications || []);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-  const Backdrop = React.useRef<HTMLDivElement>(null);
+
+  const backdropRef = React.useRef<{ unMount: Function }>(null);
 
   useCustomEventListener("toggle", (dest: string) => {
     setOpenModal(dest == "n");
   });
-
-  const CaptureClick = (e: React.MouseEvent) => {
-    e.target === Backdrop.current &&
-      (setOpenModal(false), emitCustomEvent("off"));
-  };
 
   React.useEffect(() => {
     if (user) {
@@ -37,30 +36,30 @@ function Notifications() {
     }
   }, [user]);
 
-  React.useEffect(() => {
-    const UpdateNotification = (data: {
-      Description: string;
-      Name: string;
-      title: string;
-    }) => {
-      setNotifications([data, ...notifications]);
-      enqueueSnackbar(data.title, {
-        variant: "info",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "left",
-        },
-      });
-    };
+  // React.useEffect(() => {
+  //   const UpdateNotification = (data: {
+  //     Description: string;
+  //     Name: string;
+  //     title: string;
+  //   }) => {
+  //     setNotifications([data, ...notifications]);
+  //     enqueueSnackbar(data.title, {
+  //       variant: "info",
+  //       anchorOrigin: {
+  //         vertical: "bottom",
+  //         horizontal: "left",
+  //       },
+  //     });
+  //   };
 
-    if (socket) {
-      socket.on("Notifications", UpdateNotification);
-    }
+  //   if (socket) {
+  //     socket.on("Notifications", UpdateNotification);
+  //   }
 
-    return () => {
-      socket?.off("Notifications", UpdateNotification);
-    };
-  }, [socket]);
+  //   return () => {
+  //     socket?.off("Notifications", UpdateNotification);
+  //   };
+  // }, [socket]);
 
   const isNotDesktop = ["mobile"].includes(device);
   const M = isNotDesktop ? "div" : motion.div;
@@ -69,72 +68,48 @@ function Notifications() {
         className:
           "!fixed !top-0 !left-0 z-50 h-screen notifications-wrapper w-screen",
       }
-    : {
-        initial: { scale: 0.8 },
-        animate: { scale: 1 },
-        exit: { scale: 0.7, opacity: 0 },
-      };
-
-  const A = isNotDesktop ? React.Fragment : AnimatePresence;
+    : variants;
 
   return (
-    <A>
-      {openModal && (
-        <>
-          <div
-            className="backdrop w-screen h-screen z-50 top-0 left-0 opacity-0 fixed"
-            ref={Backdrop}
-            onClick={CaptureClick}
-          />
-          <M className="notifications-wrapper" {...MProp}>
-            <div className="notifications-header">
-              <div className="title font-bold">Notifications</div>
-              <motion.button
-                className="close-modal modal"
-                onClick={() => (setOpenModal(false), emitCustomEvent("off"))}
-                whileTap={{ scale: 0.9 }}
-                whileHover={{
-                  scale: 1.1,
-                  backgroundColor: "rgb(53,163,180)",
-                  color: "rgb(255,255,255)",
-                }}
-              >
-                <span>Close</span>
-              </motion.button>
-            </div>
-            <div className="notifications-body">
-              <div className="current">
-                {notifications?.length ? (
-                  <div className="notifications-list">
-                    {notifications.map((data, i) => {
-                      var current = notifications[i].Date;
-                      var previous = i > 0 ? notifications[i - 1].Date : "";
+    openModal && (
+      <Backdrop open={setOpenModal} ref={backdropRef}>
+        <M className="notifications-wrapper" {...MProp}>
+          <div className="notifications-header">
+            <div className="title font-bold">Notifications</div>
+            <CloseButton close={() => backdropRef.current?.unMount()} />
+          </div>
+          <div className="notifications-body">
+            <div className="current">
+              {notifications?.length ? (
+                <div className="notifications-list">
+                  {notifications.map((data, i) => {
+                    var current = notifications[i].Date;
+                    var previous = i > 0 ? notifications[i - 1].Date : "";
 
-                      var key = uuid();
-                      return (
-                        <NotificationsPaper
-                          key={key}
-                          data={data}
-                          current={current}
-                          previous={previous}
-                          index={i}
-                        />
-                      );
-                    })}
+                    var key = uuid();
+                    return (
+                      <NotificationsPaper
+                        key={key}
+                        data={data}
+                        current={current}
+                        previous={previous}
+                        index={i}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="empty_notification">
+                  <div className="empty-text">
+                    <p className="text">No Notification Available</p>
                   </div>
-                ) : (
-                  <div className="empty_notification">
-                    <div className="empty-text">
-                      <p className="text">No Notification Available</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          </M>
-        </>
-      )}
-    </A>
+          </div>
+        </M>
+      </Backdrop>
+    )
   );
 }
 

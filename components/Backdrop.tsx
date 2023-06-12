@@ -7,7 +7,10 @@ interface BackdropPropsInterface {
   open: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function Backdrop(props: BackdropPropsInterface) {
+export default React.forwardRef(function Backdrop(
+  props: BackdropPropsInterface,
+  ref
+) {
   const self = React.useRef<HTMLDivElement>(null);
   const [unMount, setUnMount] = React.useState<boolean>(false);
 
@@ -21,17 +24,25 @@ function Backdrop(props: BackdropPropsInterface) {
 
   useCustomEventListener("remove_overlay", () => setUnMount(true), [props]);
 
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      unMount: () => setUnMount(true),
+    }),
+    [props]
+  );
+
   return (
     <AnimatePresence onExitComplete={unMountChildren}>
       <div
         key={"backdrop"}
-        className="h-screen fixed w-screen top-0 left-0 z-30"
+        className="h-screen fixed w-screen top-0 left-0 z-30 cursor-pointer"
         ref={self}
         onClickCapture={CaptureClick}
       />
       {!unMount && props.children}
     </AnimatePresence>
   );
-}
+});
 
-export default Backdrop;
+// export default Backdrop;

@@ -1,102 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="/css/auth.css" />
-    <script src="/javascript/jquery.min.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900;1000&Poppins:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
-      rel="stylesheet"
-    />
-    <title>ZABLOT - Login Page</title>
-  </head>
-  <body>
-    <div class="container auth login-content">
-      <header class="main-header auth-header">
-        <div class="logo_container">
-          <a href="/" class="logo" style="text-decoration: none">ZABLOT</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/css/auth.css" />
+  <script src="/javascript/jquery.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900;1000&Poppins:ital,wght@0,100;0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet" />
+  <title>ZABLOT - Login Page</title>
+</head>
+
+<body>
+  <div class="container auth login-content">
+    <header class="main-header auth-header">
+      <div class="logo_container">
+        <a href="/" class="logo" style="text-decoration: none">ZABLOT</a>
+      </div>
+      <div class="header-center">
+        <div class="link">
+          <a href="/about-us" class="about-us">About us</a>
         </div>
-        <div class="header-center">
-          <div class="link">
-            <a href="/about-us" class="about-us">About us</a>
-          </div>
-          <div class="link">
-            <a href="/learn-more" class="about-us">Learn more</a>
-          </div>
+        <div class="link">
+          <a href="/learn-more" class="about-us">Learn more</a>
         </div>
-        <div class="header-right">
-          <div class="signup-link">
-            <a href="/register" class="link signup-link">Sign up</a>
-          </div>
+      </div>
+      <div class="header-right">
+        <div class="signup-link">
+          <a href="/register" class="link signup-link">Sign up</a>
         </div>
-      </header>
-      <div class="wrapper sign_in">
-        <div class="wrapper-flex">
-          <form action="#" class="auth_form" data-name="login">
-            <div class="form_group_wrapper sign_in_wrapper">
-              <%- include("validation") -%>
+      </div>
+    </header>
+    <div class="wrapper sign_in">
+      <div class="wrapper-flex">
+        <form action="#" class="auth_form" data-name="login">
+          <div class="form_group_wrapper sign_in_wrapper">
+            <%- include("validation") -%>
               <div class="secondary-text">
                 Let’s get you on track with your learning
               </div>
               <div class="form-group" id="userEmail">
-                <input
-                  type="text"
-                  name="userEmail"
-                  class="form-control user-email"
-                  placeholder="Enter your Email"
-                />
+                <input type="text" name="userEmail" class="form-control user-email" placeholder="Enter your Email" />
                 <div class="invalid-feedback">Email is invalid or empty*</div>
               </div>
               <div class="form-group" id="userPassword">
-                <input
-                  type="password"
-                  id="user-password"
-                  name="userPassword"
-                  placeholder="Enter your password"
-                  class="user-password form-control"
-                />
+                <input type="password" id="user-password" name="userPassword" placeholder="Enter your password"
+                  class="user-password form-control" />
                 <div class="password-toggle">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="img"
-                    width="24"
-                    height="24"
-                    id="visible"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 1024 1024"
-                  >
-                    <path
-                      fill="#369298"
-                      d="M396 512a112 112 0 1 0 224 0a112 112 0 1 0-224 0zm546.2-25.8C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 0 0 0 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3c7.7-16.2 7.7-35 0-51.5zM508 688c-97.2 0-176-78.8-176-176s78.8-176 176-176s176 78.8 176 176s-78.8 176-176 176z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="24" height="24"
+                    id="visible" preserveAspectRatio="xMidYMid meet" viewBox="0 0 1024 1024">
+                    <path fill="#369298"
+                      d="M396 512a112 112 0 1 0 224 0a112 112 0 1 0-224 0zm546.2-25.8C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 0 0 0 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3c7.7-16.2 7.7-35 0-51.5zM508 688c-97.2 0-176-78.8-176-176s78.8-176 176-176s176 78.8 176 176s-78.8 176-176 176z" />
                   </svg>
                 </div>
                 <div class="password-toggle">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                    role="img"
-                    width="24"
-                    height="24"
-                    id="hide"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 1024 1024"
-                  >
-                    <path
-                      fill="#545454"
-                      d="M508 624a112 112 0 0 0 112-112c0-3.28-.15-6.53-.43-9.74L498.26 623.57c3.21.28 6.45.43 9.74.43zm370.72-458.44L836 122.88a8 8 0 0 0-11.31 0L715.37 232.23Q624.91 186 512 186q-288.3 0-430.2 300.3a60.3 60.3 0 0 0 0 51.5q56.7 119.43 136.55 191.45L112.56 835a8 8 0 0 0 0 11.31L155.25 889a8 8 0 0 0 11.31 0l712.16-712.12a8 8 0 0 0 0-11.32zM332 512a176 176 0 0 1 258.88-155.28l-48.62 48.62a112.08 112.08 0 0 0-140.92 140.92l-48.62 48.62A175.09 175.09 0 0 1 332 512z"
-                    />
-                    <path
-                      fill="#545454"
-                      d="M942.2 486.2Q889.4 375 816.51 304.85L672.37 449A176.08 176.08 0 0 1 445 676.37L322.74 798.63Q407.82 838 512 838q288.3 0 430.2-300.3a60.29 60.29 0 0 0 0-51.5z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="24" height="24" id="hide"
+                    preserveAspectRatio="xMidYMid meet" viewBox="0 0 1024 1024">
+                    <path fill="#545454"
+                      d="M508 624a112 112 0 0 0 112-112c0-3.28-.15-6.53-.43-9.74L498.26 623.57c3.21.28 6.45.43 9.74.43zm370.72-458.44L836 122.88a8 8 0 0 0-11.31 0L715.37 232.23Q624.91 186 512 186q-288.3 0-430.2 300.3a60.3 60.3 0 0 0 0 51.5q56.7 119.43 136.55 191.45L112.56 835a8 8 0 0 0 0 11.31L155.25 889a8 8 0 0 0 11.31 0l712.16-712.12a8 8 0 0 0 0-11.32zM332 512a176 176 0 0 1 258.88-155.28l-48.62 48.62a112.08 112.08 0 0 0-140.92 140.92l-48.62 48.62A175.09 175.09 0 0 1 332 512z" />
+                    <path fill="#545454"
+                      d="M942.2 486.2Q889.4 375 816.51 304.85L672.37 449A176.08 176.08 0 0 1 445 676.37L322.74 798.63Q407.82 838 512 838q288.3 0 430.2-300.3a60.29 60.29 0 0 0 0-51.5z" />
                   </svg>
                 </div>
                 <div class="invalid-feedback">Password is required*</div>
@@ -108,24 +77,21 @@
                 Don't have an account?
                 <a href="/register" class="Create">Create One</a>
               </p>
-            </div>
-            <a
-              href="/api/auth/login/federated/google"
-              id="google"
-              class="google"
-            >
-              <img src="/svgs/google.svg" alt="google" />
-              <span>Sign in with Google</span>
-            </a>
-          </form>
-          <div class="svg-container">
-            <div class="image-wrap">
-              <img src="/images/graduation-hat.png" alt="" />
-            </div>
+          </div>
+          <a href="/api/auth/federated/google" id="google" class="google">
+            <img src="/svgs/google.svg" alt="google" />
+            <span>Sign in with Google</span>
+          </a>
+        </form>
+        <div class="svg-container">
+          <div class="image-wrap">
+            <img src="/images/graduation-hat.png" alt="" />
           </div>
         </div>
       </div>
     </div>
-    <script src="/javascript/login.js"></script>
-  </body>
+  </div>
+  <script src="/javascript/login.js"></script>
+</body>
+
 </html>

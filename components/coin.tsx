@@ -10,7 +10,6 @@ function Coin() {
     "coin",
     (detail: { num: number; action: "less" | "add" }) => {
       const { num, action } = detail;
-      console.log({ detail });
     }
   );
 

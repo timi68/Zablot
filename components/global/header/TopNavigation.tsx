@@ -12,7 +12,7 @@ import { useAppSelector } from "@lib/redux/store";
 
 const TopNavigation = () => {
   const [expand, setExpand] = React.useState("");
-  const device = useAppSelector((state) => state.sessionStore.device);
+  const { device, user } = useAppSelector((state) => state.sessionStore);
 
   const handleClick = (name: "n" | "f" | "p" | "s" | "c") => {
     emitCustomEvent("toggle", name);
@@ -54,12 +54,12 @@ const TopNavigation = () => {
           <ChatRoundedIcon fontSize="small" />
         </IconButton>
       </Badge>
-      <Badge color="secondary" showZero>
+      <Badge color="secondary" badgeContent={user.FriendRequests.length}>
         <IconButton className={className("f")} onClick={() => handleClick("f")}>
           <PersonAddIcon fontSize="small" />
         </IconButton>
       </Badge>
-      <Badge color="default" badgeContent={0} showZero>
+      <Badge color="default" badgeContent={0}>
         <IconButton className={className("n")} onClick={() => handleClick("n")}>
           <NotificationsActiveIcon fontSize="small" />
         </IconButton>

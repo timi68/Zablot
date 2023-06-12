@@ -44,10 +44,10 @@ export default function MatchedUser(props: MatchedUserInterface) {
 
         {user.friends && (
           <button
-            className="bg-green font-light hover:bg-opacity-90 rounded-3xl py-2 px-3 text-xs text-white"
+            className="border border-green border-solid font-light hover:bg-opacity-90 rounded-3xl px-2 py-1 text-xs text-green bg-transparent"
             onClick={() => processFriend(user._id)}
           >
-            <span>message</span>
+            <span>Message</span>
           </button>
         )}
         {user?.sent && !user.friends && (
@@ -62,7 +62,7 @@ export default function MatchedUser(props: MatchedUserInterface) {
         )}
         {!user?.sent && !user?.friends && !user?.rejected && (
           <button
-            className="add-btn btn !bg-green !text-white !py-2"
+            className="add-btn btn !bg-green !text-white py-2"
             onClick={(e) => {
               processAdd(user._id);
             }}

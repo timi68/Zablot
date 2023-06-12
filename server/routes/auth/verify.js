@@ -1,7 +1,7 @@
 const { IncomingMessage } = require("http");
 const { Users, FederatedCredentials } = require("../../models/index");
 const { AddUser } = require("../users_control");
-const isEmpty = require("lodash/isEmpty");
+const { isEmpty, pick } = require("lodash");
 
 /**
  *
@@ -19,32 +19,25 @@ async function verify(request, accessToken, refreshToken, profile, cb) {
       subject: profile.id,
     }).populate("user");
 
-    if (!isEmpty(federatedUser)) {
-      console.log({ federatedUser });
-      const user = await Users.findOne({
-        Sub: profile.sub,
-        Provider: profile.provider,
-      });
+    // check if user exist in Users database
+    const user = await Users.findOne({
+      Provider: profile.provider,
+      Sub: profile.id,
+    });
 
-      if (isEmpty(user)) return cb("User not found", false);
-      return cb(null, { _id: user._id });
-    }
+    if (federatedUser && user) return cb(null, pick(user, "_id"));
 
     /**
      * @type {{_id: string} | undefined}
      */
     let created;
 
-    // check if user exist in Users database
-    const userExist = await Users.findOne({
-      Provider: profile.provider,
-      Sub: profile.id,
-    });
-
-    if (isEmpty(userExist)) {
+    if (!user) {
       let body = {
         fullName: profile.displayName,
-        UserName: "",
+        userName:
+          profile.displayName.replace(" ", "").toLowerCase() +
+          Math.floor(Math.random() * 33943),
         provider: profile.provider,
         picture: profile.picture,
         verified: profile.verified,
@@ -55,22 +48,21 @@ async function verify(request, accessToken, refreshToken, profile, cb) {
       };
 
       // Create user
-      let create = await AddUser(body, true);
+      let { success, sessionUser } = await AddUser(body, true);
 
       // check if creating user is successful
-      if (!create.success)
-        return cb("Error authenticating you with google", false);
+      if (!success) return cb("Error authenticating you with google", false);
 
-      created = create.sessionUser;
-    } else created = { user: userExist._id };
+      FederatedCredentials.create({
+        provider: profile.provider,
+        subject: profile.sub,
+        user: sessionUser.user,
+      });
 
-    FederatedCredentials.create({
-      provider: profile.provider,
-      subject: profile.sub,
-      user: created._id,
-    });
+      created = sessionUser;
+    } else created = { _id: user._id };
 
-    return cb(null, created.sessionUser);
+    return cb(null, created);
   } catch (error) {
     cb(error, false);
   }

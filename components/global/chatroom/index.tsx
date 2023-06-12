@@ -38,16 +38,14 @@ const ChatRoom = () => {
           "chat-rooms-container sm:z-[10] max-w-[100vw] overflow-x-auto " +
           (device == "mobile"
             ? "top-0 h-screen w-screen left-0 z-[9999999] fixed"
-            : "right-0 -translate-x-1/2 bottom-2.5 absolute")
+            : "right-[300px] bottom-0 absolute")
         }
       >
-        <AnimateSharedLayout>
-          <motion.div className="chat-rooms-wrapper">
-            {rooms?.map((room, i) => {
-              return <Room key={room} room_id={room} />;
-            })}
-          </motion.div>
-        </AnimateSharedLayout>
+        <motion.div className="chat-rooms-wrapper">
+          {rooms?.map((room, i) => {
+            return <Room key={room} room_id={room} />;
+          })}
+        </motion.div>
       </div>
     )
   );

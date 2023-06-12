@@ -10,6 +10,9 @@ import { ACTIVE_FRIENDS } from "@lib/redux/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchIcon from "@mui/icons-material/Search";
 import Backdrop from "@comp/Backdrop";
+import { variants } from "@lib/constants";
+import { notification } from "antd";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 const ChatBoard: React.FC = function () {
   const { user, activeFriends, socket, device } = useAppSelector(
@@ -20,10 +23,45 @@ const ChatBoard: React.FC = function () {
   const [friends, setFriends] = React.useState<Interface.Friend[]>([]);
   const [loading, setLoading] = React.useState(!Boolean(activeFriends));
   const chatBoard = React.useRef<HTMLDivElement>(null);
-  // const Backdrop = React.useRef<HTMLDivElement>(null);
+  const backdropRef = React.useRef<{ unMount: Function }>(null);
 
-  const NewFriend = React.useCallback((data: Interface.Friend) => {
-    setFriends((friends) => [data, ...friends].sort((a, b) => a.time - b.time));
+  const cleanSeen = React.useCallback(
+    (id: string) => {
+      socket.emit(
+        "CLEAN_SEEN",
+        { _id: user._id, Id: id },
+        (err: string, done: string) => {
+          if (err) {
+            alert("Internal server error: restarting window now");
+          }
+        }
+      );
+    },
+    [socket]
+  );
+
+  const NewFriend = React.useCallback((friend: Interface.Friend) => {
+    setFriends((friends) =>
+      [friend, ...friends].sort((a, b) => a.time - b.time)
+    );
+
+    notification.open({
+      icon: <PersonAddIcon fontSize="small" />,
+      message: <div className="title font-bold">A New Friend</div>,
+      description: (
+        <span>
+          <b className="text-green">{friend.Name}</b> is asking to be your
+          friend`
+        </span>
+      ),
+      className:
+        "rounded-xl shadow-lg border border-solid border-green/30 bg-[#daedf0] [&_*]:font-['Nunito']",
+      placement: "bottomLeft",
+      onClick: () => {
+        emitCustomEvent("openRoom", { friend });
+        notification.destroy();
+      },
+    });
   }, []);
 
   const _callback$IncomingMessage = React.useCallback(
@@ -46,10 +84,9 @@ const ChatBoard: React.FC = function () {
         return oldState;
       });
 
-      if (roomIds.includes(data.coming)) CleanSeen(data._id);
+      if (roomIds.includes(data.coming)) cleanSeen(data._id);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [socket, cleanSeen]
   );
 
   const _callback$Status = React.useCallback((data) => {
@@ -81,18 +118,6 @@ const ChatBoard: React.FC = function () {
     [dispatch]
   );
 
-  function CleanSeen(id: string) {
-    socket.emit(
-      "CLEAN_SEEN",
-      { _id: user._id, Id: id },
-      (err: string, done: string) => {
-        if (err) {
-          alert("Internal server error: restarting window now");
-        }
-      }
-    );
-  }
-
   useCustomEventListener(
     "openRoom",
     ({ friend }: { friend: Interface.Friend }) => {
@@ -106,7 +131,7 @@ const ChatBoard: React.FC = function () {
         });
         return state.sort((a, b) => a.time - b.time);
       });
-      CleanSeen(friend._id);
+      cleanSeen(friend._id);
     }
   );
 
@@ -190,17 +215,12 @@ const ChatBoard: React.FC = function () {
         className:
           "!fixed !top-0 !left-0 z-50 chats-container h-screen w-screen",
       }
-    : {
-        initial: { scale: 0.8 },
-        animate: { scale: 1 },
-        exit: { y: 10, opacity: 0 },
-        className: "chats-container",
-      };
+    : variants;
 
   return (
     openModal && (
       <Backdrop open={setOpenModal}>
-        <motion.div {...MProp} ref={chatBoard}>
+        <motion.div className="chats-container" {...MProp} ref={chatBoard}>
           <div className="chats-wrapper relative z-50">
             <div className="chats-header flex items-center gap-1 flex-nowrap">
               <div className="text-lg font-bold flex-grow">Chats</div>

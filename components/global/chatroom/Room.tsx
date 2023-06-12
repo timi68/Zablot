@@ -92,7 +92,12 @@ const Room = (props: { room_id: EntityId }) => {
 
   useCustomEventListener("removeRoom", (room) => {
     if (props.room_id == room) {
-      dispatch(updateRoom({ id: props.room_id, changes: { closed: true } }));
+      dispatch(
+        updateRoom({
+          id: props.room_id,
+          changes: { closed: true, type: "loaded" },
+        })
+      );
     }
   });
 

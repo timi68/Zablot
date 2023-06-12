@@ -37,35 +37,25 @@ registerRouter.get(
   "/federated/google",
   passport.authenticate("google", {
     scope: ["email", "profile"],
+    passReqToCallback: true,
   })
 );
 
-registerRouter.get(
-  "/oauth2/redirect/google",
-  passport.authenticate("google", {
-    failureRedirect: "/register",
-    successReturnToOrRedirect: "/dashboard",
-  })
-);
+registerRouter.get("/oauth2/redirect/google", () => {
+  passport.authenticate("google", (err, user, info) => {
+    console.log({ err, user, info });
+    res.send("done");
+  })(req, res, next);
+});
 
 registerRouter.post("/local", async function (req, res, next) {
   try {
     const body = req.body;
-    console.log({ body });
     if (!body) return next({ error: "No data send" });
 
-    const response = await AddUser(body);
-    console.log({ response });
-
-    if (response?.success) {
-      return req.login(response.sessionUser, function (err) {
-        if (err) return next(err);
-        res.status(200).json(response);
-      });
-    }
-
-    return res.status(200).json(response);
+    return res.status(200).json(await AddUser(body));
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });

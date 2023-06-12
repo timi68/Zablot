@@ -12,6 +12,11 @@ import { getRoom, updateRoom } from "@lib/redux/roomSlice";
 import store, { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import Message from "./Message";
 
+type MessagesResponse = {
+  _id: string;
+  Message: Interfaces.MessageType[];
+};
+
 const RoomBody: React.FC<{
   room_id: string | number;
 }> = (props) => {
@@ -33,14 +38,7 @@ const RoomBody: React.FC<{
       switch (type) {
         case "out":
         case "loaded":
-          setTimeout(() => {
-            j(bodyRef.current).animate(
-              {
-                scrollTop: bodyRef.current?.scrollHeight,
-              },
-              300
-            );
-          });
+          j(bodyRef.current).prop("scrollTop", bodyRef.current?.scrollHeight);
           break;
         case "in":
           if (scrollHeight - scrollTop > 500) {
@@ -60,13 +58,13 @@ const RoomBody: React.FC<{
   }, [loaded, type, messages]);
 
   React.useEffect(() => {
+    // if messages are not loaded and not fetched from the server
+    // loaded means mounting the messages
+    // fetched means fetching the messages from the server
     if (!loaded && !fetched) {
       (async () => {
         try {
-          const response = await axios.post<{
-            _id: string;
-            Message: Interfaces.MessageType[];
-          }>("/api/messages", {
+          const response = await axios.post<MessagesResponse>("/api/messages", {
             _id: friend._id,
           });
           setTimeout(() => {

@@ -76,7 +76,7 @@
       },
     };
 
-    const sendFormData = await fetch(`/api/auth/login/local`, options);
+    const sendFormData = await fetch(`/api/auth/login`, options);
     const { success, message } = await sendFormData.json();
 
     if (!success) {

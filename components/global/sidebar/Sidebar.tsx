@@ -126,7 +126,7 @@ export default React.memo(function Sidebar() {
                 <div className="user-image">
                   {user ? (
                     <Avatar
-                      src={user.Image.profile}
+                      src={user.Image?.profile}
                       variant="rounded"
                       sx={{
                         width: 30,

@@ -16,7 +16,7 @@ const { ObjectId } = require("mongodb");
 const async = require("async");
 const { v4: uuidv4 } = uuid;
 const { promisify } = require("util");
-var crypto = require("crypto");
+var crypto = require("../lib/crypto");
 const isEmpty = require("lodash/isEmpty");
 const { nanoid } = require("@reduxjs/toolkit");
 
@@ -43,7 +43,7 @@ async function AddUser(body, federated) {
     }
 
     const _id = new mongoose.Types.ObjectId();
-    const hashedPassword = hashPassword(body.userPassword);
+    const hashedPassword = crypto.encrypt(body.userPassword);
 
     user = new Users({
       _id,
@@ -124,7 +124,7 @@ const Login = async (req, res, next) => {
   try {
     if (isEmpty(req.body)) throw new Error("No data send");
 
-    const hashedPassword = hashPassword(req.body.userPassword);
+    // const hashedPassword = hashPassword(req.body.userPassword);
     const user = await Users.findOne(
       {
         Email: req.body.userEmail,
@@ -135,10 +135,8 @@ const Login = async (req, res, next) => {
       }
     );
 
-    if (
-      isEmpty(user) ||
-      !crypto.timingSafeEqual(user.Password, hashedPassword)
-    ) {
+    let matched = crypto.compare(user.Password, req.body.userPassword);
+    if (isEmpty(user) || !matched) {
       return res.json({
         success: false,
         message: "Email or password is incorrect",
@@ -184,67 +182,25 @@ const FetchUsers = async () => {
   }
 };
 
-const Search = async (SearchText, CB) => {
+const Search = async (SearchText, callback) => {
   try {
-    const TextArray = SearchText.trim().split(" ");
+    const searchString = SearchText.trim().replaceAll(" ", "|");
 
-    function getMatched(n, cb) {
-      Users.find(
-        {
-          $or: [
-            { FullName: new RegExp(TextArray[n], "i") },
-            { UserName: new RegExp(TextArray[n], "i") },
-          ],
-        },
-        { _id: 1, FullName: 1, UserName: 1 }
-      )
-        .limit(20)
-        .exec(function (err, users) {
-          if (err) return cb("Error getting user");
-
-          cb(null, users);
-        });
-    }
-
-    async.times(
-      TextArray.length,
-      (n, next) => {
-        getMatched(n, (err, matched) => {
-          next(err, matched);
-        });
+    const matched = await Users.find(
+      {
+        $or: [
+          { FullName: new RegExp(searchString, "i") },
+          { UserName: new RegExp(searchString, "i") },
+        ],
       },
-      (err, matched) => {
-        if (!err) {
-          let compiledMatched = [];
-          let sortedMatched = [];
-
-          var x = 0;
-          while (x < matched.length) {
-            compiledMatched = [...compiledMatched, ...matched[x]];
-            x++;
-          }
-
-          var y = 0;
-          while (y < compiledMatched.length) {
-            let check = sortedMatched.findIndex((b) => {
-              var compiled_id = compiledMatched[y]._id.toString();
-              var sorted_id = b._id.toString();
-
-              return sorted_id == compiled_id;
-            });
-
-            if (check === -1) sortedMatched.push(compiledMatched[y]);
-            y++;
-          }
-
-          return CB({ matched: sortedMatched });
-        }
-        return CB({ Error: err });
-      }
+      { _id: 1, FullName: 1, UserName: 1 },
+      { limit: 20, lean: true }
     );
+
+    return callback({ matched });
   } catch (err) {
     console.log(err);
-    CB({ error: err });
+    callback({ error: err });
     return;
   }
 };

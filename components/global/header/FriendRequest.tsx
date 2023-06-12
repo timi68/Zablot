@@ -14,6 +14,14 @@ import { useAppSelector } from "@lib/redux/store";
 import { formatDistanceToNowStrict } from "date-fns";
 import stringToColor from "@utils/stringToColor";
 import { useRouter } from "next/router";
+import Backdrop from "@comp/Backdrop";
+import { variants } from "@lib/constants";
+import CloseButton from "@comp/CloseButton";
+import PeopleYouMightKnow from "./PeopleYouMayKnow";
+import Request from "./Request";
+import { notification } from "antd";
+import { useDispatch } from "react-redux";
+import { USER } from "@lib/redux/userSlice";
 
 const FriendRequests = () => {
   const { socket, user, device } = useAppSelector(
@@ -22,9 +30,10 @@ const FriendRequests = () => {
   const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const IconButtonRef = useRef<HTMLButtonElement>(null);
-  const Backdrop = useRef<HTMLDivElement>(null);
+  const backdropRef = React.useRef<{ unMount: Function }>(null);
   const [friends, setFriends] = React.useState([]);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   // React.useEffect(() => {
   //   if (router.asPath.indexOf("friend-request") != -1) {
@@ -103,9 +112,12 @@ const FriendRequests = () => {
     );
   };
 
-  const Message = (id: string) => {
+  const Message = (user: string) => {
     setOpenModal(false);
-    emitCustomEvent("openRoomById", id);
+    let friend = friends.find((f) => f.Id === user);
+    if (friend) {
+      emitCustomEvent("openRoom", { friend });
+    }
   };
 
   const FRIENDSHIP_DEMAND = (data: Interfaces.Requests) => {
@@ -125,7 +137,27 @@ const FriendRequests = () => {
     //   return;
     // }
     // Check if new request is already existing and add new or removing any existing one
-    setRequests([newRequest, ...requests.filter((r) => r.From !== data.From)]);
+    let newFriendsRequest = [
+      newRequest,
+      ...requests.filter((r) => r.From !== data.From),
+    ];
+
+    setRequests(newFriendsRequest);
+    dispatch(USER({ ...user, FriendRequests: newFriendsRequest }));
+
+    notification.open({
+      icon: <PersonAddIcon fontSize="small" />,
+      message: <div className="title font-bold">New Friend Request</div>,
+      description: (
+        <span>
+          <b className="text-green">{newRequest.Name}</b> is asking to be your
+          friend`
+        </span>
+      ),
+      className:
+        "rounded-xl shadow-lg border border-solid border-green/30 bg-[#daedf0] [&_*]:font-['Nunito']",
+      placement: "bottomLeft",
+    });
   };
 
   const REMOVE_REQUEST = (data: { from: string }) => {
@@ -153,19 +185,21 @@ const FriendRequests = () => {
     }
   }, [user]);
 
-  const CloseModal = () => {
-    setOpenModal(false);
+  React.useEffect(() => {
+    if (user) {
+      let newFriendRequests = requests.filter((r) => !r.Accepted);
+      dispatch(USER({ ...user, FriendRequests: newFriendRequests.reverse() }));
+    }
+  }, [openModal]);
+
+  const closeModal = () => {
+    backdropRef.current?.unMount();
     setRequests(requests.filter((r) => !r.Accepted));
-    emitCustomEvent("off");
   };
 
   useCustomEventListener("toggle", (dest: string) => {
     setOpenModal(dest == "f");
   });
-
-  const CaptureClick = (e: React.MouseEvent) => {
-    e.target === Backdrop.current && CloseModal();
-  };
 
   const isNotDesktop = ["mobile"].includes(device);
   const M = isNotDesktop ? "div" : motion.div;
@@ -174,187 +208,44 @@ const FriendRequests = () => {
         className:
           "!fixed !top-0 !left-0 z-50 h-screen friend-requests-wrapper w-screen",
       }
-    : {
-        initial: { scale: 0.8 },
-        animate: { scale: 1 },
-        exit: { scale: 0.7, opacity: 0 },
-      };
-
-  const A = isNotDesktop ? "div" : AnimatePresence;
+    : variants;
 
   return (
-    <A>
-      {openModal && (
-        <>
-          <div
-            className="h-screen fixed w-screen top-0 left-0 z-10"
-            ref={Backdrop}
-            onClickCapture={CaptureClick}
-          />
-          <M className="friend-requests-wrapper" {...MProp}>
-            <div className="requests-header transition-all top-0 shadow-lg sticky flex justify-between bg-inherit py-2.5 px-5">
-              <div className="title">Friend Requests</div>
-              <motion.button
-                className="close-modal"
-                onClick={CloseModal}
-                whileTap={{ scale: 0.9 }}
-                whileHover={{
-                  scale: 1.1,
-                  backgroundColor: "rgb(53,163,180)",
-                  color: "rgb(255,255,255)",
-                }}
-              >
-                <span>Close</span>
-              </motion.button>
-            </div>
-            <div className="requests-list">
-              <ul className="users">
-                {requests?.map((friend, index) => {
-                  var duration = formatDistanceToNowStrict(
-                    new Date(friend.Date)
-                  );
+    openModal && (
+      <Backdrop open={setOpenModal} ref={backdropRef}>
+        <M className="friend-requests-wrapper" {...MProp}>
+          <div className="requests-header transition-all top-0 shadow-lg sticky flex justify-between bg-inherit py-2.5 px-5">
+            <div className="title">Friend Requests</div>
+            <CloseButton close={closeModal} />
+          </div>
+          <div className="requests-list">
+            <ul className="users">
+              {requests?.map((friend, index) => {
+                var duration = formatDistanceToNowStrict(new Date(friend.Date));
 
-                  return (
-                    <Requests
-                      key={index}
-                      accept={Accept}
-                      reject={Reject}
-                      message={Message}
-                      friend={friend}
-                      duration={duration}
-                    />
-                  );
-                })}
-                {!Boolean(requests?.length) && (
-                  <div className="no_request !text-sm">
-                    <h6>There is no request available</h6>
-                  </div>
-                )}
-              </ul>
-            </div>
-            <PeopleYouMightKnow />
-          </M>
-        </>
-      )}
-    </A>
+                return (
+                  <Request
+                    key={index}
+                    accept={Accept}
+                    reject={Reject}
+                    message={Message}
+                    friend={friend}
+                    duration={duration}
+                  />
+                );
+              })}
+              {!Boolean(requests?.length) && (
+                <div className="no_request !text-sm">
+                  <h6>There is no request available</h6>
+                </div>
+              )}
+            </ul>
+          </div>
+          <PeopleYouMightKnow />
+        </M>
+      </Backdrop>
+    )
   );
 };
-
-interface RequestsInterface {
-  friend: Interfaces.Requests;
-  accept(user: Interfaces.Requests): void;
-  reject(id: string): void;
-  duration: string;
-  message(id: string): void;
-}
-function Requests(props: RequestsInterface) {
-  const { friend, duration, accept, reject, message } = props;
-
-  return (
-    <li className="user flex justify-between">
-      <div className="flex">
-        <Avatar
-          src={friend.Image}
-          sx={{
-            bgcolor: stringToColor(friend.Name),
-          }}
-        >
-          {friend.Name.split(" ")[0][0] +
-            (friend.Name.split(" ")[1]?.at(0) ?? "")}
-        </Avatar>
-        <div className="user-name">
-          <div className="name">
-            <span>{friend.Name}</span>
-          </div>
-          <div className="username !text-xs">
-            <span>@{friend.UserName}</span>
-          </div>
-          <small className="block mt-1 text-xs" style={{ fontSize: 10 }}>
-            {" "}
-            {duration} ago
-          </small>
-        </div>
-      </div>
-      {friend?.Accepted && (
-        <Button
-          size="small"
-          className="btn open-chat"
-          onClick={() => message(friend.From)}
-        >
-          Message
-        </Button>
-      )}
-      {friend?.Rejected && (
-        <Button size="small" className="btn rejected" disabled={true}>
-          Rejected
-        </Button>
-      )}
-      {!friend?.Accepted && !friend?.Rejected && (
-        <div className="friend-reject-accept-btn btn-wrapper">
-          <Button
-            size="small"
-            onClick={(e) => {
-              accept(friend);
-            }}
-            className="accept btn !bg-green text-white"
-          >
-            <span className="accept-text ">Accept</span>
-          </Button>
-          <Button
-            size="small"
-            onClick={(e) => {
-              reject(friend.From);
-            }}
-            className="reject btn button !bg-gradient-to-r from-red-200"
-          >
-            <span className="reject-text">Reject</span>
-          </Button>
-        </div>
-      )}
-    </li>
-  );
-}
-
-function PeopleYouMightKnow() {
-  return (
-    <div className="related-friends friends">
-      <div className="title">You might know this people</div>
-      <ul className="users">
-        <li className="user">
-          <div className="user-profile">
-            <div className="user-image">
-              <div className="image-wrapper">
-                <img
-                  src="/images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"
-                  alt="user-image"
-                  className="image"
-                />
-              </div>
-            </div>
-            <div className="user-name">
-              <div className="name">
-                <span>Timi James</span>
-              </div>
-              <div className="username">
-                <span>@tjdbbs</span>
-              </div>
-            </div>
-          </div>
-          <div className="friend-reject-accept-btn btn-wrapper">
-            <Button size="small" className="accept btn !bg-green text-white">
-              <span className="accept-text ">Add</span>
-            </Button>
-            <Button
-              size="small"
-              className="reject btn button !bg-gradient-to-r from-red-200"
-            >
-              <span className="reject-text">Cancel</span>
-            </Button>
-          </div>
-        </li>
-      </ul>
-    </div>
-  );
-}
 
 export default React.memo(FriendRequests);

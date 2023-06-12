@@ -70,13 +70,13 @@
       },
     };
 
-    const sendFormData = await fetch(`/api/auth/register/local`, options);
+    const sendFormData = await fetch(`/api/auth/register`, options);
     const { success, message } = await sendFormData.json();
 
     if (!success) return setLoading(false), modal(message);
 
     await Promise.resolve(modal("Account Created Successfully.", success));
-    location = "/dashboard";
+    location = "/login";
   });
 
   e(".backdrop").on("click", () => formGroup.removeClass("show"));
@@ -84,7 +84,7 @@
   options.each(function (index) {
     var value = e(this).data("value");
     e(this).on("click", () => {
-      gender.prop("value", value); 
+      gender.prop("value", value);
       formGroup.removeClass("show");
       formControl.html(
         `<span style="font-weight: 500;color: rgba(0,0,0,.6)">${value}</span>`

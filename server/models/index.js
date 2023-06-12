@@ -13,7 +13,7 @@ const UsersSchema = Schema(
       unique: true,
     },
     Password: {
-      type: Buffer,
+      type: String,
       required: true,
     },
     Sub: {

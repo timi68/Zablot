@@ -209,24 +209,24 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
               onClick={() => handleToggle(action.name.toLowerCase() as y)}
             />
           ))}
-          <input
-            className="file-control image-file"
-            type="file"
-            name="image-file"
-            id="image-file"
-            ref={ImageFileRef}
-            accept="image/*"
-            onChange={handleFile}
-            hidden
-          />
-          <input
-            className="file-control video-file"
-            type="file"
-            accept="video/*"
-            name="video-file"
-            hidden
-          />
         </SpeedDial>
+        <input
+          className="file-control image-file"
+          type="file"
+          name="image-file"
+          id="image-file"
+          ref={ImageFileRef}
+          accept="image/*"
+          onChange={handleFile}
+          hidden
+        />
+        <input
+          className="file-control video-file"
+          type="file"
+          accept="video/*"
+          name="video-file"
+          hidden
+        />
         <div className="input-group message-box relative flex-grow">
           <textarea
             placeholder="Type a message..."
@@ -235,8 +235,6 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
             onChange={({ target: element }) => {
               element.style.height = "5px";
               element.style.height = element.scrollHeight + "px";
-
-              console.log({ scroll: element.scrollHeight });
 
               if (element.value) SendRef.current.classList.add("active");
               else SendRef.current.classList.remove("active");

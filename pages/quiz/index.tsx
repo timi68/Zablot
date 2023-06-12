@@ -22,7 +22,7 @@ function QuizCreator(props: { user: string }) {
   if (!user) return <></>;
 
   return (
-    <div className="quiz flex-grow px-2 py-4 h-full overflow-auto">
+    <div className="quiz flex-grow px-2 py-4 h-full overflow-auto md:px-4">
       <div className="flex flex-wrap justify-between w-full rounded-lg h-max items-center gap-3">
         <div className="text flex-shrink">
           <div className="primary text-xl mb-2 font-bold">Your Quiz</div>
@@ -55,7 +55,7 @@ function QuizCreator(props: { user: string }) {
       <Divider className="my-3" />
       <div className="quizzes-container">
         <Grid container spacing={2}>
-          {Array.from(new Array(8)).map((key) => {
+          {Array.from(new Array(8)).map((_, key) => {
             return (
               <Grid
                 xs={12}
@@ -66,7 +66,12 @@ function QuizCreator(props: { user: string }) {
                 key={key}
                 className="h-[250px]"
               >
-                <Skeleton height={"100%"} variant="rounded" width="100%" />
+                <Skeleton
+                  height={"100%"}
+                  variant="rounded"
+                  width="100%"
+                  className="rounded-xl shadow-xl shadow-green/20"
+                />
               </Grid>
             );
           })}

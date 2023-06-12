@@ -21,14 +21,10 @@ const roomsSlice = createSlice({
     loading: "idle",
   }),
   reducers: {
-    // @ts-ignore
     addRoom: roomsAdapter.addOne,
     updateRoom: (state, actions) => {
-      console.log({ actions });
-      // @ts-ignore
       roomsAdapter.updateOne(state, actions);
     },
-    // @ts-ignore
     removeRoom: roomsAdapter.removeOne,
   },
 });

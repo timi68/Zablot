@@ -14,17 +14,10 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   React.useEffect(() => {
     !user && FetchUser(dispatch, enqueueSnackbar, props.user);
-  }, []);
+  }, [props]);
 
   React.useEffect(() => {
-    if (socket) {
-      socket?.on("disconnect", (reason) => {
-        console.log("disconnected", reason, socket.id);
-      });
-    }
-
     return () => {
-      // @ts-ignore
       socket?.off();
     };
   }, [socket]);
@@ -66,11 +59,12 @@ const Dashboard = (props: { children?: React.ReactNode; user: string }) => {
 
 export async function getServerSideProps({ req, res }) {
   try {
-    const user_id = req.session.passport.user._id ?? req.session.user;
+    const user_id = req.session.passport.user._id;
     if (!user_id) throw new Error("There is no session");
 
     const user = await getUser(user_id);
     if (!user) throw new Error("User not found");
+
     return {
       props: { user: JSON.stringify(user) },
     };
