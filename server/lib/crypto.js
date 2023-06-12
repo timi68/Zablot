@@ -1,10 +1,5 @@
-const {
-  scryptSync,
-  createDecipheriv,
-  randomFill,
-  createCipheriv,
-} = require("node:crypto");
-const { Buffer } = require("node:buffer");
+const { scryptSync, createDecipheriv, createCipheriv } = require("crypto");
+const { Buffer } = require("buffer");
 
 const algorithm = "aes-192-cbc";
 
