@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-const csrf = require("csurf");
 const logger = require("morgan");
 const createError = require("http-errors");
 
@@ -17,9 +16,6 @@ const compressor = require("compression");
 const cors = require("cors");
 const { router } = require("./routes/router");
 // const ensureIsAuthenticated = require("./config/auth.js");
-const next = require("next");
-const client = next({ dev: process.env.NODE_ENV !== "production" });
-const handle = client.getRequestHandler();
 
 // @ts-check
 
@@ -30,8 +26,6 @@ process.stdin.resume();
 
 const app = express();
 const dev = process.env.NODE_ENV !== "production";
-
-app.locals.pluralize = require("pluralize");
 
 // const liveReloadServer = livereload.createServer();
 // liveReloadServer.server.once("connection", () => {
@@ -94,12 +88,12 @@ app.use(passport.authenticate("session"));
 app.use(flash());
 // app.use(csrf());
 
-app.use((req, res, next) => {
-  res.locals.error = req.flash("error");
-  res.locals.data = req.flash("data");
-  res.locals.success = req.flash("success");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.locals.error = req.flash("error");
+//   res.locals.data = req.flash("data");
+//   res.locals.success = req.flash("success");
+//   next();
+// });
 
 app.use(function (req, res, next) {
   var msgs = req.session.messages || [];
@@ -147,4 +141,4 @@ app.use(function (err, req, res, next) {
   }
 });
 
-module.exports = { app, sessionMiddleWare, client };
+module.exports = { app, sessionMiddleWare };

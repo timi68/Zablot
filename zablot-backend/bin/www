@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-var { app, sessionMiddleWare, client } = require("../server/app");
+var { app, sessionMiddleWare } = require("../app");
 var debug = require("debug")("zablot:server");
 var socket = require("socket.io");
 
-var socketController = require("../server/socket");
+var socketController = require("../socket");
 const { ObjectId } = require("mongodb");
-const { Activities, Users } = require("../server/models");
+const { Activities, Users } = require("../models");
 
 /**
  * @typedef {{request: {session: {user: string} | {passport : { user: object }}}}} Request
@@ -51,39 +51,29 @@ const SocketSign = async (
 const port = normalizePort(process.env.PORT || "8000");
 app.set("port", port);
 
-client
-  .prepare()
-  .then(() => {
-    const server = app.listen(port, onListening);
-    server.on("error", onError);
+const server = app.listen(port, onListening);
+server.on("error", onError);
 
-    /**
-     * Event listener for HTTP server "listening" event.
-     */
+/**
+ * Event listener for HTTP server "listening" event.
+ */
 
-    function onListening() {
-      var addr = server.address();
-      var bind =
-        typeof addr === "string"
-          ? "pipe " + addr
-          : "http://localhost:" + addr.port;
-      console.debug("Listening on " + bind);
-    }
+function onListening() {
+  const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
 
-    const io = socket(server, { pingTimeout: 30000, pingInterval: 30000 });
+  // convert a connect middleware to a Socket.IO middleware
+  io.use(wrap(sessionMiddleWare));
+  // only allow authenticated users
+  io.use(SocketSign);
+  app.set("io", io);
 
-    // convert a connect middleware to a Socket.IO middleware
-    io.use(wrap(sessionMiddleWare));
-    // only allow authenticated users
-    io.use(SocketSign);
-    app.set("io", io);
+  io.on("connection", socketController.bind(null));
 
-    io.on("connection", socketController.bind(null));
-  })
-  .catch((/** @type {{ stack: any; }} */ ex) => {
-    console.error(ex.stack, "from stack");
-    process.exit(1);
-  });
+  var addr = server.address();
+  var bind =
+    typeof addr === "string" ? "pipe " + addr : "http://localhost:" + addr.port;
+  console.debug("Listening on " + bind);
+}
 
 /**
  * Normalize a port into a number, string, or false.
@@ -110,11 +100,9 @@ function onError(error) {
     case "EACCES":
       console.error(bind + " requires elevated privileges");
       process.exit(1);
-      break;
     case "EADDRINUSE":
       console.error(bind + " is already in use");
       process.exit(1);
-      break;
     default:
       throw error;
   }

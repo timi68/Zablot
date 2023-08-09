@@ -18,7 +18,6 @@ const { v4: uuidv4 } = uuid;
 const { promisify } = require("util");
 var crypto = require("../lib/crypto");
 const isEmpty = require("lodash/isEmpty");
-const { nanoid } = require("@reduxjs/toolkit");
 
 /**
  * @param body {object}
@@ -55,7 +54,7 @@ async function AddUser(body, federated) {
         profile: body.picture ?? "",
         cover: "",
       },
-      Sub: body.subject ?? nanoid(),
+      Sub: body.subject ?? uuidv4(),
       Provider: body.provider ?? "zablot",
       Verified: body.verified ?? false,
       Gender: body.userGender ?? "",
