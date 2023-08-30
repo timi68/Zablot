@@ -1,35 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { NextRouter, useRouter } from "next/router";
-import Image from "next/image";
 import Link from "next/link";
 import Dashboard from "@mui/icons-material/Dashboard";
 import CreateQuiz from "@mui/icons-material/CreateOutlined";
-import QuizOutlinedIcon from "@mui/icons-material/QuizOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import ReportIcon from "@mui/icons-material/Report";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import PsychologyOutlinedIcon from "@mui/icons-material/PsychologyOutlined";
 import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
-import QuestionMarkOutlinedIcon from "@mui/icons-material/QuestionMarkOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
-import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import CloseRounded from "@mui/icons-material/CloseRounded";
 import IconButton from "@mui/material/IconButton";
 import DynamicFormRoundedIcon from "@mui/icons-material/DynamicFormRounded";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
-import axios from "axios";
-import { useAppSelector } from "@lib/redux/store";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { Avatar, Skeleton } from "@mui/material";
 import stringToColor from "@utils/stringToColor";
 import { useCustomEventListener } from "react-custom-events";
 import j from "jquery";
+import Cookies from "js-cookie";
+import { SIGN_OUT } from "@lib/redux/userSlice";
 
 type Tooltip = {
   title: string;
@@ -39,7 +30,7 @@ type Tooltip = {
 
 export default React.memo(function Sidebar() {
   const { user, device } = useAppSelector((state) => state.sessionStore);
-  const sidebar: React.MutableRefObject<HTMLDivElement> =
+  const sidebar: React.MutableRefObject<HTMLDivElement | null> =
     React.useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = React.useState<Tooltip>({
     open: false,
@@ -47,6 +38,7 @@ export default React.memo(function Sidebar() {
     top: 0,
   });
   const [show, setShow] = React.useState(false);
+  const dispatch = useAppDispatch();
   const router: NextRouter = useRouter();
 
   const openSidebar = () => {
@@ -58,7 +50,7 @@ export default React.memo(function Sidebar() {
 
     if (width > 1000) return;
 
-    var title = j(e.target).closest("li").attr("data-title");
+    var title = j(e.target).closest("li").attr("data-title") as string;
     var offsetTop = j(e.target).prop("offsetTop") as number;
 
     setTooltip({
@@ -126,17 +118,16 @@ export default React.memo(function Sidebar() {
                 <div className="user-image">
                   {user ? (
                     <Avatar
-                      src={user.Image?.profile}
+                      src={user.image?.profile}
                       variant="rounded"
                       sx={{
                         width: 30,
                         height: 30,
                         fontSize: "1rem",
-                        bgcolor: stringToColor(user.FullName),
+                        bgcolor: stringToColor(user.firstName),
                       }}
                     >
-                      {user.FullName.split(" ")[0][0] +
-                        (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                      {user.firstName.at(0)! + user.lastName.at(0)!}
                     </Avatar>
                   ) : (
                     <Skeleton className="w-8 h-9" />
@@ -145,8 +136,10 @@ export default React.memo(function Sidebar() {
                 <div className="name-wrap flex-grow">
                   {user ? (
                     <>
-                      <div className="name">{user?.FullName}</div>
-                      <div className="username">@{user?.UserName}</div>
+                      <div className="name">
+                        {user?.firstName} {user?.lastName}
+                      </div>
+                      <div className="username">@{user?.userName}</div>
                     </>
                   ) : (
                     <>
@@ -171,7 +164,7 @@ export default React.memo(function Sidebar() {
                 className="message-from-zablot"
               >
                 <div className="message text-sm mb-4 font-bold">
-                  Good Evening Timi!
+                  Good Evening {user?.firstName}!
                 </div>
               </motion.div>
             )}
@@ -210,7 +203,6 @@ export default React.memo(function Sidebar() {
                           onMouseLeave={() =>
                             setTooltip({ ...tooltip, open: false })
                           }
-                          // href="#"
                           className={
                             device +
                             (router.asPath.includes(data.url) ? " active" : "")
@@ -231,6 +223,33 @@ export default React.memo(function Sidebar() {
                     </motion.li>
                   );
                 })}
+                <motion.li
+                  onClick={() => {
+                    setTooltip({ ...tooltip, open: false });
+                    setShow(false);
+                    Cookies.remove("sid");
+                    router.reload();
+                  }}
+                  data-title={"logout"}
+                  className="link-wrap"
+                >
+                  <span
+                    onMouseEnter={MouseEnter}
+                    onMouseLeave={() => setTooltip({ ...tooltip, open: false })}
+                    className={device}
+                  >
+                    <div className="icon-wrap">
+                      <LogoutOutlinedIcon fontSize="small" className="svg" />
+                    </div>
+                    {!show && device === "tablet" ? (
+                      ""
+                    ) : (
+                      <motion.div exit={{ width: 0 }} className="link">
+                        <div className="link-title">Sign out</div>
+                      </motion.div>
+                    )}
+                  </span>
+                </motion.li>
               </ul>
             </div>
             <div className="group-2 face-2 links-wrapper">
@@ -279,7 +298,7 @@ export default React.memo(function Sidebar() {
 });
 
 const links = [
-  { title: "Dashboard", icon: Dashboard, url: "/dashboard" },
+  { title: "Dashboard", icon: Dashboard, url: "/" },
   {
     title: "Quiz",
     icon: CreateQuiz,
@@ -295,7 +314,7 @@ const links = [
     icon: MonetizationOnOutlinedIcon,
     url: "/get-coin",
   },
-  { title: "Logout", icon: LogoutOutlinedIcon, url: "/logout" },
+  // { title: "Logout", icon: LogoutOutlinedIcon, url: "/logout", },
 ];
 
 const link2 = [

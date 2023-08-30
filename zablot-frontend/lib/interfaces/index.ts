@@ -11,7 +11,7 @@ export type stateInterface = {
   [x: string]: any;
   loggedIn?: boolean;
   socket: null | Socket;
-  user?: null | User;
+  user?: null | Zablot.User;
   mode?: string;
   activeFriends?: string[];
   active: string;
@@ -19,55 +19,55 @@ export type stateInterface = {
 };
 
 export type Notification = {
-  Name?: string;
-  Title?: string;
-  Image?: string | null;
-  Description?: string;
-  Date?: string;
-  Seen?: boolean;
+  name?: string;
+  title?: string;
+  image?: string | null;
+  description?: string;
+  createdAt?: string;
+  seen?: boolean;
 };
 
 export type Friend = {
   _id?: string;
-  Id: string;
-  Name: string;
-  Image: string;
+  id: string;
+  name: string;
+  image: string;
   active?: boolean;
-  LastPersonToSendMessage: string;
-  UnseenMessages: number;
-  Last_Message: string;
-  IsPrivate: boolean;
+  lastPersonToSendMessage: string;
+  unseenMessages: number;
+  lastMessage: string;
+  isPrivate: boolean;
   time: number;
 };
 
 export type Settings = [];
 
 export type Requests = {
-  From: string;
-  Name: string;
-  UserName: string;
-  Image: string;
+  from: string;
+  name: string;
+  userName: string;
+  image: string;
   Date: Date;
-  Accepted?: boolean;
-  Rejected?: boolean;
+  accepted?: boolean;
+  rejected?: boolean;
 };
 
 export type User = {
   _id: string;
-  FullName: string;
-  UserName: string;
-  Email: string;
-  Gender: string;
-  Image: {
+  firstName: string;
+  userName: string;
+  email: string;
+  gender: string;
+  image: {
     profile: string;
     cover: string;
   };
   NewUser: string;
-  Notifications: Notification[];
-  Friends: Friend[];
-  FriendRequests: Requests[];
-  Settings: Settings;
-  PendingRequests: string[];
+  notifications: Notification[];
+  friends: Friend[];
+  friendRequests: Requests[];
+  settings: Settings;
+  pendingRequests: string[];
 };
 
 export type Option = {
@@ -90,14 +90,14 @@ export interface State {
 
 export type Matched = {
   _id: string;
-  FullName: string;
-  UserName: string;
+  firstName: string;
+  userName: string;
   sent?: boolean;
   rejected?: boolean;
   friends?: boolean;
 };
 
-export type MessageType = Partial<{
+export type MessageType = {
   _id: string;
   Format: "Form" | "plain" | "image";
   message: string;
@@ -116,7 +116,7 @@ export type MessageType = Partial<{
   file?: File;
   upload?: boolean;
   blobUrl?: string;
-}>;
+};
 
 export type RoomType = {
   room_id: string;

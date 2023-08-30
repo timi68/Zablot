@@ -4,7 +4,11 @@ import { Counter, Question } from "@types";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { NextRouter, useRouter } from "next/router";
-import { GetServerSidePropsContext, GetServerSidePropsResult, InferGetServerSidePropsType } from "next";
+import {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+  InferGetServerSidePropsType,
+} from "next";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import getUser from "@lib/getUser";
@@ -15,11 +19,18 @@ import moment from "moment";
 import BoardControl from "@comp/quiz/attempt/boardControl";
 import FetchUser from "@lib/fetch_user";
 import { Modal } from "antd";
-import { Avatar, Button, Card, Stack, CardActionArea, Tooltip } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  Card,
+  Stack,
+  CardActionArea,
+  Tooltip,
+} from "@mui/material";
 import AttemptQuestion from "@comp/quiz/attemptQuestion";
 import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { getServerSideProps } from "pages/dashboard";
+import { getServerSideProps } from "@comp/dashboard";
 
 export default function PastQuestions(
   props: InferGetServerSidePropsType<typeof getServerSideProps>

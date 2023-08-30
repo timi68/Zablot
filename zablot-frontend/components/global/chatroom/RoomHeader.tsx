@@ -32,11 +32,11 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
 
   const _callback$Status = React.useCallback(
     (data: { _id: string; online: boolean; Last_Seen: Date }) => {
-      if (data._id === friend.Id) {
+      if (data._id === friend.id) {
         setOnline(data.online);
       }
     },
-    [friend.Id]
+    [friend.id]
   );
 
   React.useEffect(() => {
@@ -51,20 +51,20 @@ function RoomHeader({ room_id }: RoomHeaderPropsType) {
       <div className="profile">
         <StyledBadge active={online}>
           <Avatar
-            src={friend.Image}
+            src={friend.image}
             sx={{
               width: 40,
               height: 40,
               fontSize: "14px",
-              bgcolor: stringToColor(friend.Name),
+              bgcolor: stringToColor(friend.name),
             }}
           >
-            {friend.Name.split(" ")[0][0] +
-              (friend.Name.split(" ")[1]?.at(0) ?? "")}
+            {friend.name.split(" ")[0][0] +
+              (friend.name.split(" ")[1]?.at(0) ?? "")}
           </Avatar>
         </StyledBadge>
         <div className="name">
-          <span className="text-sm font-semibold">{friend?.Name}</span>
+          <span className="text-sm font-semibold">{friend?.name}</span>
           <div className="active-sign">
             <div className="active-text" ref={statusRef}>
               {online

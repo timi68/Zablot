@@ -27,9 +27,9 @@ const ChatBoard: React.FC = function () {
 
   const cleanSeen = React.useCallback(
     (id: string) => {
-      socket.emit(
+      socket?.emit(
         "CLEAN_SEEN",
-        { _id: user._id, Id: id },
+        { _id: user?._id, id: id },
         (err: string, done: string) => {
           if (err) {
             alert("Internal server error: restarting window now");
@@ -50,7 +50,7 @@ const ChatBoard: React.FC = function () {
       message: <div className="title font-bold">A New Friend</div>,
       description: (
         <span>
-          <b className="text-green">{friend.Name}</b> is asking to be your
+          <b className="text-green">{friend.name}</b> is asking to be your
           friend`
         </span>
       ),
@@ -68,18 +68,18 @@ const ChatBoard: React.FC = function () {
     (data: Interface.MessageType) => {
       const roomIds = store.getState().rooms.ids;
       setFriends((state) => {
-        const oldState = state.filter((user) => user.Id !== data.coming);
-        let user = state.find((f) => f.Id === data.coming);
+        const oldState = state.filter((user) => user.id !== data.coming);
+        let user = state.find((f) => f.id === data.coming) as Zablot.Friend;
         user = {
           ...user,
           time: data.date,
-          UnseenMessages: roomIds.includes(data.coming)
+          unseenMessages: roomIds.includes(data.coming)
             ? 0
-            : Number(user.UnseenMessages) + 1,
-          Last_Message: data.message,
-          LastPersonToSendMessage: data.coming,
+            : Number(user?.unseenMessages) + 1,
+          lastMessage: data.message,
+          lastPersonToSendMessage: data.coming,
         };
-        oldState.unshift(user);
+        oldState.unshift(user!);
 
         return oldState;
       });
@@ -89,24 +89,27 @@ const ChatBoard: React.FC = function () {
     [socket, cleanSeen]
   );
 
-  const _callback$Status = React.useCallback((data) => {
-    setFriends((state) => {
-      const newState = state.map((user) => {
-        if (user.Id === data._id) {
-          return { ...user, active: data.online };
-        }
-        return user;
-      });
+  const _callback$Status = React.useCallback(
+    (data: { online: boolean; _id: string }) => {
+      setFriends((state) => {
+        const newState = state.map((user) => {
+          if (user.id === data._id) {
+            return { ...user, active: data.online };
+          }
+          return user;
+        });
 
-      return newState;
-    });
-  }, []);
+        return newState;
+      });
+    },
+    []
+  );
 
   const handleActiveFriends = React.useCallback(
     (actives: string[]) => {
       setFriends((state) => {
         state = state.map((user) => {
-          const _id = user.Id.slice(19, 24);
+          const _id = user.id.slice(19, 24);
           return { ...user, active: actives.includes(_id) };
         });
 
@@ -120,12 +123,12 @@ const ChatBoard: React.FC = function () {
 
   useCustomEventListener(
     "openRoom",
-    ({ friend }: { friend: Interface.Friend }) => {
-      if (friend.UnseenMessages == 0) return;
+    ({ friend }: { friend: Zablot.Friend }) => {
+      if (friend.unseenMessages == 0) return;
       setFriends((state) => {
         state = state.map((u) => {
-          if (u.Id === friend.Id) {
-            return { ...u, UnseenMessages: 0 };
+          if (u.id === friend.id) {
+            return { ...u, unseenMessages: 0 };
           }
           return u;
         });
@@ -141,12 +144,12 @@ const ChatBoard: React.FC = function () {
       setFriends((prevFriends) => {
         return prevFriends
           .map((friend) => {
-            if (friend.Id === data.id) {
+            if (friend.id === data.id) {
               return {
                 ...friend,
                 time: data.time,
-                Last_Message: data.message,
-                LastPersonToSendMessage: data.flow,
+                lastMessage: data.message,
+                lastPersonToSendMessage: data.flow,
               };
             }
             return friend;
@@ -173,12 +176,12 @@ const ChatBoard: React.FC = function () {
     [device]
   );
 
-  React.useEffect(() => {
-    if (user) setFriends([...user.Friends].sort((a, b) => a.time - b.time));
-  }, [user]);
+  // React.useEffect(() => {
+  //   if (user) setFriends([...user.friends].sort((a, b) => a.time - b.time));
+  // }, [user]);
 
   // React.useEffect(() => {
-  //   if (user) setFriends(user.Friends);
+  //   if (user) setFriends(user.friends);
   // }, [device]);
 
   React.useEffect(() => {
@@ -253,7 +256,7 @@ const ChatBoard: React.FC = function () {
                 </>
               ) : (
                 <>
-                  <Friends friendId={user._id} friends={friends} />
+                  <Friends friendId={user!._id} friends={friends} />
                 </>
               )}
             </div>

@@ -160,14 +160,14 @@ type AssignProps = {
 const Assign = React.memo<AssignProps>(
   ({ next = true, message, friend, pre, room_id }) => {
     console.log("Assigned");
-    let type: "in" | "out" = message.coming == friend.Id ? "in" : "out";
+    let type: "in" | "out" = message.coming == friend.id ? "in" : "out";
 
     if (message.Format == "plain") {
       return <Message type={type} message={message} pre={new Date(pre)} />;
     }
 
     switch (message.coming) {
-      case friend.Id:
+      case friend.id:
         switch (message.Format) {
           case "Form":
             return (

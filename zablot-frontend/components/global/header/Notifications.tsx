@@ -3,15 +3,12 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { v4 as uuid } from "uuid";
-import j from "jquery";
 import GroupNotification from "../../../utils/GroupNotifications";
-import { CSSTransition } from "react-transition-group";
-import { motion, AnimatePresence } from "framer-motion";
-import { Badge, IconButton } from "@mui/material";
+import { motion } from "framer-motion";
 import { useSnackbar } from "notistack";
 import * as Interfaces from "@lib/interfaces";
 import { useAppSelector } from "@lib/redux/store";
-import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
+import { useCustomEventListener } from "react-custom-events";
 import { variants } from "@lib/constants";
 import Backdrop from "@comp/Backdrop";
 import CloseButton from "@comp/CloseButton";
@@ -20,8 +17,8 @@ function Notifications() {
   const { socket, user, device } = useAppSelector((s) => s.sessionStore);
   const [openModal, setOpenModal] = React.useState(false);
   const [notifications, setNotifications] = React.useState<
-    Interfaces.Notification[]
-  >(user?.Notifications || []);
+    Zablot.Notification[]
+  >(user?.notifications || []);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const backdropRef = React.useRef<{ unMount: Function }>(null);
@@ -32,14 +29,14 @@ function Notifications() {
 
   React.useEffect(() => {
     if (user) {
-      setNotifications(user.Notifications);
+      setNotifications(user.notifications);
     }
   }, [user]);
 
   // React.useEffect(() => {
   //   const UpdateNotification = (data: {
-  //     Description: string;
-  //     Name: string;
+  //     description: string;
+  //     name: string;
   //     title: string;
   //   }) => {
   //     setNotifications([data, ...notifications]);
@@ -53,11 +50,11 @@ function Notifications() {
   //   };
 
   //   if (socket) {
-  //     socket.on("Notifications", UpdateNotification);
+  //     socket.on("notifications", UpdateNotification);
   //   }
 
   //   return () => {
-  //     socket?.off("Notifications", UpdateNotification);
+  //     socket?.off("notifications", UpdateNotification);
   //   };
   // }, [socket]);
 
@@ -83,16 +80,16 @@ function Notifications() {
               {notifications?.length ? (
                 <div className="notifications-list">
                   {notifications.map((data, i) => {
-                    var current = notifications[i].Date;
-                    var previous = i > 0 ? notifications[i - 1].Date : "";
+                    var current = notifications[i].createdAt;
+                    var previous = i > 0 ? notifications[i - 1].createdAt : "";
 
                     var key = uuid();
                     return (
                       <NotificationsPaper
                         key={key}
                         data={data}
-                        current={current}
-                        previous={previous}
+                        current={current as string}
+                        previous={previous as string}
                         index={i}
                       />
                     );
@@ -143,12 +140,12 @@ function NotificationsPaper(props: NotificationPaperProps) {
             <div className="notification-text text">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: data.Description,
+                  __html: data.description as string,
                 }}
               ></span>
               <br />
               <span className="from">
-                <b>From {data.Name}</b>
+                <b>From {data.name}</b>
               </span>
             </div>
           </div>

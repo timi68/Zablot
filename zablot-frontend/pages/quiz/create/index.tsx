@@ -4,7 +4,7 @@ import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { NextRouter, useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { getServerSideProps } from "pages/dashboard";
+import { getServerSideProps } from "@comp/dashboard";
 
 function QuizCreator(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);

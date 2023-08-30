@@ -20,7 +20,7 @@ function IncomingForm(props: {
 }) {
   const { room_id, friend, message, pre } = props;
   const { _id: coming, socket } = useAppSelector((state) => state.sessionStore);
-  const { _id: messagesId, Id: going } = friend;
+  const { _id: messagesId, id: going } = friend;
   const dispatch = useAppDispatch();
   const className = `incoming-message incoming-form`;
 

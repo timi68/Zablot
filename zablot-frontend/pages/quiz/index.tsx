@@ -3,7 +3,7 @@ import { useSnackbar } from "notistack";
 import FetchUser from "@lib/fetch_user";
 import { NextRouter, useRouter } from "next/router";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { getServerSideProps } from "pages/dashboard";
+import { getServerSideProps } from "@comp/dashboard";
 import { motion } from "framer-motion";
 import { Divider, Grid, Skeleton } from "@mui/material";
 import Link from "next/link";

@@ -3,7 +3,6 @@
 import React from "react";
 import axios from "axios";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Socket } from "socket.io";
 import { MessageType } from "../../../lib/interfaces";
 import Skeleton from "@mui/material/Skeleton";
 import GroupMessage from "../../../lib/Group_Message";
@@ -17,7 +16,7 @@ type PropsType = {
   message: MessageType;
   nextGoingId: boolean;
   cur: Date;
-  pre: Date | null;
+  pre?: Date;
   i: number;
   room_id: string | number;
 };
@@ -46,7 +45,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
     (field: Partial<MessageType>, type = "in") => {
       const messages = store
         .getState()
-        .rooms.entities[room_id].messages.map((_message) => {
+        .rooms.entities[room_id]!.messages.map((_message) => {
           if (_message._id === message._id) {
             return { ..._message, ...field };
           }
@@ -70,7 +69,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
     if (message.upload) {
       (async () => {
         const form = new FormData();
-        form.append("image", message.file);
+        form.append("image", message.file as File);
 
         try {
           // let config = {
@@ -97,11 +96,15 @@ function OutgoingImage(props: PropsType): JSX.Element {
           //   return { messages, type: null };
           // });
 
-          UpdateState({ ...omit(data, ["upload", "file"]) }, null);
+          UpdateState({ ...omit(data, ["upload", "file"]) });
 
-          socket.emit("OUTGOINGMESSAGE", data, (res: { messageId: string }) => {
-            console.log({ res });
-          });
+          socket?.emit(
+            "OUTGOINGMESSAGE",
+            data,
+            (res: { messageId: string }) => {
+              console.log({ res });
+            }
+          );
         } catch (err) {
           console.log(err);
           return;
@@ -135,7 +138,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
         //   return { messages, type: null };
         // });
 
-        UpdateState({ blobUrl: URL.createObjectURL(uploadImage.data) }, null);
+        UpdateState({ blobUrl: URL.createObjectURL(uploadImage.data) });
       })();
     }
   }, []);
@@ -144,7 +147,7 @@ function OutgoingImage(props: PropsType): JSX.Element {
     nextGoingId || i === 0 ? " adjust-mg" : ""
   } `;
 
-  const Group = GroupMessage({ cur, pre });
+  const Group = GroupMessage({ cur, pre: pre! });
 
   return (
     <React.Fragment>

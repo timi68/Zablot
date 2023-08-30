@@ -30,7 +30,7 @@ const actions = [
 type y = "send image" | "send video" | "send poll";
 
 const RoomFooter = ({ room_id }: { room_id: string | number }) => {
-  const friend = useAppSelector((state) => getRoom(state, room_id).friend);
+  const friend = useAppSelector((state) => getRoom(state, room_id)!.friend);
   const { user, socket, device } = useAppSelector(
     (state) => state.sessionStore
   );
@@ -47,29 +47,29 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
 
   const dispatch = useAppDispatch();
   const sendMessage = (): void => {
-    let messageText: string = MessageBoxRef.current.value;
+    let messageText = MessageBoxRef.current?.value;
 
     if (!messageText) return;
 
-    j(SendRef.current).removeClass("active");
-    j(MessageBoxRef.current).val("").trigger("focus").removeAttr("style");
+    j(SendRef.current!).removeClass("active");
+    j(MessageBoxRef.current!).val("").trigger("focus").removeAttr("style");
 
-    var newMessage: Interfaces.MessageType = {
+    var newMessage: Partial<Interfaces.MessageType> = {
       message: messageText,
       date: Date.now(),
-      coming: user._id,
-      going: friend.Id,
+      coming: user!._id,
+      going: friend.id,
       Format: "plain",
-      _id: friend._id,
+      _id: friend._id as string,
     };
 
-    socket.emit(
+    socket?.emit(
       "OUTGOINGMESSAGE",
       newMessage,
       (err: string, { messageId }: { messageId: string }) => {
         if (!err) {
           newMessage._id = messageId;
-          const messages = store.getState().rooms.entities[room_id].messages;
+          const messages = store.getState().rooms.entities[room_id]!.messages;
           dispatch(
             updateRoom({
               id: room_id,
@@ -80,10 +80,10 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
             })
           );
           emitCustomEvent("Message", {
-            id: friend.Id,
+            id: friend.id,
             message: messageText,
             time: newMessage.date,
-            flow: user._id,
+            flow: user!._id,
           });
         }
       }
@@ -97,10 +97,10 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
     setOpen(false);
     switch (type) {
       case "send poll":
-        PollRef.current.toggle();
+        PollRef.current?.toggle();
         break;
       case "send image":
-        ImageFileRef.current.click();
+        ImageFileRef.current?.click();
       default:
         break;
     }
@@ -112,7 +112,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       return false;
     }
 
-    const file = e.target.files[0];
+    const file = e.target.files![0];
     const imageFileType: string[] = [
       "image/jpeg",
       "image/jpg",
@@ -135,24 +135,24 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
 
       reader.onload = function (event) {
         // blob stuff
-        var blob = new Blob([event.target.result]); // create blob...
+        var blob = new Blob([event.target!.result!]); // create blob...
         window.URL = window.URL || window.webkitURL;
         var blobURL = window.URL.createObjectURL(blob); // and get it's URL
 
-        let newMessage: Interfaces.MessageType = {
-          message: "Image",
+        let newMessage: Partial<Interfaces.MessageType> = {
+          message: "image",
           Format: "image",
           date: Date.now(),
-          coming: user._id,
-          going: friend.Id,
-          _id: friend._id,
+          coming: user!._id,
+          going: friend.id,
+          _id: friend._id as string,
           blobUrl: blobURL,
           filename: file.name,
           file,
           upload: true,
         };
 
-        const messages = store.getState().rooms.entities[room_id].messages;
+        const messages = store.getState().rooms.entities[room_id]!.messages;
         dispatch(
           updateRoom({
             id: room_id,
@@ -163,9 +163,9 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
           })
         );
         emitCustomEvent("Message", {
-          id: friend.Id,
-          message: "Image",
-          flow: user._id,
+          id: friend.id,
+          message: "image",
+          flow: user!._id,
         });
       };
     }
@@ -178,7 +178,7 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
       !["mobile", "tablet"].includes(device)
     ) {
       e.preventDefault();
-      SendRef.current.click();
+      SendRef.current?.click();
     }
   };
 
@@ -236,8 +236,8 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
               element.style.height = "5px";
               element.style.height = element.scrollHeight + "px";
 
-              if (element.value) SendRef.current.classList.add("active");
-              else SendRef.current.classList.remove("active");
+              if (element.value) SendRef.current?.classList.add("active");
+              else SendRef.current?.classList.remove("active");
             }}
             ref={MessageBoxRef}
             id="text-control message"
@@ -253,9 +253,9 @@ const RoomFooter = ({ room_id }: { room_id: string | number }) => {
         </IconButton>
         <Poll
           ref={PollRef}
-          going={friend.Id}
-          _id={friend._id}
-          coming={user._id}
+          going={friend.id}
+          _id={friend._id as string}
+          coming={user!._id}
           room_id={room_id}
         />
       </div>

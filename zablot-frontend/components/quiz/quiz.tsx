@@ -27,7 +27,7 @@ function Quiz({ quiz }: { quiz: Quiz }) {
         layoutId={`cover-img-${id}`}
         className="cover-img w-full h-[200px] relative"
       >
-        <Image
+        <image
           src={"/images/cover1.jpg"}
           alt="This is quiz cover image"
           layout="fill"

@@ -54,7 +54,7 @@ const TopNavigation = () => {
           <ChatRoundedIcon fontSize="small" />
         </IconButton>
       </Badge>
-      <Badge color="secondary" badgeContent={user.FriendRequests.length}>
+      <Badge color="secondary" badgeContent={user?.friendRequests?.length ?? 0}>
         <IconButton className={className("f")} onClick={() => handleClick("f")}>
           <PersonAddIcon fontSize="small" />
         </IconButton>

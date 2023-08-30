@@ -12,19 +12,7 @@ type enqueueSnackbar = (
 export default function DispatchUser(
   dispatch: AppDispatch,
   enqueueSnackbar: enqueueSnackbar,
-  _user: string
+  user: Zablot.User
 ): void {
-  try {
-    const user = JSON.parse(_user) as any;
-    user.Notifications = user.Notifications[0].notifications.reverse();
-    user.Friends = user.Friends[0].friends;
-    user.FriendRequests = user.FriendRequests[0].requests.reverse();
-    user.Settings = user.Settings[0].settings;
-
-    dispatch(USER(user as unknown as User));
-  } catch (error) {
-    enqueueSnackbar(error.message, {
-      variant: "error",
-    });
-  }
+  dispatch(USER(user));
 }

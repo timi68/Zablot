@@ -31,7 +31,7 @@ function View({ quizzes, view }: { quizzes: Quiz[]; view: string }) {
           layoutId={`cover-img-${id}`}
           className="cover-img w-full h-[300px] relative"
         >
-          <Image
+          <image
             src={"/images/cover1.jpg"}
             alt="This is quiz cover image"
             className="h-full"

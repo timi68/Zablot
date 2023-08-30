@@ -16,12 +16,12 @@ const ChatRoom = () => {
   useCustomEventListener(
     "openRoom",
     ({ friend }: { friend: Interfaces.Friend }) => {
-      if (rooms.includes(friend.Id)) {
-        emitCustomEvent("RE_OPEN_CHAT", friend.Id);
+      if (rooms.includes(friend.id)) {
+        emitCustomEvent("RE_OPEN_CHAT", friend.id);
         return;
       }
       let roomData: Interfaces.RoomType = {
-        room_id: friend.Id,
+        room_id: friend.id,
         friend,
         messages: [],
         loaded: false,

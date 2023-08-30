@@ -25,7 +25,7 @@ function Private(props: props) {
   const [opened, setOpened] = React.useState(false);
   const checkPin = () => setOpened(true);
 
-  const PrivateFriends = friends?.filter((friend) => friend.IsPrivate === true);
+  const PrivateFriends = friends?.filter((friend) => friend.isPrivate === true);
 
   return (
     <div className="private_chats chats_listbox">

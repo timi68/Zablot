@@ -18,9 +18,10 @@ interface SearchInterface {
 }
 
 const SearchBar = () => {
-  const { socket, user, device } = useAppSelector(
-    (state) => state.sessionStore
-  );
+  const user = useAppSelector(
+    (state) => state.sessionStore.user
+  ) as Zablot.User;
+  const { socket, device } = useAppSelector((state) => state.sessionStore);
   const [searchData, setSearchData] = React.useState<SearchInterface>({
     matched: [],
     pending: [],
@@ -36,14 +37,14 @@ const SearchBar = () => {
   const container = React.useRef<HTMLDivElement>(null);
 
   const ReadyForSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!j(e.target).val()) return j(searchIcon.current).removeClass("ready");
-    return searchIcon.current.classList.add("ready");
+    if (!j(e.target).val()) return j(searchIcon.current!).removeClass("ready");
+    return searchIcon.current?.classList.add("ready");
   };
 
   const Search = async (e: any) => {
     e.preventDefault();
     try {
-      const searchText: string = j(searchBar.current).val() as string;
+      const searchText: string = j(searchBar.current!).val() as string;
       if (searchText != "") {
         setLoading(true);
         const data = { searchText, id: user._id };
@@ -55,7 +56,7 @@ const SearchBar = () => {
 
         let matched = response.data;
         if (matched?.length) {
-          const friendsId = friends.map(({ Id }) => Id);
+          const friendsId = friends.map(({ id }) => id);
           matched = matched.filter((matchedUser) => {
             if (user._id != matchedUser._id) {
               if (searchData.pending.includes(matchedUser._id))
@@ -90,17 +91,17 @@ const SearchBar = () => {
   function processAdd(id: string) {
     const newRequest = {
       Info: {
-        Name: user.FullName,
-        UserName: user.UserName,
-        From: user._id,
-        Image: "",
+        name: user.firstName,
+        userName: user.userName,
+        from: user._id,
+        image: "",
       },
       To: id,
     };
 
     axios.post("/api/socket/friend-request", newRequest).then((response) => {
       setSearchData((state) => {
-        let pending = [];
+        let pending: string[] = [];
         let newMatched = state.matched.map((user) => {
           if (user._id === id) pending.push(id);
           return { ...user, sent: user._id === id };
@@ -113,7 +114,7 @@ const SearchBar = () => {
   function processFriend(user: string) {
     setOpen(false);
 
-    let friend = friends.find((f) => f.Id === user);
+    let friend = friends.find((f) => f.id === user);
     if (friend) {
       emitCustomEvent("openRoom", { friend });
     }
@@ -123,7 +124,7 @@ const SearchBar = () => {
   // he/she had sent and delivered or on delivery
   function processCancel(to: string) {
     const data = { from: user._id, to };
-    socket.emit("CANCEL_REQUEST", data, (err: string) => {
+    socket?.emit("CANCEL_REQUEST", data, (err: string) => {
       if (!err) {
         setSearchData((state) => {
           let matched = state.matched.map((user) => {
@@ -144,17 +145,17 @@ const SearchBar = () => {
   // instantly, this only vital for request sent and rejected
   // immediately
   const Notification = React.useCallback(
-    (data: { Id: string; type: string }) => {
+    (data: { id: string; type: string }) => {
       if (searchData.matched?.length && data.type === "reject") {
         setSearchData((state) => {
           let searchUpdate = state.matched.map((m) => {
-            if (m._id === data.Id) {
+            if (m._id === data.id) {
               delete m.sent, delete m.friends;
               m.rejected = true;
             }
             return m;
           });
-          let pending = state.pending.filter((id) => id !== data.Id);
+          let pending = state.pending.filter((id) => id !== data.id);
           return { matched: searchUpdate, pending };
         });
       }
@@ -171,11 +172,11 @@ const SearchBar = () => {
           ? matched.map((user) => {
               return {
                 ...user,
-                friends: user._id === friend.Id,
+                friends: user._id === friend.id,
               };
             })
           : matched,
-        pending: pending.filter((id) => id !== friend.Id),
+        pending: pending.filter((id) => id !== friend.id),
       };
     });
   }, []);
@@ -190,11 +191,11 @@ const SearchBar = () => {
 
   React.useEffect(() => {
     if (socket) {
-      socket.on("Notifications", Notification);
+      socket.on("notifications", Notification);
       socket.on("NEW_FRIEND", NewFriend);
 
       return () => {
-        socket.off("Notifications", Notification);
+        socket.off("notifications", Notification);
         socket.off("NEW_FRIEND", NewFriend);
       };
     }
@@ -202,10 +203,10 @@ const SearchBar = () => {
 
   React.useEffect(() => {
     if (user) {
-      setFriends(user.Friends);
+      setFriends(user.friends);
       setSearchData({
         matched: [],
-        pending: user.PendingRequests,
+        pending: user.pendingRequests,
         message: "Waiting to search",
       });
     }

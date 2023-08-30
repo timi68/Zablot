@@ -65,17 +65,17 @@ function Header() {
             onClick={() => emitCustomEvent("side")}
           >
             <Avatar
-              src={user.Image.profile}
+              src={user.image.profile}
               sx={{
                 width: 25,
                 height: 25,
                 pt: "1px",
                 fontSize: ".8rem",
-                bgcolor: stringToColor(user.FullName),
+                bgcolor: stringToColor(user.firstName),
               }}
             >
-              {user.FullName.split(" ")[0][0] +
-                (user.FullName.split(" ")[1]?.at(0) ?? "")}
+              {user.firstName.split(" ")[0][0] +
+                (user.firstName.split(" ")[1]?.at(0) ?? "")}
             </Avatar>
           </IconButton>
         </div>

@@ -15,7 +15,7 @@ import Quiz from "@comp/quiz/quiz";
 import View from "@comp/quiz/View";
 import { Quizzes } from "@lib/quizzes";
 import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceRounded";
-import { getServerSideProps } from "pages/dashboard";
+import { getServerSideProps } from "@comp/dashboard";
 
 export default function PastQuestions(props: { user: string }) {
   const user = useAppSelector((state) => state.sessionStore.user);

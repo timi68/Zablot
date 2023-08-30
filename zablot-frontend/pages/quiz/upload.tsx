@@ -31,7 +31,7 @@ import KeyboardBackspaceRoundedIcon from "@mui/icons-material/KeyboardBackspaceR
 import moment from "moment";
 import { marked } from "marked";
 import { useForm } from "react-hook-form";
-import { getServerSideProps } from "pages/dashboard";
+import { getServerSideProps } from "@comp/dashboard";
 
 const { Option } = Select;
 

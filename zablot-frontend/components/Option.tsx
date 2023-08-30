@@ -4,7 +4,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import { motion } from "framer-motion";
 import { isEqual } from "lodash";
 
-type OptionType = { text: string; checked: boolean; key?: string };
+type OptionType = { text: string; checked: boolean; key: string };
 
 function Option(props: {
   height?: number;

@@ -1,19 +1,12 @@
 import React from "react";
 import { useSocket } from "@lib/socket";
-import AppLayout from "@comp/layout";
+import AppLayout from "@comp/Layout";
 import { SnackbarProvider } from "notistack";
 import { AnimatePresence } from "framer-motion";
 import { SOCKET } from "@lib/redux/userSlice";
 import { useAppDispatch } from "@lib/redux/store";
 
-function AppContextProvider({ children }) {
-  const dispatch = useAppDispatch();
-  const socket = useSocket("/", true);
-
-  React.useEffect(() => {
-    dispatch(SOCKET({ socket }));
-  }, [dispatch, socket]);
-
+function AppContextProvider({ children }: { children: React.ReactNode }) {
   return (
     <AnimatePresence mode="wait">
       <SnackbarProvider maxSnack={3} dense>

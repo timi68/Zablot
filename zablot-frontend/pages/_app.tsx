@@ -6,19 +6,24 @@ import { Provider } from "react-redux";
 import store from "@lib/redux/store";
 import AppContextProvider from "@lib/context/appContext";
 import { AppProps } from "next/app";
+import axios from "axios";
 
 // styles
-import "antd/dist/antd.css";
+import "antd/dist/reset.css";
 import "nprogress/nprogress.css";
-import "../styles/header.scss";
-import "../styles/sidebar.scss";
-import "../styles/main.scss";
-import "../styles/chatboard.scss";
-import "../styles/createQuiz.scss";
-import "../styles/pastQuestions.scss";
-import "../styles/attemptQuiz.scss";
-import "../styles/global.css";
-import "../styles/chatRoom.scss";
+import "@styles/header.scss";
+import "@styles/sidebar.scss";
+import "@styles/main.scss";
+import "@styles/chatboard.scss";
+import "@styles/createQuiz.scss";
+import "@styles/pastQuestions.scss";
+import "@styles/attemptQuiz.scss";
+import "@styles/global.css";
+import "@styles/chatRoom.scss";
+import "@styles/home.scss";
+import "@styles/auth.scss";
+
+axios.defaults.baseURL = process.env.SERVER_URL;
 
 function MyApp({ Component, pageProps }: AppProps) {
   NProgress.configure({

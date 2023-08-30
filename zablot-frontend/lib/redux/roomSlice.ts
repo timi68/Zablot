@@ -41,10 +41,13 @@ export function getMessage(
   room_id: string | number,
   message_id: string
 ) {
-  const { messages, friend } = getRoom(state, room_id);
+  const { messages, friend } = getRoom(state, room_id) as RoomType;
 
-  let type: "in" | "out";
-  let message: MessageType, i: number, pre: Date | null, next: boolean;
+  let type: "in" | "out" = "in";
+  let message: MessageType = messages[0],
+    i = 0,
+    pre: Date | null = new Date(),
+    next = false;
 
   messages.every((m, index) => {
     if (m._id === message_id) {
@@ -52,7 +55,7 @@ export function getMessage(
       message = m;
       pre = i ? new Date(messages[i - 1].date) : null;
       next = Boolean(messages[i + 1]?._id);
-      type = m.coming == friend.Id ? "in" : "out";
+      type = m.coming == friend.id ? "in" : "out";
       return false;
     }
 

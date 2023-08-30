@@ -13,12 +13,12 @@ interface props {
 
 function Friends(props: props) {
   const { friendId, friends } = props;
-  const NotPrivateFriends = friends?.filter((friend) => !friend.IsPrivate);
+  const NotPrivateFriends = friends?.filter((friend) => !friend.isPrivate);
   return (
     <div className="friends_chats chats_listbox" role="listbox">
       <ul className="chats-list list" role="list">
         {NotPrivateFriends?.map((user, index) => {
-          return <Chats key={user.Id} friendId={friendId} friend={user} />;
+          return <Chats key={user.id} friendId={friendId} friend={user} />;
         })}
         {!friends?.length && (
           <div className="no-friend-available">

@@ -14,15 +14,15 @@ function Stories() {
           <li className="feed grid place-items-center">
             <div className="border rounded-full border-dashed border-slate-900 p-1">
               <Avatar
-                src={user.Image.profile}
+                src={user.image.profile}
                 className="h-[50px] w-[50px]"
-                alt={user.FullName}
+                alt={user.firstName}
                 sx={{
-                  bgcolor: stringToColor(user.FullName),
+                  bgcolor: stringToColor(user.firstName),
                 }}
               >
-                {user.FullName.split(" ")[0][0] +
-                  (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                {user.firstName.split(" ")[0][0] +
+                  (user.firstName.split(" ")[1]?.at(0) ?? "")}
               </Avatar>
             </div>
 
@@ -53,13 +53,13 @@ function Stories() {
                 <Avatar
                   src={"./images/4e92ca89-66af-4600-baf8-970068bcff16.jpg"}
                   className="h-[50px] w-[50px]"
-                  alt={user.FullName}
+                  alt={user.firstName}
                   sx={{
-                    bgcolor: stringToColor(user.FullName),
+                    bgcolor: stringToColor(user.firstName),
                   }}
                 >
-                  {user.FullName.split(" ")[0][0] +
-                    (user.FullName.split(" ")[1]?.at(0) ?? "")}
+                  {user.firstName.split(" ")[0][0] +
+                    (user.firstName.split(" ")[1]?.at(0) ?? "")}
                 </Avatar>
               </div>
               <div className="status-label">

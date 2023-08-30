@@ -33,7 +33,7 @@ function Chats({ friendId, friend }: chats): JSX.Element {
   useCustomEventListener(
     "openRoomById",
     (id: string) => {
-      if (friend.Id === id) CardRef.current.click();
+      if (friend.id === id) CardRef.current.click();
     },
     [friend]
   );
@@ -52,20 +52,20 @@ function Chats({ friendId, friend }: chats): JSX.Element {
       <StyledBadge active={friend.active}>
         <Avatar
           variant={"rounded"}
-          src={friend.Image}
+          src={friend.image}
           sx={{
             borderRadius: "10px",
-            bgcolor: stringToColor(friend.Name),
+            bgcolor: stringToColor(friend.name),
           }}
         >
-          {friend.Name.split(" ")[0][0] +
-            (friend.Name.split(" ")[1]?.at(0) ?? "")}
+          {friend.name.split(" ")[0][0] +
+            (friend.name.split(" ")[1]?.at(0) ?? "")}
         </Avatar>
       </StyledBadge>
       <div className="text" role="listitem">
         <div className="wrap">
           <div className="text-sm font-semibold text-ellipsis pr-1 capitalize max-w-[70%] overflow-clip">
-            {friend.Name}
+            {friend.name}
           </div>
           <div
             className="time text-xs leading-[10px] text-[0.55em] max-w-[35%] font-medium"
@@ -76,16 +76,16 @@ function Chats({ friendId, friend }: chats): JSX.Element {
         </div>
         <div className="flex justify-between items-center">
           <div className="last_message secondary_text flex-grow">
-            {friend?.LastPersonToSendMessage === friendId && <b>You: </b>}
-            {friend.Last_Message === "Image" ? (
+            {friend?.lastPersonToSendMessage === friendId && <b>You: </b>}
+            {friend.lastMessage === "image" ? (
               <ImageOutlinedIcon fontSize="small" />
             ) : (
-              friend.Last_Message
+              friend.lastMessage
             )}
           </div>
-          {Boolean(friend.UnseenMessages) && (
+          {Boolean(friend.unseenMessages) && (
             <div className="unseenmessages badge bg-green text-white">
-              {friend.UnseenMessages}
+              {friend.unseenMessages}
             </div>
           )}
         </div>

@@ -23,10 +23,10 @@ export default function MatchedUser(props: MatchedUserInterface) {
         </div>
         <div className="user-name">
           <div className="name font-semibold">
-            <span>{user.FullName}</span>
+            <span>{user.firstName}</span>
           </div>
           <div className="username font-semibold">
-            <span>@{user.UserName}</span>
+            <span>@{user.userName}</span>
           </div>
         </div>
       </div>

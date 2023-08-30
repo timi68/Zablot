@@ -27,11 +27,11 @@ const FriendRequests = () => {
   const { socket, user, device } = useAppSelector(
     (state) => state.sessionStore
   );
-  const [requests, setRequests] = useState<Partial<Interfaces.Requests[]>>([]);
+  const [requests, setRequests] = useState<Interfaces.Requests[]>([]);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const IconButtonRef = useRef<HTMLButtonElement>(null);
   const backdropRef = React.useRef<{ unMount: Function }>(null);
-  const [friends, setFriends] = React.useState([]);
+  const [friends, setFriends] = React.useState<Interfaces.Friend[]>([]);
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -46,15 +46,15 @@ const FriendRequests = () => {
   const Reject = (id: string) => {
     let data = {
       going_id: id,
-      coming_id: user._id,
-      coming_name: user?.FullName,
-      coming_image: user?.Image.profile,
+      coming_id: user?._id,
+      coming_name: user?.firstName,
+      coming_image: user?.image.profile,
     };
-    socket.emit("REJECT_REQUEST", data, (err: string, done: string) => {
+    socket?.emit("REJECT_REQUEST", data, (err: string, done: string) => {
       setRequests((state) => {
         return (state = state.map((req) => {
-          if (req.From === id) {
-            return { ...req, Rejected: true };
+          if (req.from === id) {
+            return { ...req, rejected: true };
           }
           return req;
         }));
@@ -62,7 +62,7 @@ const FriendRequests = () => {
 
       setTimeout(() => {
         setRequests((state) => {
-          return (state = state.filter((req) => req.From !== id));
+          return (state = state.filter((req) => req.from !== id));
         });
       }, 5000);
     });
@@ -70,23 +70,23 @@ const FriendRequests = () => {
 
   const Accept = (data: Interfaces.Requests) => {
     const data_to_emit = {
-      going_id: data.From,
-      going_name: data.Name,
-      going_image: data.Image,
-      coming_id: user._id,
-      coming_name: user?.FullName,
-      coming_image: user?.Image.profile,
+      going_id: data.from,
+      going_name: data.name,
+      going_image: data.image,
+      coming_id: user?._id,
+      coming_name: user?.firstName,
+      coming_image: user?.image.profile,
     };
 
-    socket.emit(
+    socket?.emit(
       "ACCEPT_REQUEST",
       data_to_emit,
       (err: string | object, FriendData: Interfaces.Friend) => {
         if (!err) {
           setRequests((state) => {
             return state.map((req) => {
-              if (req.From === data.From) {
-                return { ...req, Accepted: true };
+              if (req.from === data.from) {
+                return { ...req, accepted: true };
               }
               return req;
             });
@@ -94,9 +94,9 @@ const FriendRequests = () => {
 
           let newFriend = {
             ...FriendData,
-            Id: data.From,
-            Name: data.Name,
-            Image: data.Image,
+            id: data.from,
+            name: data.name,
+            image: data.image,
             isComing: false,
           };
 
@@ -114,24 +114,24 @@ const FriendRequests = () => {
 
   const Message = (user: string) => {
     setOpenModal(false);
-    let friend = friends.find((f) => f.Id === user);
+    let friend = friends.find((f) => f.id === user);
     if (friend) {
       emitCustomEvent("openRoom", { friend });
     }
   };
 
-  const FRIENDSHIP_DEMAND = (data: Interfaces.Requests) => {
-    const newRequest: Interfaces.Requests = {
-      From: data.From,
-      Name: data.Name,
-      UserName: data.UserName,
-      Image: data.Image,
+  const FRIENDSHIP_DEMAND = (data: Zablot.Requests) => {
+    const newRequest: Zablot.Requests = {
+      from: data.from,
+      name: data.name,
+      userName: data.userName,
+      image: data.image,
       Date: new Date(),
     };
 
     // Incase the friend_request coming in has been process b4, let's send response immediately
     // let isFriend =
-    //   friends.findIndex((friend) => friend.Id === data.From) !== -1;
+    //   friends.findIndex((friend) => friend.id === data.from) !== -1;
     // if (isFriend) {
     //   Accept(newRequest);
     //   return;
@@ -139,18 +139,18 @@ const FriendRequests = () => {
     // Check if new request is already existing and add new or removing any existing one
     let newFriendsRequest = [
       newRequest,
-      ...requests.filter((r) => r.From !== data.From),
+      ...requests.filter((r) => r.from !== data.from),
     ];
 
     setRequests(newFriendsRequest);
-    dispatch(USER({ ...user, FriendRequests: newFriendsRequest }));
+    dispatch(USER({ ...user!, friendRequests: newFriendsRequest }));
 
     notification.open({
       icon: <PersonAddIcon fontSize="small" />,
       message: <div className="title font-bold">New Friend Request</div>,
       description: (
         <span>
-          <b className="text-green">{newRequest.Name}</b> is asking to be your
+          <b className="text-green">{newRequest.name}</b> is asking to be your
           friend`
         </span>
       ),
@@ -162,7 +162,7 @@ const FriendRequests = () => {
 
   const REMOVE_REQUEST = (data: { from: string }) => {
     setRequests((state) => {
-      return (state = state.filter((user) => user.From !== data.from));
+      return (state = state.filter((user) => user.from !== data.from));
     });
   };
 
@@ -178,23 +178,23 @@ const FriendRequests = () => {
     };
   }, [socket]);
 
-  useEffect(() => {
-    if (user) {
-      setRequests([...user.FriendRequests].reverse());
-      setFriends(user.Friends);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     setRequests([...user.friendRequests].reverse());
+  //     setFriends(user.friends);
+  //   }
+  // }, [user]);
 
   React.useEffect(() => {
     if (user) {
-      let newFriendRequests = requests.filter((r) => !r.Accepted);
-      dispatch(USER({ ...user, FriendRequests: newFriendRequests.reverse() }));
+      let newFriendRequests = requests.filter((r) => !r.accepted);
+      dispatch(USER({ ...user, friendRequests: newFriendRequests.reverse() }));
     }
   }, [openModal]);
 
   const closeModal = () => {
     backdropRef.current?.unMount();
-    setRequests(requests.filter((r) => !r.Accepted));
+    setRequests(requests.filter((r) => !r.accepted));
   };
 
   useCustomEventListener("toggle", (dest: string) => {

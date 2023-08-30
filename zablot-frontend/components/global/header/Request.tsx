@@ -17,20 +17,20 @@ export default function Requests(props: RequestsInterface) {
     <li className="user flex justify-between">
       <div className="flex gap-x-2">
         <Avatar
-          src={friend.Image}
+          src={friend.image}
           sx={{
-            bgcolor: stringToColor(friend.Name),
+            bgcolor: stringToColor(friend.name),
           }}
         >
-          {friend.Name.split(" ")[0][0] +
-            (friend.Name.split(" ")[1]?.at(0) ?? "")}
+          {friend.name.split(" ")[0][0] +
+            (friend.name.split(" ")[1]?.at(0) ?? "")}
         </Avatar>
         <div className="user-name">
           <div className="name font-semibold">
-            <span>{friend.Name}</span>
+            <span>{friend.name}</span>
           </div>
           {/* <div className="username !text-xs">
-            <span>@{friend.UserName}</span>
+            <span>@{friend.userName}</span>
           </div> */}
           <small className="block text-[10px]" style={{ fontSize: 10 }}>
             {" "}
@@ -38,21 +38,21 @@ export default function Requests(props: RequestsInterface) {
           </small>
         </div>
       </div>
-      {friend?.Accepted && (
+      {friend?.accepted && (
         <Button
           size="small"
           className="btn open-chat"
-          onClick={() => message(friend.From)}
+          onClick={() => message(friend.from)}
         >
           Message
         </Button>
       )}
-      {friend?.Rejected && (
+      {friend?.rejected && (
         <Button size="small" className="btn rejected" disabled={true}>
-          Rejected
+          rejected
         </Button>
       )}
-      {!friend?.Accepted && !friend?.Rejected && (
+      {!friend?.accepted && !friend?.rejected && (
         <div className="friend-reject-accept-btn btn-wrapper">
           <Button
             size="small"
@@ -66,7 +66,7 @@ export default function Requests(props: RequestsInterface) {
           <Button
             size="small"
             onClick={(e) => {
-              reject(friend.From);
+              reject(friend.from);
             }}
             className="reject btn button !bg-gradient-to-r from-red-200"
           >

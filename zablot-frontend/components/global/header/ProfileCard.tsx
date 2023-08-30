@@ -30,23 +30,23 @@ function ProfileCard() {
             <div className="profile-header">
               <div className="text-center flex flex-col justify-center">
                 <Avatar
-                  src={user.Image.profile}
+                  src={user.image.profile}
                   sx={{
                     mx: "auto",
-                    bgcolor: stringToColor(user?.FullName),
+                    bgcolor: stringToColor(user?.firstName),
                   }}
                 >
-                  {user?.FullName.split(" ")[0][0] +
-                    (user?.FullName.split(" ")[1]?.at(0) ?? "")}
+                  {user?.firstName.split(" ")[0][0] +
+                    (user?.firstName.split(" ")[1]?.at(0) ?? "")}
                 </Avatar>
                 <div className="name">
-                  <p className="user full-name font-bold">{user?.FullName}</p>
+                  <p className="user full-name font-bold">{user?.firstName}</p>
                   <div className="username font-semibold text-sm text-green">
-                    @{user?.UserName}
+                    @{user?.userName}
                   </div>
                 </div>
                 <div className="email">
-                  <span className="text text-xs">{user?.Email}</span>
+                  <span className="text text-xs">{user?.email}</span>
                 </div>
               </div>
             </div>

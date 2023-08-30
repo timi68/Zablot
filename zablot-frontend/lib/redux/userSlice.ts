@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io-client";
 import { stateInterface } from "./../interfaces/index";
-import { createSlice, nanoid, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, nanoid, PayloadAction, Slice } from "@reduxjs/toolkit";
 import cookie from "js-cookie";
 import { User } from "../interfaces";
 
@@ -9,7 +9,7 @@ const initialState: stateInterface = {
   socket: null,
   user: null,
   mode: "light",
-  active: null,
+  active: "",
   device: "mobile",
   session: {
     USER_ID: null,
@@ -17,16 +17,25 @@ const initialState: stateInterface = {
   },
 };
 
-const AppContext = createSlice({
+const AppContext: Slice<stateInterface> = createSlice({
   name: "appState",
   initialState,
   reducers: {
-    USER: (state, actions: PayloadAction<User>) => {
+    USER: (state, actions: PayloadAction<Zablot.User>) => {
       state.user = actions.payload;
       state.loggedIn = true;
 
-      let w = window.innerWidth;
+      let w = 1000;
+
+      if (typeof window != "undefined") {
+        w = window ? window.innerWidth : 1000;
+      }
+
       state.device = w < 500 ? "mobile" : w < 900 ? "tablet" : "desktop";
+    },
+    SIGN_OUT: (state) => {
+      state.user = null;
+      state.loggedIn = false;
     },
     SOCKET: (state, actions: PayloadAction<{ socket: Socket }>) => {
       // @ts-ignore
@@ -50,6 +59,6 @@ const AppContext = createSlice({
   },
 });
 
-export const { USER, SESSION, SOCKET, ACTIVE_FRIENDS, RESIZE } =
+export const { USER, SESSION, SOCKET, ACTIVE_FRIENDS, RESIZE, SIGN_OUT } =
   AppContext.actions;
 export default AppContext.reducer;

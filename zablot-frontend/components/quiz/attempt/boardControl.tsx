@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@mui/material";
 import { motion } from "framer-motion";
 import { Counter, Question } from "@lib/interfaces";
-import Countdown, { zeroPad } from "react-countdown";
+import Countdown, { CountdownRendererFn, zeroPad } from "react-countdown";
 import { Modal } from "antd";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 
@@ -25,7 +25,12 @@ const Completionist = () => {
 };
 
 // Renderer callback with condition
-const renderer = ({ hours, minutes, seconds, completed }) => {
+const renderer: CountdownRendererFn = ({
+  hours,
+  minutes,
+  seconds,
+  completed,
+}) => {
   if (completed) {
     return <Completionist />;
   } else {

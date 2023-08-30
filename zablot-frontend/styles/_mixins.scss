@@ -43,6 +43,13 @@
     @content;
   }
 }
+
+@mixin media_max_500() {
+  @media screen and (max-width: 500px) {
+    @content;
+  }
+}
+
 @mixin media_399 {
   @media (max-width: 399px) {
     @content;

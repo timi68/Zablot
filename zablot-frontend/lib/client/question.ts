@@ -3,6 +3,7 @@ import React from "react";
 import { nanoid } from "@reduxjs/toolkit";
 import { OptionsObject, SnackbarKey, SnackbarMessage } from "notistack";
 import { Option, Question, MessageType } from "@types";
+import { NonUndefined } from "react-hook-form";
 
 interface QCT {
   setter: Setter;
@@ -14,14 +15,17 @@ interface QCT {
   showSnackbar(message: string, variant?: "error" | "success"): void;
 }
 
-type Setter = (value: React.SetStateAction<Question | MessageType>) => void;
+type D = (Question | MessageType) & { key: string };
+type Setter = (value: React.SetStateAction<D>) => void;
 
 class QuestionController implements QCT {
   caller: QCT["caller"];
   enqueueSnackbar: QCT["enqueueSnackbar"];
   setter: Setter;
-  question: Question | MessageType;
-  questionDefault: Question | MessageType;
+  // @ts-ignore
+  question: D;
+  // @ts-ignore
+  questionDefault: D;
   options: OptionsObject = {
     anchorOrigin: {
       horizontal: "center",
@@ -124,7 +128,7 @@ class QuestionController implements QCT {
       return;
     }
     this.setter(() => {
-      let _default: Question | MessageType = {
+      let _default: D = {
         ...this.questionDefault,
         ...(!["question", "poll"].includes(this.caller)
           ? { key: nanoid() }
@@ -177,13 +181,15 @@ function useController(
   setter: Setter,
   options?: OptionsObject
 ): QuestionController {
-  const [controller, setController] = React.useState(null);
+  const [controller, setController] = React.useState<QuestionController | null>(
+    null
+  );
   React.useEffect(() => {
     setController(new QuestionController(caller, snack, setter, options));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return controller;
+  return controller as QuestionController;
 }
 
 export default useController;
