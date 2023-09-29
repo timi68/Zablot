@@ -141,7 +141,7 @@ export default function SignInPage() {
               </p>
             </div>
             <a
-              href="http://localhost:8000/auth/federated/google"
+              href="http://localhost:8080/auth/federated/google"
               id="google"
               className="google"
             >

@@ -4,7 +4,9 @@ import stringToColor from "@utils/stringToColor";
 import { useAppSelector } from "@lib/redux/store";
 
 function Stories() {
-  const user = useAppSelector((state) => state.sessionStore.user);
+  const user = useAppSelector(
+    (state) => state.sessionStore.user
+  ) as Zablot.User;
 
   return (
     <div className="feeds-container relative">

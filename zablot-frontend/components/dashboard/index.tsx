@@ -14,13 +14,6 @@ const Dashboard = (props: {
 }) => {
   const { user, socket } = useAppSelector((state) => state.sessionStore);
   const dispatch = useAppDispatch();
-  const store = useStore();
-
-  store.dispatch(USER(props.user));
-
-  // React.useEffect(() => {
-  //   !user && dispatch(USER(props.user));
-  // }, [props]);
 
   React.useEffect(() => {
     return () => {

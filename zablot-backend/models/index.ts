@@ -2,7 +2,7 @@ import { model, models } from "mongoose";
 
 // models
 import userSchema from "@models/userModel";
-import activitySchema from "@models/activityModel";
+import activitySchema from "@models/socketSessionModel";
 import settingSchema from "@models/settingModel";
 import friendSchema from "./friendModel";
 import notificationSchema from "./notificationModel";
@@ -11,6 +11,7 @@ import uploadSchema from "./uploadModel";
 import friendRequestSchema from "./friendRequestModel";
 import roomSchema from "./roomModel";
 import federatedSchema from "./federatedModel";
+import socketSessionSchema from "@models/socketSessionModel";
 
 export const Users = models.Users || model("Users", userSchema);
 export const Activities =
@@ -22,6 +23,8 @@ export const Notifications =
   models.Notifications || model("Notifications", notificationSchema);
 export const FriendRequests =
   models.FriendRequests || model("FriendRequests", friendRequestSchema);
+export const SocketSessions =
+  models.SocketSessions || model("SocketSessions", socketSessionSchema);
 export const Uploads = models.Uploads || model("Uploads", uploadSchema);
 export const Quiz = models.Quiz || model("Quiz", quizSchema);
 export const FederatedCredentials =

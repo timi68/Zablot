@@ -31,10 +31,12 @@ export default class UserController {
 
       if (!user) throw new HttpError("User not found", STATUS.BAD_REQUEST);
 
+      console.log({ user });
+
       return res.json({
         success: true,
         //@ts-ignore - get the first insertion in the populated field
-        user: { ...user, settings: user.settings[0]?.settings },
+        user, // : { ...user, settings: user.settings[0]?.settings },
       });
     } catch (error) {
       next(error);

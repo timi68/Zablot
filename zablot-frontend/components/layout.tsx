@@ -1,6 +1,6 @@
 import React from "react";
 import { useAppSelector } from "@lib/redux/store";
-import AuthenticatedLayout from "./AuthenticatedLayout";
+import AuthenticatedLayout from "@comp/AuthenticatedLayout";
 
 export interface PropsInterface {
   children: React.ReactNode;

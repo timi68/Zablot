@@ -84,55 +84,55 @@
           height: 0;
         }
       }
-      .create-post {
-        position: relative;
-        padding: 10px;
+      // .create-post {
+      //   position: relative;
+      //   padding: 10px;
 
-        .text-box {
-          position: relative;
-          display: grid;
+      //   .text-box {
+      //     position: relative;
+      //     display: grid;
 
-          .post-btn {
-            position: absolute;
-            display: none;
-            top: 50%;
-            transform: translateY(-50%);
-            right: 10px;
+      //     .post-btn {
+      //       position: absolute;
+      //       display: none;
+      //       top: 50%;
+      //       transform: translateY(-50%);
+      //       right: 10px;
 
-            .upload {
-              background: transparent;
+      //       .upload {
+      //         background: transparent;
 
-              .svg {
-                fill: map-get($map: $color, $key: "skyblue");
-              }
-            }
-          }
+      //         .svg {
+      //           fill: map-get($map: $color, $key: "skyblue");
+      //         }
+      //       }
+      //     }
 
-          .text-control {
-            width: 100%;
-            height: 50px;
-            white-space: wrap;
-            padding: 17px 20px;
-            border-radius: 10px;
-            box-shadow: $shadow;
-            resize: none;
-            font-family: "Segoe UI";
+      //     .text-control {
+      //       width: 100%;
+      //       height: 50px;
+      //       white-space: wrap;
+      //       padding: 17px 20px;
+      //       border-radius: 10px;
+      //       box-shadow: $shadow;
+      //       resize: none;
+      //       font-family: "Segoe UI";
 
-            &::-webkit-scrollbar {
-              appearance: none;
-              width: 0px;
-              height: 0px;
-            }
-          }
+      //       &::-webkit-scrollbar {
+      //         appearance: none;
+      //         width: 0px;
+      //         height: 0px;
+      //       }
+      //     }
 
-          .alternate-post {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-          }
-        }
-      }
+      //     .alternate-post {
+      //       position: absolute;
+      //       right: 10px;
+      //       top: 50%;
+      //       transform: translateY(-50%);
+      //     }
+      //   }
+      // }
 
       .general {
         list-style: none;

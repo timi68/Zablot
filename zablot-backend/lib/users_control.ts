@@ -16,10 +16,11 @@ export async function AddUser(body: any, federated = false) {
   try {
     let user = await models.Users.findOne(
       { email: body.userEmail },
-      { Provider: true }
+      { provider: 1 }
     );
+
     if (user?._id) {
-      if (federated && user?.Provider !== "zablot") {
+      if (federated && user?.provider !== "zablot") {
         return {
           success: true,
           sessionUser: user,

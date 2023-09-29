@@ -53,23 +53,23 @@ passport.use(
   )
 );
 
-passport.serializeUser(function (
-  user: object,
-  cb: (err: Error | null, user: object) => void
-) {
-  process.nextTick(function () {
-    cb(null, user);
-  });
-});
+// passport.serializeUser(function (
+//   user: object,
+//   cb: (err: Error | null, user: object) => void
+// ) {
+//   process.nextTick(function () {
+//     cb(null, user);
+//   });
+// });
 
-passport.deserializeUser(function (
-  user: object,
-  cb: (err: Error | null, user: object) => void
-) {
-  console.log({ user });
-  process.nextTick(function () {
-    return cb(null, user);
-  });
-});
+// passport.deserializeUser(function (
+//   user: object,
+//   cb: (err: Error | null, user: object) => void
+// ) {
+//   console.log({ user });
+//   process.nextTick(function () {
+//     return cb(null, user);
+//   });
+// });
 
 export default authRouter;

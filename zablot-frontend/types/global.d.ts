@@ -8,8 +8,8 @@ declare global {
       firstName: string;
       lastName: string;
       userName: string;
-      gender: string;
-      dateOfBirth: string;
+      gender?: string;
+      dateOfBirth?: string;
       email: string;
       image: {
         profile?: string;
@@ -21,6 +21,11 @@ declare global {
       settings: Setting[];
       notifications: Notification[];
       online: boolean;
+      coins: number;
+      provider: string;
+      verified: boolean;
+      createdAt: string;
+      lastSeen: string;
     }
 
     export type Friend = {

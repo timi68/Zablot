@@ -19,7 +19,7 @@ export default function useFetch(fetchOnMount = false) {
         const response = await axios({
           ...config,
           timeout: 50000,
-          baseURL: "http://localhost:8000/api",
+          baseURL: "http://localhost:8080/api",
           validateStatus: function (status) {
             return status < 500; // Resolve only if the status code is less than 500
           },

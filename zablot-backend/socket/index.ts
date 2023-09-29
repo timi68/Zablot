@@ -1,31 +1,25 @@
 // @ts-check
 import {
-  Activities,
+  SocketSessions,
   Users,
   Friends,
   FriendRequests,
   Notifications,
   Rooms,
-} from "../models";
+} from "@models/index";
 import { ObjectId } from "mongodb";
-import { promisify } from "util";
 import { Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 
-type ModSocket = Socket & { request: { session: { user: string } } };
+type ModSocket = Socket & { user: { user_id: string; socket_id: string } };
 
-// FriendRequests.findByIdAndUpdate = promisify(FriendRequests.findByIdAndUpdate)
-/**
- * @typedef {Socket & {request: { session: {user: string}} }} ModSocket
- * @param {ModSocket} socket
- */
 function ControlSocketActions(
   socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 ) {
   socket.on("ACTIVE_USERS", async (callback) => {
-    const users = await Activities.find({});
+    const users = await SocketSessions.find({});
     const usersId = users.map((user) => {
-      return user.UserId.toString().slice(19, 24);
+      return user.user_id.toString().slice(19, 24);
     });
     callback(usersId);
   });
@@ -55,8 +49,8 @@ function ControlSocketActions(
           type: "reject",
         };
 
-        const active = await Activities.find({
-          UserId: data.going_id,
+        const active = await SocketSessions.find({
+          user_id: data.going_id,
         });
 
         AddNotification(
@@ -87,8 +81,8 @@ function ControlSocketActions(
         $pull: { requests: { from: from } },
       }).exec();
 
-      const IsUserActive = await Activities.find({
-        UserId: new ObjectId(to),
+      const IsUserActive = await SocketSessions.find({
+        user_id: new ObjectId(to),
       });
 
       if (IsUserActive?.length > 0) {
@@ -205,7 +199,7 @@ function ControlSocketActions(
       time: Date.now(),
     };
 
-    const active = await Activities.find({ UserId: data.going_id });
+    const active = await SocketSessions.find({ user_id: data.going_id });
 
     if (active?.length) {
       let c = 0;
@@ -267,7 +261,7 @@ function ControlSocketActions(
         { "Message.$.answered": data.OptionPicked }
       ).exec();
 
-      const active = await Activities.find({ UserId: data.going });
+      const active = await SocketSessions.find({ user_id: data.going });
       active.forEach(({ SocketId }) => {
         socket.to(SocketId).emit("ANSWERED", data);
       });
@@ -300,7 +294,7 @@ function ControlSocketActions(
         { "Message.$.noAnswer": true }
       ).exec();
 
-      const active = await Activities.find({ UserId: data.going });
+      const active = await SocketSessions.find({ user_id: data.going });
       active.forEach(({ SocketId }) => {
         socket.to(SocketId).emit("NOANSWER", data);
       });
@@ -325,8 +319,8 @@ function ControlSocketActions(
         },
       }).exec();
 
-      const isActive = await Activities.find(
-        { UserId: data.going },
+      const isActive = await SocketSessions.find(
+        { user_id: data.going },
         { SocketId: 1 }
       );
 
@@ -390,7 +384,7 @@ function ControlSocketActions(
         },
       ]);
 
-      const isActive = await Activities.find({ UserId: message.going });
+      const isActive = await SocketSessions.find({ user_id: message.going });
       message._id = messageId;
 
       if (isActive?.length) {
@@ -430,17 +424,17 @@ function ControlSocketActions(
   socket.on("disconnect", handleDisconnect.bind(null, socket as ModSocket));
 }
 
-function handleDisconnect(socket: ModSocket) {
-  Activities.findOneAndDelete({ SocketId: socket.id });
-  let user = socket.request.session.user ?? null;
-  console.log("One user is Disconnected ===>", user);
-  Users.findByIdAndUpdate(user, {
-    Online: false,
-    Last_Seen: new Date(),
-  }).exec();
+async function handleDisconnect(socket: ModSocket) {
+  SocketSessions.findOneAndDelete({ SocketId: socket.id });
+  console.log("One user is Disconnected ===>", socket.user);
+
+  await Users.findByIdAndUpdate(socket.user.user_id, {
+    online: false,
+    lastSeen: new Date(),
+  });
 
   socket.broadcast.emit("STATUS", {
-    _id: user,
+    _id: socket.user.user_id,
     online: false,
     Last_Seen: new Date(),
   });

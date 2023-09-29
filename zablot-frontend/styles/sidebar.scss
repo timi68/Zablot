@@ -146,7 +146,13 @@
           transform: translateX(-50%);
         }
 
-        &:not(.tablet):hover,
+        &:not(.tablet):hover {
+          &::before {
+            background: #dfe4e5;
+          }
+          @include M();
+        }
+
         &.active {
           &::before {
             background: white;

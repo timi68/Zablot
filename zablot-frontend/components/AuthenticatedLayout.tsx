@@ -14,9 +14,8 @@ import ChatRoom from "@comp/global/chatroom";
 import { useAppDispatch } from "@lib/redux/store";
 import { useSocket } from "@lib/socket";
 import { SOCKET } from "@lib/redux/userSlice";
-import { PropsInterface } from "@comp/Layout";
 
-const AuthenticationLayout = (props: PropsInterface) => {
+const AuthenticatedLayout = (props: { children: React.ReactNode }) => {
   const { children } = props;
   const theme = createTheme({
     palette: {
@@ -27,11 +26,11 @@ const AuthenticationLayout = (props: PropsInterface) => {
   });
 
   const dispatch = useAppDispatch();
-  const socket = useSocket("http://localhost:8000", true);
+  // const socket = useSocket("http://localhost:8080", true);
 
-  React.useEffect(() => {
-    if (socket) dispatch(SOCKET({ socket }));
-  }, [dispatch, socket]);
+  // React.useEffect(() => {
+  //   if (socket) dispatch(SOCKET({ socket }));
+  // }, [dispatch, socket]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -66,4 +65,4 @@ const AuthenticationLayout = (props: PropsInterface) => {
   );
 };
 
-export default AuthenticationLayout;
+export default AuthenticatedLayout;

@@ -1,0 +1,24 @@
+app = "zablot"
+primary_region = "jnb"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[env]
+  LOG_LEVEL = "debug"
+  RAILS_ENV = "production"
+  CRYPTO_PASSWORD = "9wa23hwu290uwehfsjsbauw4eohf2353ht36"
+  CRYPTO_SALT = "54nh8930fj38dnh1"
+  SECRET_KEY = "FuoxI625UfWjsbauw4eohf2353ht"
+  CLOUD_NAME = "dptv1q8bs"
+  API_KEY = "121196559953263"
+  API_SECRET = "FuoxI625UfW-Wx9DElc4mCzQlEw"
+  SAlT="oderinde22"
+  MONGO_REMOTE_URI="mongodb+srv://zablot:oderindejames02@cluster0.dlr9h.mongodb.net/zablot?retryWrites=true&w=majority"
+  GOOGLE_CLIENT_ID="574385175147-lis8fb7arktrb8rhkts063pqc7fc2l3e.apps.googleusercontent.com"
+  GOOGLE_CLIENT_SECRET="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"

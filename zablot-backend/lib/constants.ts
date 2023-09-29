@@ -18,10 +18,10 @@ export const serverErrors: { [x: number]: string } = {
   400: "BAD_REQUEST",
 };
 
-export const supportTeam = [
-  "oderindejames02@gmail.com",
-  "preyepudu@gmail.com",
-  "cjokoli@gmail.com",
-  "tijanihabib42@gmail.com",
-  "uchechukwuo206@gmail.com",
+export const supportTeam = ["oderindejames02@gmail.com"];
+
+export const whitelist = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://zablot.herokuapp.com",
 ];

@@ -2,6 +2,8 @@
 import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import React from "react";
+import { useAppSelector } from "./redux/store";
+import Cookie from "js-cookie";
 
 export function useSocket(url: string, loggedIn: boolean) {
   const [socket, setSocket] = React.useState<Socket | null>(null);
@@ -9,7 +11,11 @@ export function useSocket(url: string, loggedIn: boolean) {
   React.useEffect(() => {
     if (loggedIn) {
       // @ts-ignore
-      const socketIo: Socket = io(url);
+      const socketIo: Socket = io(url, {
+        auth: {
+          token: Cookie.get("sid"),
+        },
+      });
       setSocket(socketIo);
 
       const pingInterval = setInterval(() => {
@@ -25,9 +31,9 @@ export function useSocket(url: string, loggedIn: boolean) {
   }, [loggedIn]);
 
   React.useEffect(() => {
-    const disconnected = (reason) => {
+    const disconnected = (_reason: any) => {
       // console.log("disconnected", reason, socket.id);
-      socket.connect();
+      socket?.connect();
     };
 
     if (socket) {

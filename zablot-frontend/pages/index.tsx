@@ -1,15 +1,11 @@
 import HomePage from "@comp/HomePage";
 import NotAuthenticatedLayout from "@comp/NotAuthenticatedLayout";
+import WithUser from "@comp/WithUser";
 import Dashboard from "@comp/dashboard";
+import getUser from "@lib/getUser";
 import { useAppSelector } from "@lib/redux/store";
-import { USER } from "@lib/redux/userSlice";
-import { verify } from "@lib/token";
-import axios from "axios";
 import { GetServerSideProps } from "next";
-import Head from "next/head";
-import PropTypes from "prop-types";
-import React, { Component } from "react";
-import { useStore } from "react-redux";
+import React from "react";
 
 export default function RootPage(props: {
   children?: React.ReactNode;
@@ -19,7 +15,9 @@ export default function RootPage(props: {
   const isLoggedIn = useAppSelector((state) => state.sessionStore.loggedIn);
 
   return isLoggedIn || props.loggedIn ? (
-    <Dashboard {...props} />
+    <WithUser user={props.user}>
+      <Dashboard {...props} />
+    </WithUser>
   ) : (
     <NotAuthenticatedLayout>
       <HomePage />
@@ -36,16 +34,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
         user: null,
       },
     };
-    if (!sid || verify(sid).error) return emptyUser;
 
-    let path = (process.env.SERVER_URL as string) + "/user";
-    const response = await axios.get(path, {
-      headers: { Authorization: sid },
-      validateStatus: (status) => status < 500,
-    });
-    const { user, success } = await response.data;
+    // if (!sid || verify(sid).error) return emptyUser;
+    const { user, success } = await getUser(sid);
 
     if (!success || !user) return emptyUser;
+
     return {
       props: { user, loggedIn: true },
     };

@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 require("dotenv").config();
 
-import { app, sessionMiddleWare } from "../app";
+import { app } from "../app";
 import { Socket, Server as SocketServer } from "socket.io";
 
 import SocketController from "../socket";
@@ -10,12 +10,9 @@ import { Activities, Users } from "@models/index";
 import { NextFunction } from "express";
 import connectDatabase from "@helpers/connectDatabase";
 import http from "node:http";
-
-/**
- * @typedef {{request: {session: {user: string} | {passport : { user: object }}}}} Request
- * @typedef {(arg0?: Error | undefined) => void} Next
- * @typedef {socket.Socket & {request: { session: {user: string}} }} ModSocket
- */
+import cors from "cors";
+import { whitelist } from "@lib/constants";
+import signSocket from "socket/signSocket";
 
 const wrap =
   (middleware: any) => (socket: Socket & Request, next: NextFunction) =>
@@ -50,7 +47,7 @@ const wrap =
 
 // it being a while o , omo. It is well
 
-const port = normalizePort(process.env.PORT || "8000");
+const port = normalizePort(process.env.PORT || "8080");
 app.set("port", port);
 
 const server = http.createServer(app);
@@ -80,10 +77,17 @@ export async function handleServerListening() {
   const io = new SocketServer(server, {
     pingTimeout: 30000,
     pingInterval: 30000,
+    cors: {
+      origin: (reqOrigin, cb) => {
+        if (whitelist.includes(reqOrigin as string)) {
+          cb(null, reqOrigin);
+        } else cb(new Error("Not Allowed"));
+      },
+    },
     // allowRequest: socketRequestHandler,
   });
 
-  // io.use(signSocket);
+  io.use(signSocket);
 
   const addr = server.address();
   const bind =

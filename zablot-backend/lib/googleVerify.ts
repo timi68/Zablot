@@ -2,6 +2,7 @@ import { IncomingMessage } from "http";
 import { Users, FederatedCredentials } from "@models/index";
 import { AddUser } from "@lib/users_control";
 import { isEmpty, pick } from "lodash";
+import { hashPassword } from "./crypto";
 
 type googleProfile = {
   id: string;
@@ -14,6 +15,8 @@ type googleProfile = {
   verified: boolean;
   picture: string;
   displayName: string;
+  given_name: string;
+  family_name: string;
 };
 
 type cb = (err: string | null, user: object | false) => void;
@@ -48,43 +51,37 @@ export default async function googleVerify(
 
     if (federatedUser && user) return cb(null, pick(user, "_id"));
 
-    /**
-     * @type {{_id: string} | undefined}
-     */
-    let created;
+    let created: { _id: string; email: string } | undefined;
 
     if (!user) {
-      let body = {
-        fullName: profile.displayName,
-        userName:
-          profile.displayName.replace(" ", "").toLowerCase() +
-          Math.floor(Math.random() * 33943),
+      const newUser = await Users.create({
+        firstName: profile.given_name,
+        lastName: profile.family_name,
+        userName: (
+          profile.given_name +
+          profile.family_name +
+          Math.floor(Math.random() * 33943)
+        ).toLowerCase(),
         provider: profile.provider,
         picture: profile.picture,
         verified: profile.verified,
-        userEmail: profile.email,
+        email: profile.email,
         subject: profile.sub,
-        userGender: profile.gender,
-        userPassword: profile.email.substring(0, 5) + "TJ345#",
-      };
-
-      // Create user
-      let { success, sessionUser } = await AddUser(body, true);
-
-      // check if creating user is successful
-      if (!success) return cb("Error authenticating you with google", false);
+        gender: profile.gender,
+        password: await hashPassword(profile.email.substring(0, 5) + "TJ345#"),
+      });
 
       FederatedCredentials.create({
         provider: profile.provider,
         subject: profile.sub,
-        user: sessionUser.user,
+        user: newUser._id,
       });
 
-      created = sessionUser;
-    } else created = { _id: user._id };
+      created = { _id: newUser._id, email: newUser.email };
+    } else created = { _id: user._id, email: user.email };
 
     return cb(null, created);
   } catch (error: any) {
-    cb(error, false);
+    cb(error ?? "Error authenticating you with google", false);
   }
 }

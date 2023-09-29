@@ -34,22 +34,22 @@ export default async function Emailer(
       readFileSync("./templates/" + template + ".hbs", { encoding: "utf-8" })
     )(data);
 
-  switch (type) {
-    case email.REGISTER:
-      mailOptions.subject = "Nubis User Registration";
-      mailOptions.html = await addHtml("greetings");
-      break;
-    case email.CHANGE:
-      mailOptions.subject = "Request For Change Of Password";
-      mailOptions.html = await addHtml("password-reset");
-      break;
-    case email.SUPPORT:
-      mailOptions.subject = `${data.name} Request for a support`;
-      mailOptions.html = await addHtml("support");
-      break;
-    default:
-      break;
-  }
+  // switch (type) {
+  //   case email.REGISTER:
+  //     mailOptions.subject = "Nubis User Registration";
+  //     mailOptions.html = await addHtml("greetings");
+  //     break;
+  //   case email.CHANGE:
+  //     mailOptions.subject = "Request For Change Of Password";
+  //     mailOptions.html = await addHtml("password-reset");
+  //     break;
+  //   case email.SUPPORT:
+  //     mailOptions.subject = `${data.name} Request for a support`;
+  //     mailOptions.html = await addHtml("support");
+  //     break;
+  //   default:
+  //     break;
+  // }
 
   try {
     return await transporter.sendMail(mailOptions);

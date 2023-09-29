@@ -8,12 +8,15 @@ import { motion, AnimatePresence, AnimateSharedLayout } from "framer-motion";
 import { Olevel, Universities, Polytechniques } from "@utils/questions";
 import { CardActionArea } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
-import getUser from "@lib/getUser";
+// import getUser from "@lib/getUser";
+import { USER } from "@lib/redux/userSlice";
+import { getServerSideProps } from "pages";
+import WithUser from "@comp/WithUser";
 
 const tabLabels = ["Olevel", "Universities", "Polytechniques"];
 
 function getLabel(route: string): number {
-  var label: number;
+  var label: number = 0;
   tabLabels.forEach((name, index) => {
     console.log({ name, index });
     if (name === route) label = index;
@@ -22,7 +25,7 @@ function getLabel(route: string): number {
   return label;
 }
 
-export default function PastQuestions(props: { user: string }) {
+export default function PastQuestions(props: { user: Zablot.User }) {
   const { loggedIn, user, socket } = useAppSelector(
     (state) => state.sessionStore
   );
@@ -31,7 +34,7 @@ export default function PastQuestions(props: { user: string }) {
   const [tab, setTab] = React.useState<number>(0);
   const { enqueueSnackbar } = useSnackbar();
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const route = router.asPath.split("#")[1];
     if (route) {
       var tabIndex: number = getLabel(route);
@@ -39,22 +42,17 @@ export default function PastQuestions(props: { user: string }) {
     }
   }, [router.asPath]);
 
-  React.useEffect(() => {
-    !user && FetchUser(dispatch, enqueueSnackbar, props.user);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
-    <div className="content-main">
-      <div className="past-questions-wrapper">
-        <div className="page-title">
-          <div className="primary-text">Past Questions</div>
-          <div className="secondary-text">
-            Explore from our collections of possible questions in your upcoming
-            exams
+    <WithUser user={props.user}>
+      <div className="content-main">
+        <div className="past-questions-wrapper">
+          <div className="page-title">
+            <div className="primary-text">Past Questions</div>
+            <div className="secondary-text">
+              Explore from our collections of possible questions in your
+              upcoming exams
+            </div>
           </div>
-        </div>
-        <AnimateSharedLayout>
           <motion.div layout className="exams-wrapper">
             <motion.div layout className="nav-wrapper">
               <div className="btn-group">
@@ -183,58 +181,39 @@ export default function PastQuestions(props: { user: string }) {
                 })}
             </motion.div>
           </motion.div>
-        </AnimateSharedLayout>
-      </div>
-      <div className="education-news-update">
-        <div className="latest-news education">
-          <div className="header">
-            <div className="title">Update on Education news</div>
-          </div>
-          <div className="news-body">
-            {[...(Array(5).keys() as unknown as number[])].map((key) => {
-              return (
-                <motion.div
-                  key={key}
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: 1,
-                    dur: "1s",
-                    d: 0.1 * key + "s",
-                  }}
-                >
-                  <CardActionArea className="news-group">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Commodi numquam quasi molestias nihil tempora quas error
-                    quia veniam perferendis non inventore illum, eum atque
-                    ratione similique sequi? Debitis, neque alias.
-                  </CardActionArea>
-                </motion.div>
-              );
-            })}
+        </div>
+        <div className="education-news-update">
+          <div className="latest-news education">
+            <div className="header">
+              <div className="title">Update on Education news</div>
+            </div>
+            <div className="news-body">
+              {[...(Array(5).keys() as unknown as number[])].map((key) => {
+                return (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 1,
+                      dur: "1s",
+                      d: 0.1 * key + "s",
+                    }}
+                  >
+                    <CardActionArea className="news-group">
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Commodi numquam quasi molestias nihil tempora quas error
+                      quia veniam perferendis non inventore illum, eum atque
+                      ratione similique sequi? Debitis, neque alias.
+                    </CardActionArea>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </WithUser>
   );
 }
 
-export async function getServerSideProps({ req, res }) {
-  try {
-    const user_id = req.session.passport.user._id ?? req.session.user;
-    if (!user_id) throw new Error("There is no session");
-
-    const user = await getUser(user_id);
-    if (!user) throw new Error("User not found");
-    return {
-      props: { user: JSON.stringify(user) },
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-}
+export { getServerSideProps };

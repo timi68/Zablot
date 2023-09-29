@@ -12,6 +12,7 @@ import cors, { CorsOptions } from "cors";
 import router from "./routes/router";
 import HttpError from "@lib/httpError";
 import { STATUS, serverErrors } from "@lib/constants";
+import corsOptionsDelegate from "@lib/corsOptionsDelegate";
 
 export const app = express();
 const prod = process.env.NODE_ENV === "production";
@@ -20,6 +21,7 @@ const prod = process.env.NODE_ENV === "production";
 app.set("view engine", "ejs");
 
 export const sessionMiddleWare = session({
+  name: "_s",
   cookie: {
     secure: prod,
     expires: moment().add(30, "days").toDate(),
@@ -33,25 +35,6 @@ export const sessionMiddleWare = session({
   saveUninitialized: false,
   resave: false,
 });
-
-const whitelist = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "https://zablot.herokuapp.com",
-];
-
-const corsOptionsDelegate = function (
-  req: Request,
-  callback: (err: Error | null, options: CorsOptions) => void
-) {
-  var corsOptions;
-  if (whitelist.includes(req.header("Origin") as string)) {
-    corsOptions = { origin: true };
-  } else {
-    corsOptions = { origin: false };
-  }
-  callback(null, corsOptions);
-};
 
 function shouldCompress(req: Request, res: Response) {
   if (req.headers["x-no-compression"]) return false;

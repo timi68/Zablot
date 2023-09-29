@@ -120,10 +120,8 @@ export default React.memo(function Sidebar() {
                     <Avatar
                       src={user.image?.profile}
                       variant="rounded"
+                      className="w-[30px] h-[30px] text-base"
                       sx={{
-                        width: 30,
-                        height: 30,
-                        fontSize: "1rem",
                         bgcolor: stringToColor(user.firstName),
                       }}
                     >
@@ -205,7 +203,13 @@ export default React.memo(function Sidebar() {
                           }
                           className={
                             device +
-                            (router.asPath.includes(data.url) ? " active" : "")
+                            (data.url != "/"
+                              ? router.route.includes(data.url)
+                                ? " active"
+                                : ""
+                              : router.route == data.url
+                              ? " active"
+                              : "")
                           }
                         >
                           <div className="icon-wrap">
